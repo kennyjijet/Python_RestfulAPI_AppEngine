@@ -1,0 +1,21 @@
+application: game-punks
+version: 1
+runtime: python27
+api_version: 1
+threadsafe: true
+
+handlers:
+- url: /public
+  static_dir: public
+  
+- url: /favicon\.ico
+  static_files: public/favicon.ico
+  upload: favicon\.ico
+  
+- url: /.*
+  script: GrandCentral.app
+  
+libraries:
+- name: jinja2
+  version: latest
+  
