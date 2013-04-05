@@ -85,20 +85,45 @@ class hardpurchase(webapp2.RequestHandler):
                         headers={'Content-Type': 'text/json; charset=utf-8'},
 						validate_certificate=False)
 
-			if result.status_code == 200: 
+			if result.status_code == 200:
+				
 				resultobj = json.loads(result.content)
 				if resultobj['status']==0:
-					player_obj = json.loads(player.state)
-					player_obj['platinum'] = player_obj['platinum']+10
-					player.state = json.dumps(player_obj)
-					if player.put():
-						self.respn = '{"uuid":"'+player.uuid+'", "state":'+player.state+'}';
-						if not memcache.delete(config.db['playerdb_name']+'.'+uuid):
-							logging.warning('purchasesoftitem - Memcache delete player failed')
-	
+
+					_memcache = False
+					storeitem = memcache.get(config.db['storeitem_name']+'.'+config.softstore['version'])
+					if storeitem is None:
+						storeitems = Storeitem.all().filter('version =', config.softstore['version']).ancestor(db.Key.from_path('Storeitem', config.db['storeitem_name'])).fetch(1);
+						if len(storeitems)>=1:
+							storeitem = storeitems[0]
+						else:
+							self.error = 'Store data couldn\'t be retrieved!'
+							storeitem = None
+					else:
+						_memcache = True
+
+					if storeitem is not None:
+						storeitem_obj = json.loads(storeitem.data)
+						item = None
+						for i in storeitem_obj:
+							if i['id'] == resultobj['receipt']['product_id']:
+								item = i
+								break
+						if item is not None: 
+							player_obj = json.loads(player.state)
+							player_obj['platinum'] = player_obj['platinum']+item['platinum']
+							player.state = json.dumps(player_obj)
+							if player.put():
+								self.respn = '{"uuid":"'+player.uuid+'", "state":'+player.state+'}';
+								if not memcache.delete(config.db['playerdb_name']+'.'+uuid):
+									logging.warning('purchasesoftitem - Memcache delete player failed')
+									
+						if _memcache==False:
+							if not memcache.add(config.db['storeitem_name']+'.'+config.softstore['version'], storeitem, config.memcache['holdtime']):
+								logging.warning('purchasesoftitem - Memcache set storeitem failed')
 				else:
 					self.error = 'transaction reciept is invalid'
-
+					
 
 		# return
 		time_taken =  time.time() - start_time;
