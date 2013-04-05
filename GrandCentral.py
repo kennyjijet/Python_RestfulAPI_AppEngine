@@ -16,7 +16,7 @@ from actions.deleteplayer 	import deleteplayer
 from actions.deploystore 		import deploystore
 from actions.getsoftstore		import getsoftstore
 from actions.softpurchase		import softpurchase
-from actions.verifyingstore		import verifyingstore
+from actions.hardpurchase		import hardpurchase
 
 app = webapp2.WSGIApplication([
 		#('/_populate', _populate),
@@ -31,6 +31,6 @@ app = webapp2.WSGIApplication([
 		('/deploystore', deploystore),
 		('/getsoftstore', getsoftstore),
 		('/softpurchase', softpurchase),
-		('/verifyingstore', verifyingstore),
+		('/hardpurchase', hardpurchase),
 		('/.*', noactions)
 	], debug=True)
