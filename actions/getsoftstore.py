@@ -100,13 +100,22 @@ class getsoftstore(webapp2.RequestHandler):
 									depc = depc + 1
 						if depc >= len(deps):
 							add = True
-						
+					
+					if add == True and item['maximum'] != '':
+						depc = 0
+						for myitem in player_obj['inventory']:
+							if player_obj['inventory'][myitem]['id'] == item['id']:
+								depc = depc + 1
+						if int(depc) >= int(item['maximum']):
+							add = False
+							
 					self.respn += '{'
 					self.respn += ' "id":"'+item['id']+'",'
 					self.respn += ' "type":"'+item['type']+'",'
 					self.respn += ' "title":"'+item['title']+'",'
 					self.respn += ' "description":"'+item['description']+'",'
 					self.respn += ' "dependencies":"'+item['dependencies']+'",'
+					self.respn += ' "imgurl":"'+item['imgurl']+'",'
 					self.respn += ' "gold":'+str(item['gold'])+','
 					self.respn += ' "time":'+str(item['time'])+','
 					self.respn += ' "platinum":'+str(item['platinum'])+','

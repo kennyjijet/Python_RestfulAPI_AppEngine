@@ -20,6 +20,7 @@ from config			import config
 # models
 from models.Storeitem 	import Storeitem
 from models.Player		import Player
+from models.Item		import Item
 
 class softpurchase(webapp2.RequestHandler):
 	
@@ -96,6 +97,7 @@ class softpurchase(webapp2.RequestHandler):
 						add = True
 						if item['dependencies'] != '':
 							add = False
+							self.respn = '{"warning":"you\'re not qualified to purchase this item!"}'
 							depc = 0
 							deps = item['dependencies'].replace(' ', '').split(',')
 							for dep in deps:
@@ -105,11 +107,19 @@ class softpurchase(webapp2.RequestHandler):
 							if depc >= len(deps):
 								add = True
 					
-						if add == False:
-							self.respn = 'you\'re not qualified to purchase this item'
-						else:
+						if add == True and item['maximum'] != '':
+							depc = 0
+							for myitem in player_obj['inventory']:
+								if player_obj['inventory'][myitem]['id'] == item['id']:
+									depc = depc + 1
+							if int(depc) >= int(item['maximum']):
+								add = False
+								self.respn = '{"warning":"you\'ve reached maximum of this item!"}'
+							
+						if add == True:
 							if player_obj['gold'] >= item['gold']:
 								player_obj['gold'] = player_obj['gold']-item['gold']
+								"""
 								itemid = self.genitemid()
 								player_obj['inventory'][itemid] = {
 									'id':item['id'],
@@ -119,13 +129,20 @@ class softpurchase(webapp2.RequestHandler):
 									'platinum':item['platinum'],
 									'active':False
 								}
-								player.state = json.dumps(player_obj)
-								if player.put():
-									self.respn = '{"uuid":"'+player.uuid+'", "state":'+player.state+'}';
-									if not memcache.delete(config.db['playerdb_name']+'.'+uuid):
-										logging.warning('purchasesoftitem - Memcache set player failed')
+								"""
+								itemobj = Item(parent=db.Key.from_path('Item', config.db['itemdb_name']))
+								itemobj.itemid = item['id']
+								itemobj.ownerid = player.uuid
+								itemobj.status = 'pending'
+								
+								if itemobj.put():								
+									player.state = json.dumps(player_obj)
+									if player.put():
+										self.respn = '{"uuid":"'+player.uuid+'", "state":'+player.state+'}';
+										if not memcache.delete(config.db['playerdb_name']+'.'+uuid):
+											logging.warning('purchasesoftitem - Memcache set player failed')
 							else:
-								self.respn = 'not enough gold'
+								self.respn = '{"warning":"not enough gold!"}'
 
 				if _memcache==False:
 					if not memcache.add(config.db['storeitem_name']+'.'+config.softstore['version'], storeitem, config.memcache['holdtime']):

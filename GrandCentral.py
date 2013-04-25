@@ -5,8 +5,10 @@ from controllers.Proxy 		import Proxy
 
 # actions
 #from actions.testing		import _populate, _cleanup
+from actions.exam			import exam
 from actions.noactions 		import noactions
 from actions.saveplayer 	import saveplayer
+from actions.setpntoken		import setpntoken
 from actions.loadplayer 	import loadplayer
 from actions.deleteplayer 	import deleteplayer
 #from actions.savescore 		import savescore
@@ -22,7 +24,9 @@ app = webapp2.WSGIApplication([
 		#('/_populate', _populate),
 		#('/_cleanup', _cleanup),
 		#('/proxy', Proxy),
+		('/exam', exam),
 		('/saveplayer', saveplayer),
+		('/setpntoken', setpntoken),
 		('/loadplayer', loadplayer),
 		('/deleteplayer', deleteplayer),
 		#('/savescore', savescore),
