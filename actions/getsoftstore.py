@@ -57,7 +57,7 @@ class getsoftstore(webapp2.RequestHandler):
 					deps = item['dependencies'].replace(' ', '').split(',')
 					for dep in deps:
 						for myitem in myitems:
-							if myitem.itid == dep:
+							if myitem.type == dep:
 								depc = depc + 1
 					if depc >= len(deps):
 						add = True
@@ -66,7 +66,7 @@ class getsoftstore(webapp2.RequestHandler):
 					depc = 0
 					
 					for myitem in myitems:
-						if myitem.itid == item['id']:
+						if myitem.type == item['id']:
 							depc = depc + 1
 					if int(depc) >= int(item['maximum']):
 						add = False

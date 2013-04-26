@@ -36,6 +36,8 @@ class softpurchase(webapp2.RequestHandler):
 		start_time = time.time()
 		
 		item = None
+		player = None
+		storeitem = None
 		
 		if self.error == '':
 			player = Core.getplayer(self, uuid)
@@ -67,7 +69,7 @@ class softpurchase(webapp2.RequestHandler):
 				deps = item['dependencies'].replace(' ', '').split(',')
 				for dep in deps:
 					for myitem in myitems:
-						if myitem.itid == dep:
+						if myitem.type == dep:
 							depc = depc + 1
 				if depc >= len(deps):
 					add = True
@@ -75,7 +77,7 @@ class softpurchase(webapp2.RequestHandler):
 			if add == True and item['maximum'] != '':
 				depc = 0
 				for myitem in myitems:
-					if myitem.itid == item['id']:
+					if myitem.type == item['id']:
 						depc = depc + 1
 				if int(depc) >= int(item['maximum']):
 					add = False
@@ -85,13 +87,47 @@ class softpurchase(webapp2.RequestHandler):
 				if player_obj['gold'] >= item['gold']:
 					player_obj['gold'] = player_obj['gold']-item['gold']
 					itemobj = Item(parent=db.Key.from_path('Item', config.db['itemdb_name']))
-					itemobj.itid = item['id']
+					itemobj.type = item['id']
+					itemobj.itid = Utils.genitemid(self) 
 					itemobj.uuid = player.uuid
 					itemobj.status = time.time()+float(item['time']) #'pending'
 					if itemobj.put():								
 						player.state = json.dumps(player_obj)
 						if player.put():
-							self.respn = '{"uuid":"'+player.uuid+'", "state":'+player.state+'}';
+							
+							myitems = Core.getspecificitems(self, uuid, item['id'])
+							if myitems is not None:
+								self.respn = '['
+								for myitem in myitems:
+									if storeitem[str(myitem.type)]:
+									
+										save = False
+										if myitem.status > 1.0 and time.time() >= myitem.status:
+											myitem.status = 1.0
+											save = True
+										elif myitem.status == 1.0:
+											myitem.status = 0.0
+											save = True
+							
+										self.respn += '{'
+										#self.respn += '"uuid"		: "'+myitem.uuid+'",'
+										self.respn += '"itid"		: "'+myitem.itid+'",'
+										self.respn += '"type"		: "'+myitem.type+'",'
+										self.respn += '"title"		: "'+storeitem[str(myitem.type)]['title']+'",'
+										self.respn += '"description": "'+storeitem[str(myitem.type)]['description']+'",'
+										self.respn += '"imgurl"		: "'+storeitem[str(myitem.type)]['imgurl']+'",'
+										self.respn += '"status"		: "'+str(myitem.status)+'"'
+										self.respn += '},'
+										
+										if save == True:
+											myitem.put()
+											
+								self.respn = self.respn.rstrip(',') + ']'
+							else:
+								self.respn = '[]';
+							
+							self.respn = '{"uuid":"'+player.uuid+'", "state":'+player.state+', "items":'+self.respn+'}'
+							
 							memcache.delete(config.db['itemdb_name']+'.'+uuid)
 							memcache.delete(config.db['playerdb_name']+'.'+uuid)
 							if not memcache.add(config.db['playerdb_name']+'.'+uuid, player, config.memcache['holdtime']):
