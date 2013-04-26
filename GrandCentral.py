@@ -19,6 +19,7 @@ from actions.deploystore 		import deploystore
 from actions.getsoftstore		import getsoftstore
 from actions.softpurchase		import softpurchase
 from actions.hardpurchase		import hardpurchase
+from actions.getmyitems			import getmyitems
 
 app = webapp2.WSGIApplication([
 		#('/_populate', _populate),
@@ -36,5 +37,6 @@ app = webapp2.WSGIApplication([
 		('/getsoftstore', getsoftstore),
 		('/softpurchase', softpurchase),
 		('/hardpurchase', hardpurchase),
+		('/getmyitems', getmyitems),
 		('/.*', noactions)
 	], debug=True)

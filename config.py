@@ -8,7 +8,8 @@ class config():
 	}
 	
 	memcache = {
-		"holdtime" : 60
+		"holdtime" : 60,
+		"longtime"	: 3600
 	}
 	
 	leaderboard = {
