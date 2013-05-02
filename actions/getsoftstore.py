@@ -57,7 +57,7 @@ class getsoftstore(webapp2.RequestHandler):
 					deps = item['dependencies'].replace(' ', '').split(',')
 					for dep in deps:
 						for myitem in myitems:
-							if myitem.type == dep:
+							if myitem.itid == dep:
 								depc = depc + 1
 					if depc >= len(deps):
 						add = True
@@ -66,18 +66,18 @@ class getsoftstore(webapp2.RequestHandler):
 					depc = 0
 					
 					for myitem in myitems:
-						if myitem.type == item['id']:
+						if myitem.itid == item['id']:
 							depc = depc + 1
 					if int(depc) >= int(item['maximum']):
 						add = False
 						reason = 'You\'ve reached the maximum of this item!'
 						
 				self.respn += '{'
-				self.respn += ' "id":"'+item['id']+'",'
+				self.respn += ' "itid":"'+item['id']+'",'
 				self.respn += ' "type":"'+item['type']+'",'
 				self.respn += ' "title":"'+item['title']+'",'
-				self.respn += ' "description":"'+item['description']+'",'
-				self.respn += ' "dependencies":"'+item['dependencies']+'",'
+				self.respn += ' "desc":"'+item['description']+'",'
+				self.respn += ' "depend":"'+item['dependencies']+'",'
 				self.respn += ' "imgurl":"'+item['imgurl']+'",'
 				self.respn += ' "gold":'+str(item['gold'])+','
 				self.respn += ' "time":'+str(item['time'])+','

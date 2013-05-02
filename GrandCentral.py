@@ -20,6 +20,7 @@ from actions.getsoftstore		import getsoftstore
 from actions.softpurchase		import softpurchase
 from actions.hardpurchase		import hardpurchase
 from actions.getmyitems			import getmyitems
+from actions.sendnotifications	import sendnotifications
 
 app = webapp2.WSGIApplication([
 		#('/_populate', _populate),
@@ -38,5 +39,6 @@ app = webapp2.WSGIApplication([
 		('/softpurchase', softpurchase),
 		('/hardpurchase', hardpurchase),
 		('/getmyitems', getmyitems),
+		('/sendnotifications', sendnotifications),
 		('/.*', noactions)
 	], debug=True)

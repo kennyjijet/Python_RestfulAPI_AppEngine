@@ -16,6 +16,7 @@ from models.Item		import Item
 # include
 from controllers.Core 	import Core
 from helpers.utils		import Utils
+from helpers.apns		import apns
 
 class softpurchase(webapp2.RequestHandler):
 	
@@ -32,7 +33,7 @@ class softpurchase(webapp2.RequestHandler):
 		if self.request.get('version'):
 			version = self.request.get('version')
 		uuid	= Utils.required(self, 'uuid')
-		itemid	= Utils.required(self, 'itemid')
+		itid	= Utils.required(self, 'itid')
 		start_time = time.time()
 		
 		item = None
@@ -47,7 +48,7 @@ class softpurchase(webapp2.RequestHandler):
 
 		if storeitem is not None:
 			try:
-				item = storeitem[str(itemid)]
+				item = storeitem[str(itid)]
 			except KeyError:
 				storeitem = None;
 				self.error = 'given item id doesn\'t exist!'
@@ -57,9 +58,6 @@ class softpurchase(webapp2.RequestHandler):
 			player_obj = json.loads(player.state)
 			storeitem_obj = storeitem
 			myitems = Core.getitems(self, uuid)
-			
-			#for item in storeitem:
-				#if item['id'] == itemid:
 					
 			add = True
 			if item['dependencies'] != '':
@@ -69,7 +67,7 @@ class softpurchase(webapp2.RequestHandler):
 				deps = item['dependencies'].replace(' ', '').split(',')
 				for dep in deps:
 					for myitem in myitems:
-						if myitem.type == dep:
+						if myitem.itid == dep:
 							depc = depc + 1
 				if depc >= len(deps):
 					add = True
@@ -77,7 +75,7 @@ class softpurchase(webapp2.RequestHandler):
 			if add == True and item['maximum'] != '':
 				depc = 0
 				for myitem in myitems:
-					if myitem.type == item['id']:
+					if myitem.itid == item['id']:
 						depc = depc + 1
 				if int(depc) >= int(item['maximum']):
 					add = False
@@ -87,11 +85,13 @@ class softpurchase(webapp2.RequestHandler):
 				if player_obj['gold'] >= item['gold']:
 					player_obj['gold'] = player_obj['gold']-item['gold']
 					itemobj = Item(parent=db.Key.from_path('Item', config.db['itemdb_name']))
-					itemobj.type = item['id']
-					itemobj.itid = Utils.genitemid(self) 
+					itemobj.itid = item['id']
+					itemobj.inid = Utils.genitemid(self) 
 					itemobj.uuid = player.uuid
 					itemobj.status = time.time()+float(item['time']) #'pending'
-					if itemobj.put():								
+					if itemobj.put():	
+						if player_obj.token != '': 
+							apns.add(player_obj.token, storeitem[str(itemobj.itid)]['title']+' has been delivered to you!', itemobj.status)
 						player.state = json.dumps(player_obj)
 						if player.put():
 							
@@ -99,7 +99,7 @@ class softpurchase(webapp2.RequestHandler):
 							if myitems is not None:
 								self.respn = '['
 								for myitem in myitems:
-									if storeitem[str(myitem.type)]:
+									if storeitem[str(myitem.itid)]:
 									
 										save = False
 										if myitem.status > 1.0 and time.time() >= myitem.status:
@@ -110,13 +110,13 @@ class softpurchase(webapp2.RequestHandler):
 											save = True
 							
 										self.respn += '{'
-										#self.respn += '"uuid"		: "'+myitem.uuid+'",'
+										self.respn += '"inid"		: "'+myitem.inid+'",'
 										self.respn += '"itid"		: "'+myitem.itid+'",'
-										self.respn += '"type"		: "'+myitem.type+'",'
-										self.respn += '"title"		: "'+storeitem[str(myitem.type)]['title']+'",'
-										self.respn += '"description": "'+storeitem[str(myitem.type)]['description']+'",'
-										self.respn += '"imgurl"		: "'+storeitem[str(myitem.type)]['imgurl']+'",'
-										self.respn += '"status"		: "'+str(myitem.status)+'"'
+										self.respn += '"type"		: "'+storeitem[str(myitem.itid)]['type']+'",'
+										self.respn += '"title"		: "'+storeitem[str(myitem.itid)]['title']+'",'
+										self.respn += '"desc"		: "'+storeitem[str(myitem.itid)]['description']+'",'
+										self.respn += '"imgurl"		: "'+storeitem[str(myitem.itid)]['imgurl']+'",'
+										self.respn += '"status"		: '+str(myitem.status)
 										self.respn += '},'
 										
 										if save == True:

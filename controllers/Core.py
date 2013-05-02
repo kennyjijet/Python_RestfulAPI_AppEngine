@@ -85,10 +85,12 @@ class Core(object):
 		return items
 		
 	@staticmethod
-	def getspecificitems(self, uuid, type):
-		items = memcache.get(config.db['itemdb_name']+'.'+type+'.'+uuid)
+	def getspecificitems(self, uuid, itid):
+		items = memcache.get(config.db['itemdb_name']+'.'+itid+'.'+uuid)
 		if items is None:
-			items = Item.all().filter('uuid =', uuid).filter('type =', type).ancestor(db.Key.from_path('Item', config.db['itemdb_name']));
-			if not memcache.add(config.db['itemdb_name']+'.'+type+'.'+uuid, items, config.memcache['holdtime']):
+			items = Item.all().filter('uuid =', uuid).filter('itid =', itid).ancestor(db.Key.from_path('Item', config.db['itemdb_name']));
+			if not memcache.add(config.db['itemdb_name']+'.'+itid+'.'+uuid, items, config.memcache['holdtime']):
 				logging.warning('Core - Memcache set specific item failed')
 		return items
+		
+		

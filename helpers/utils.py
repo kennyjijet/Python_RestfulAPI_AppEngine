@@ -1,5 +1,7 @@
 import time
 
+# config
+from config				import config
 # built-in libraries
 from random 		import randint
 from datetime		import datetime
@@ -43,8 +45,8 @@ class Utils(object):
 		else:
 			if (self.respn[0] != '{' or self.respn[len(self.respn)-1] != '}') and (self.respn[0] != '[' or self.respn[len(self.respn)-1] != ']') and (self.respn[0] != '"' or self.respn[len(self.respn)-1] != '"'):
 				self.respn = '"'+self.respn+'"' 
-		self.sinfo = '{"currentTime":'+str(time.time())+'}'
+		self.sinfo = '{"serverName":"'+config.server['serverName']+'","apiVersion":'+str(config.server['apiVersion'])+',"requestDuration":'+str(time_taken)+',"currentTime":'+str(time.time())+'}'
 		if self.request.get('debug'):
-			return '{"serverInfomation":'+self.sinfo+',"response":'+self.respn+',"error":"'+self.error+'", "debug":"'+self.debug+'"}'
+			return '{"serverInformation":'+self.sinfo+',"response":'+self.respn+',"error":"'+self.error+'", "debug":"'+self.debug+'"}'
 		else:
-			return '{"serverInfomation":'+self.sinfo+',"response":'+self.respn+',"error":"'+self.error+'"}'
+			return '{"serverInformation":'+self.sinfo+',"response":'+self.respn+',"error":"'+self.error+'"}'

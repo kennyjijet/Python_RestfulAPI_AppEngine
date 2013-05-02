@@ -42,7 +42,7 @@ class getmyitems(webapp2.RequestHandler):
 				change = 0
 				self.respn = '['
 				for item in items:
-					if storeitem[str(item.type)]:
+					if storeitem[str(item.itid)]:
 					
 						save = False
 						if item.status > 1.0 and time.time() >= item.status:
@@ -55,13 +55,13 @@ class getmyitems(webapp2.RequestHandler):
 							save = True
 							
 						self.respn += '{'
+						self.respn += '"inid"		: "'+item.inid+'",'
 						self.respn += '"itid"		: "'+item.itid+'",'
-						self.respn += '"id"			: "'+item.type+'",'
-						self.respn += '"type"		: "'+storeitem[str(item.type)]['type']+'",'
-						self.respn += '"title"		: "'+storeitem[str(item.type)]['title']+'",'
-						self.respn += '"description": "'+storeitem[str(item.type)]['description']+'",'
-						self.respn += '"imgurl"		: "'+storeitem[str(item.type)]['imgurl']+'",'
-						self.respn += '"status"		: "'+str(item.status)+'"'
+						self.respn += '"type"		: "'+storeitem[str(item.itid)]['type']+'",'
+						self.respn += '"title"		: "'+storeitem[str(item.itid)]['title']+'",'
+						self.respn += '"desc"		: "'+storeitem[str(item.itid)]['description']+'",'
+						self.respn += '"imgurl"		: "'+storeitem[str(item.itid)]['imgurl']+'",'
+						self.respn += '"status"		: '+str(item.status)
 						self.respn += '},'
 						
 						if save == True:

@@ -1,4 +1,10 @@
 class config(): 
+
+	server = {
+		"serverName":"GrandCentral API",
+		"apiVersion":1
+	}
+	
 	db = {
 		"playerdb_name":"playerdb",
 		"scoredb_name":"scoredb",

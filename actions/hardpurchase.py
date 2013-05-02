@@ -52,7 +52,7 @@ class hardpurchase(webapp2.RequestHandler):
 		#################################
 		# validation input paramenters
 		uuid	= self.required('uuid')
-		itemid 	= self.required('itemid')
+		itid 	= self.required('itid')
 		receipt = self.required('receipt')
 		
 		start_time = time.time()
@@ -98,7 +98,7 @@ class hardpurchase(webapp2.RequestHandler):
 				else:
 					record = Record(parent=db.Key.from_path('Record', config.db['recorddb_name']))
 					record.uuid = uuid
-					record.itemid = itemid
+					record.itid = itid
 					record.hreceipt = hreceipt
 					record.status = 'pending'
 					if record.put():

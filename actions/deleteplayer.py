@@ -19,34 +19,24 @@ from config			import config
 # models
 from models.Player 	import Player
 from models.Score 	import Score
+from models.Item	import Item
+# include
+from controllers.Core	import Core
+from helpers.utils		import Utils
 
 class deleteplayer(webapp2.RequestHandler):
 	
-	error = ''
+	sinfo = ''
 	respn = ''
+	error = ''
 	debug = ''
-	
-	def reset(self):
-		self.error = '';
-		self.respn = '';
-		self.debug = '';
-	
-	def required(self, par_name):
-		if self.error == "": 
-			if self.request.get(par_name):
-				return self.request.get(par_name)
-			else: 
-				self.error = par_name + " is a required parameter."
-		return "undefined"
-		
 		
 	def get(self):
-	
-		self.reset()
+		Utils.reset(self)
 		
 		# validate
-		passwd	= self.required('passwd')
-		uuid	= self.required('uuid')
+		passwd	= Utils.required(self, 'passwd')
+		uuid	= Utils.required(self, 'uuid')
 		
 		if self.error == '' and passwd != config.testing['passwd']:
 			self.error = 'passwd is incorrect.'
@@ -55,18 +45,22 @@ class deleteplayer(webapp2.RequestHandler):
 		
 		if self.error == '':
 			
-			#player = memcache.get(config.db['playerdb_name']+'.'+uuid)
-			#if player is None:
 			players = Player.all().filter('uuid =', uuid).ancestor(db.Key.from_path('Player', config.db['playerdb_name'])).fetch(1);
-			
 			didDelete = False
 			for player in players:
 				
-				scores = Score.all().filter('uuid =', player.uuid).ancestor(db.Key.from_path('Score', config.db['scoredb_name'])).fetch(len(config.leaderboard['track'])*len(config.leaderboard['type']));
+				scores = Score.all().filter('uuid =', player.uuid).ancestor(db.Key.from_path('Score', config.db['scoredb_name']));
 				for score in scores:
 					score.delete()
+				memcache.delete(config.db['scoredb_name']+'.'+uuid)
+					
+				items = Item.all().filter('uuid =', player.uuid).ancestor(db.Key.from_path('Item', config.db['itemdb_name']));
+				for item in items:
+					item.delete()
+				memcache.delete(config.db['itemdb_name']+'.'+uuid)
 				
 				player.delete()
+				memcache.delete(config.db['playerdb_name']+'.'+uuid)
 				didDelete = True
 
 			if didDelete == True:
@@ -76,13 +70,8 @@ class deleteplayer(webapp2.RequestHandler):
 				
 		# return
 		time_taken =  time.time() - start_time;
-		self.debug += '('+str(time_taken)+')'
 		self.response.headers['Content-Type'] = 'text/html'
-		if self.respn == '': self.respn = '""'
-		if self.request.get('debug'):
-			self.response.write('{"response":'+self.respn+',"error":"'+self.error+'", "debug":"'+self.debug+'"}')
-		else:
-			self.response.write('{"response":'+self.respn+',"error":"'+self.error+'"}')
+		self.response.write(Utils.RESTreturn(self, time_taken))
 		
 	
 	def post(self):

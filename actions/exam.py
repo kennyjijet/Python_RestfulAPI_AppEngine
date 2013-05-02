@@ -13,11 +13,15 @@ from datetime 		import datetime, date
 # config
 from config			import config
 
+# helpers
+from helpers.apns	import apns
+
 class exam(webapp2.RequestHandler):
 	
 	error = ''
 	respn = ''
 	debug = ''
+	
 	
 	def reset(self):
 		self.error = ''
@@ -31,8 +35,14 @@ class exam(webapp2.RequestHandler):
 		# validate
 		
 		start_time = time.time()
-		
+
+		apns.add('12345', 'Pingya', 123);
+		list = apns.get();
+		for i in list:
+			logging.info(i)
+			
 		self.respn = "OKss"
+		
 		"""
 		sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 		ssl_sock = ssl.wrap_socket(sock, server_side=False, keyfile='certs/GamepunksShopKey.pem', certfile='certs/GamepunksShopCert.pem', cert_reqs=ssl.CERT_REQUIRED, ssl_version=ssl.PROTOCOL_TLSv1, ca_certs='/etc/ca-certificates.crt')
