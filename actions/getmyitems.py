@@ -40,7 +40,7 @@ class getmyitems(webapp2.RequestHandler):
 				items = Core.getitems(self, uuid)				
 			if items is not None:
 				change = 0
-				self.respn = '['
+				self.respn = '{'
 				for item in items:
 					if storeitem[str(item.itid)]:
 					
@@ -54,6 +54,7 @@ class getmyitems(webapp2.RequestHandler):
 							change = change + 1
 							save = True
 							
+						"""
 						self.respn += '{'
 						self.respn += '"inid"		: "'+item.inid+'",'
 						self.respn += '"itid"		: "'+item.itid+'",'
@@ -63,11 +64,23 @@ class getmyitems(webapp2.RequestHandler):
 						self.respn += '"imgurl"		: "'+storeitem[str(item.itid)]['imgurl']+'",'
 						self.respn += '"status"		: '+str(item.status)
 						self.respn += '},'
+						"""
+						self.respn += '"'+item.inid+'":{'
+						#self.respn += '{'
+						#self.respn += '"inid"		: "'+item.inid+'",'
+						self.respn += '"itid"		: "'+item.itid+'",'
+						self.respn += '"type"		: "'+storeitem[str(item.itid)]['type']+'",'
+						self.respn += '"title"		: "'+storeitem[str(item.itid)]['title']+'",'
+						self.respn += '"desc"		: "'+storeitem[str(item.itid)]['description']+'",'
+						self.respn += '"imgurl"		: "'+storeitem[str(item.itid)]['image_url_sd']+'",'
+						self.respn += '"status"		: '+str(item.status)
+						self.respn += '},'
 						
 						if save == True:
 							item.put()
 							
-				self.respn = self.respn.rstrip(',') + ']'
+				self.respn = self.respn.rstrip(',') + '}'
+				#self.respn = self.respn.rstrip(',') + ']'
 				
 				if change > 0:
 					memcache.delete(config.db['itemdb_name']+'.'+uuid)

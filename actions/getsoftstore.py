@@ -18,14 +18,8 @@ class getsoftstore(webapp2.RequestHandler):
 	error = ''
 	debug = ''
 	
-	def reset(self):
-		self.sinfo = ''
-		self.respn = ''
-		self.error = ''
-		self.debug = ''
-	
 	def get(self):
-		self.reset()
+		Utils.reset(self)
 			
 		# validate
 		version =  config.softstore['version']
@@ -78,7 +72,7 @@ class getsoftstore(webapp2.RequestHandler):
 				self.respn += ' "title":"'+item['title']+'",'
 				self.respn += ' "desc":"'+item['description']+'",'
 				self.respn += ' "depend":"'+item['dependencies']+'",'
-				self.respn += ' "imgurl":"'+item['imgurl']+'",'
+				self.respn += ' "imgurl":"'+item['image_url_sd']+'",'
 				self.respn += ' "gold":'+str(item['gold'])+','
 				self.respn += ' "time":'+str(item['time'])+','
 				self.respn += ' "platinum":'+str(item['platinum'])+','

@@ -36,15 +36,17 @@ class sendnotifications(webapp2.RequestHandler):
 		#apns.add('12345', 'Pingya', 1234.5);
 		self.respn = '{"info":"no notification!"}'
 		list = apns.get()
+		parameter = '[]'
 		if(list):
-			self.respn = json.dumps(list);
-			result = urlfetch.fetch(url=config.apns['proxyurl'],
-					payload='{"data":'+self.respn+', "time":'+str(start_time)+',"passwd":"'+config.testing['passwd']+'"}',
-					method=urlfetch.POST,
-					headers={'Content-Type': 'text/json; charset=utf-8'},
-					validate_certificate=False)
-			if result.status_code == 200:
-				self.respn = result.content
+			parameter = json.dumps(list);
+			
+		result = urlfetch.fetch(url=config.apns['proxyurl'],
+				payload='{"data":'+parameter+', "time":'+str(start_time)+',"passwd":"'+config.testing['passwd']+'"}',
+				method=urlfetch.POST,
+				headers={'Content-Type': 'text/json; charset=utf-8'},
+				validate_certificate=False)
+		if result.status_code == 200:
+			self.respn = result.content
 				
 		apns.clean()
 				

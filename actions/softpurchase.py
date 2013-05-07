@@ -90,14 +90,14 @@ class softpurchase(webapp2.RequestHandler):
 					itemobj.uuid = player.uuid
 					itemobj.status = time.time()+float(item['time']) #'pending'
 					if itemobj.put():	
-						if player_obj.token != '': 
-							apns.add(player_obj.token, storeitem[str(itemobj.itid)]['title']+' has been delivered to you!', itemobj.status)
+						if player_obj['token'] != '': 
+							apns.add(player_obj['token'], storeitem[str(itemobj.itid)]['title']+' has been delivered to you!', itemobj.status)
 						player.state = json.dumps(player_obj)
 						if player.put():
 							
 							myitems = Core.getspecificitems(self, uuid, item['id'])
 							if myitems is not None:
-								self.respn = '['
+								self.respn = '{'
 								for myitem in myitems:
 									if storeitem[str(myitem.itid)]:
 									
@@ -109,22 +109,23 @@ class softpurchase(webapp2.RequestHandler):
 											myitem.status = 0.0
 											save = True
 							
-										self.respn += '{'
-										self.respn += '"inid"		: "'+myitem.inid+'",'
+										self.respn += '"'+myitem.inid+'":{'
+										#self.respn += '{'
+										#self.respn += '"inid"		: "'+myitem.inid+'",'
 										self.respn += '"itid"		: "'+myitem.itid+'",'
 										self.respn += '"type"		: "'+storeitem[str(myitem.itid)]['type']+'",'
 										self.respn += '"title"		: "'+storeitem[str(myitem.itid)]['title']+'",'
 										self.respn += '"desc"		: "'+storeitem[str(myitem.itid)]['description']+'",'
-										self.respn += '"imgurl"		: "'+storeitem[str(myitem.itid)]['imgurl']+'",'
+										self.respn += '"imgurl"		: "'+storeitem[str(myitem.itid)]['image_url_sd']+'",'
 										self.respn += '"status"		: '+str(myitem.status)
 										self.respn += '},'
 										
 										if save == True:
 											myitem.put()
 											
-								self.respn = self.respn.rstrip(',') + ']'
+								self.respn = self.respn.rstrip(',') + '}'
 							else:
-								self.respn = '[]';
+								self.respn = '{}';
 							
 							self.respn = '{"uuid":"'+player.uuid+'", "state":'+player.state+', "items":'+self.respn+'}'
 							
