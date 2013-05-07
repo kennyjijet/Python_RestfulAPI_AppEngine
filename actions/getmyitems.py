@@ -1,3 +1,25 @@
+
+"""
+used by the Grandcentral API to find and return a players items
+uses the Core class to get the items from memcache or datastore
+
+if successful returns a JSON packet containing all items, for example :
+ 
+ 	{"serverInformation":{"serverName":"GrandCentral API","apiVersion":1,"requestDuration":0.066780090332,"currentTime":1367898202.38},
+ 	"response":{"item18135905100643":{"itid"  : "Car.1","type"  : "Car.1","title"  : "BMW xDrive X1","desc"  : "Cool Car","imgurl"  : "https://drive.google.com/uc?export=view&id=0B8VhSk4AKBYMa040N1dMWXhSWVE","status"  : 0.0}
+ 	},"error":""}
+ 	
+ 	
+The script will fail if no player uuid is supplied and will return an error ?
+??
+If the player uuid is invalid then the following
+
+	???
+
+
+"""
+
+
 import webapp2
 import json
 import logging
@@ -11,6 +33,7 @@ from config				import config
 # include
 from controllers.Core	import Core
 from helpers.utils		import Utils
+
 
 class getmyitems(webapp2.RequestHandler):
 	
