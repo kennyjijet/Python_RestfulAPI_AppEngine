@@ -1,4 +1,4 @@
-# Grand Central API
+# GrandCentral-GAE API
 
 ## 7 May 2013
 
