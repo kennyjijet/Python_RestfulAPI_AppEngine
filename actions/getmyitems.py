@@ -67,36 +67,30 @@ class getmyitems(webapp2.RequestHandler):
 				for item in items:
 					if storeitem[str(item.itid)]:
 					
+					
 						save = False
-						if item.status > 1.0 and time.time() >= item.status:
-							item.status = 1.0
-							change = change + 1
+						if item.status == 'pending' and time.time() >= item.timestamp:
+							item.status = 'reward'
+							item.timestamp = time.time() + storeitem[str(item.itid)]['time'] * 3600 #convert hour to milisecs
 							save = True
-						elif item.status == 1.0:
-							item.status = 0.0
-							change = change + 1
+						elif item.status == 'reward':
+							item.status = 'rewarded'
 							save = True
-							
-						"""
-						self.respn += '{'
-						self.respn += '"inid"		: "'+item.inid+'",'
-						self.respn += '"itid"		: "'+item.itid+'",'
-						self.respn += '"type"		: "'+storeitem[str(item.itid)]['type']+'",'
-						self.respn += '"title"		: "'+storeitem[str(item.itid)]['title']+'",'
-						self.respn += '"desc"		: "'+storeitem[str(item.itid)]['description']+'",'
-						self.respn += '"imgurl"		: "'+storeitem[str(item.itid)]['imgurl']+'",'
-						self.respn += '"status"		: '+str(item.status)
-						self.respn += '},'
-						"""
+						
+						if storeitem[str(item.itid)]['time'] >= 0:
+							if item.status == 'reward' or item.status == 'rewarded':
+								if time.time() > item.timestamp:
+									item.status = 'produced'
+									save = True
+															
 						self.respn += '"'+item.inid+'":{'
-						#self.respn += '{'
-						#self.respn += '"inid"		: "'+item.inid+'",'
 						self.respn += '"itid"		: "'+item.itid+'",'
 						self.respn += '"type"		: "'+storeitem[str(item.itid)]['type']+'",'
 						self.respn += '"title"		: "'+storeitem[str(item.itid)]['title']+'",'
 						self.respn += '"desc"		: "'+storeitem[str(item.itid)]['description']+'",'
 						self.respn += '"imgurl"		: "'+storeitem[str(item.itid)]['image_url_sd']+'",'
-						self.respn += '"status"		: '+str(item.status)
+						self.respn += '"status"		: "'+item.status+'",'
+						self.respn += '"timestamp"		: '+str(item.timestamp)
 						self.respn += '},'
 						
 						if save == True:

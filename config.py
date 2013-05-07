@@ -9,6 +9,7 @@ class config():
 		"playerdb_name":"playerdb",
 		"scoredb_name":"scoredb",
 		"storeitem_name":"storeitemdb",
+		"eventdb_name":"eventdb",
 		"recorddb_name":"recorddb",
 		"itemdb_name":"itemdb"
 	}

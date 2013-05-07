@@ -13,6 +13,7 @@ from config			import config
 from models.Player		import Player
 from models.Item		import Item
 from models.Storeitem	import Storeitem
+from models.Event		import Event
 
 class Core(object):
 	
@@ -79,7 +80,7 @@ class Core(object):
 	def getitems(self, uuid):
 		items = memcache.get(config.db['itemdb_name']+'.'+uuid)
 		if items is None:
-			items = Item.all().filter('uuid =', uuid).ancestor(db.Key.from_path('Item', config.db['itemdb_name']));
+			items = Item.all().filter('uuid =', uuid).ancestor(db.Key.from_path('Item', config.db['itemdb_name']))
 			if not memcache.add(config.db['itemdb_name']+'.'+uuid, items, config.memcache['holdtime']):
 				logging.warning('Core - Memcache set items failed')
 		return items
@@ -92,5 +93,31 @@ class Core(object):
 			if not memcache.add(config.db['itemdb_name']+'.'+itid+'.'+uuid, items, config.memcache['holdtime']):
 				logging.warning('Core - Memcache set specific item failed')
 		return items
+		
+	@staticmethod
+	def setevents(self, version, data):
+		events = memcache.get(config.db['eventdb_name']+'.'+version)
+		if events is None:
+			events = Storeitem(parent=db.Key.from_path('Event', config.db['eventdb_name']))
+		events.version = version
+		events.data = data
+		if events.put():
+			memcache.delete(config.db['eventdb_name']+'.'+version)
+			if not memcache.add(config.db['eventdb_name']+'.'+version, events, config.memcache['longtime']):
+				logging.warning('Core - Memcache set events failed')
+			return True
+		return False
+		
+	@staticmethod
+	def getevents(self, version):
+		events = memcache.get(config.db['eventdb_name']+'.'+version)
+		if events is None:
+			events = Event.all().filter('version =', version).ancestor(db.Key.from_path('Event', config.db['eventdb_name']))
+			if not memcache.add(config.db['eventdb_name']+'.'+version, events, config.memcache['longtime']):
+				logging.warning('Core - Memcache set events failed')
+		else:
+			self.error = 'Event couldn\'t be retrieved!'
+			events = None
+		return events
 		
 		
