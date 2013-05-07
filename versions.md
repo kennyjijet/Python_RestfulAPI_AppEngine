@@ -4,3 +4,4 @@
 
 - Re-structed item json object
 - Add deployevent action for deploying event's data from Drive
+- Add event action to be called from client
