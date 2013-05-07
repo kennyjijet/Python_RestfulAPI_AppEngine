@@ -98,7 +98,7 @@ class Core(object):
 	def setevents(self, version, data):
 		events = memcache.get(config.db['eventdb_name']+'.'+version)
 		if events is None:
-			events = Storeitem(parent=db.Key.from_path('Event', config.db['eventdb_name']))
+			events = Event(parent=db.Key.from_path('Event', config.db['eventdb_name']))
 		events.version = version
 		events.data = data
 		if events.put():
@@ -109,15 +109,20 @@ class Core(object):
 		return False
 		
 	@staticmethod
-	def getevents(self, version):
-		events = memcache.get(config.db['eventdb_name']+'.'+version)
+	def getevents_as_obj(self, version):
+		events = memcache.get(config.db['eventdb_name']+'_as_obj.'+version)
 		if events is None:
-			events = Event.all().filter('version =', version).ancestor(db.Key.from_path('Event', config.db['eventdb_name']))
-			if not memcache.add(config.db['eventdb_name']+'.'+version, events, config.memcache['longtime']):
-				logging.warning('Core - Memcache set events failed')
-		else:
-			self.error = 'Event couldn\'t be retrieved!'
-			events = None
+			events = Event.all().filter('version =', version).ancestor(db.Key.from_path('Event', config.db['eventdb_name'])).fetch(1)
+			if len(events) >= 1:
+				_events = json.loads(events[0].data)
+				events = {}
+				for item in _events:
+					events[item['id']] = item
+				if not memcache.add(config.db['eventdb_name']+'_as_obj.'+version, events, config.memcache['longtime']):
+					logging.warning('Core - Memcache set events failed')
+			else:
+				self.error = 'Event couldn\'t be retrieved!'
+				events = None
 		return events
 		
 		
