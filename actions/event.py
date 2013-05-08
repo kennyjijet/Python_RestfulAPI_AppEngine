@@ -26,6 +26,19 @@ class behaviour():
 			player.state_obj[params[1]] += int(params[2])
 			Core.setplayer_as_obj(self, player)
 			Utils.compose_player(self, player)
+			
+	@staticmethod
+	def deduct(self, prms):
+		params = prms.split(',')
+		if len(params) != 3:
+			self.error = 'Deduct event receieved invalid parameter(s)! example: uuid #,resource,@amount'
+		else:
+			self.error = ''
+			player = Core.getplayer_as_obj(self, params[0])
+		if self.error == '' and player is not None:
+			player.state_obj[params[1]] -= int(params[2])
+			Core.setplayer_as_obj(self, player)
+			Utils.compose_player(self, player)
 		
 		
 class event(webapp2.RequestHandler):
