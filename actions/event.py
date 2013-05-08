@@ -12,6 +12,22 @@ from config			import config
 from helpers.utils 		import Utils
 from controllers.Core 	import Core
 
+class behaviour():
+
+	@staticmethod
+	def reward(self, prms):
+		params = prms.split(',')
+		if len(params) != 3:
+			self.error = 'Reward event receieved invalid parameter(s)! example: uuid #,resource,@amount'
+		else:
+			self.error = ''
+			player = Core.getplayer_as_obj(self, params[0])
+		if self.error == '' and player is not None:
+			player.state_obj[params[1]] += int(params[2])
+			Core.setplayer_as_obj(self, player)
+			Utils.compose_player(self, player)
+		
+		
 class event(webapp2.RequestHandler):
 	
 	sinfo = ''
@@ -24,9 +40,8 @@ class event(webapp2.RequestHandler):
 		
 		# validate
 		passwd = Utils.required(self, 'passwd')
-		version = Utils.required(self, 'version')
 		evid = Utils.required(self, 'evid')
-		#prms = Utils.required(self, 'prms')
+		prms = Utils.required(self, 'prms')
 
 		if self.error == '' and passwd != config.testing['passwd']:
 			self.error = 'passwd is incorrect.'
@@ -34,17 +49,17 @@ class event(webapp2.RequestHandler):
 		start_time = time.time()
 		
 		if self.error == '':
-			events = Core.getevents_as_obj(self, version)
-			event = None
+			events = Core.getevents_as_obj(self, str(config.server['apiVersion']))
+			self.error = 'event' + evid + ' does not exist!'
 			if events is not None:
-				try:
-					event = events[evid]
-				except KeyError:
-					self.error = evid + ' does not exist!'
-					event = None
-			if event is not None:
-				self.respn = 'Behaviour is ' + events[evid]['behaviour'];
-	
+				for event in events:
+					if event['id'] == evid:
+						params = prms
+						for item in event:
+							if "parameter" in str(item) and event[item] != '':
+								params += ','+str(event[item])
+						getattr(behaviour, event['behaviour'])(self, params)
+						
 		# return
 		time_taken =  time.time() - start_time;
 		self.response.headers['Content-Type'] = 'text/html'

@@ -31,6 +31,33 @@ class Core(object):
 				player = None
 		return player
 		
+	
+	@staticmethod
+	def getplayer_as_obj(self, uuid):
+		player = memcache.get(config.db['playerdb_name']+'_as_obj.'+uuid)
+		if player is None:
+			players = Player.all().filter('uuid =', uuid).ancestor(db.Key.from_path('Player', config.db['playerdb_name'])).fetch(1);
+			if len(players)>=1:
+				player = players[0]
+				player.state_obj = json.loads(player.state)
+				if not memcache.add(config.db['playerdb_name']+'_as_obj.'+uuid, player, config.memcache['holdtime']):
+					logging.warning('Core - Memcache set player failed')
+			else:
+				self.error = 'uuid='+uuid+' was not found.'
+				player = None
+		return player
+		
+	@staticmethod
+	def setplayer_as_obj(self, player):
+		player.state = json.dumps(player.state_obj)
+		if player.put():
+			memcache.delete(config.db['playerdb_name']+'_as_obj.'+player.uuid)
+			if not memcache.add(config.db['playerdb_name']+'_as_obj.'+player.uuid, player, config.memcache['holdtime']):
+				logging.warning('Core - Memcache set player failed')
+			return True
+		return False
+	
+		
 	@staticmethod
 	def getstoreitem(self, version):
 		storeitem = memcache.get(config.db['storeitem_name']+'.'+version)
@@ -98,7 +125,11 @@ class Core(object):
 	def setevents(self, version, data):
 		events = memcache.get(config.db['eventdb_name']+'.'+version)
 		if events is None:
-			events = Event(parent=db.Key.from_path('Event', config.db['eventdb_name']))
+			_events = Event.all().filter('version =', version).ancestor(db.Key.from_path('Event', config.db['eventdb_name'])).fetch(1)
+			if len(_events) >= 1:
+				events = _events[0]
+			else:
+				events = Event(parent=db.Key.from_path('Event', config.db['eventdb_name']))
 		events.version = version
 		events.data = data
 		if events.put():
@@ -114,10 +145,7 @@ class Core(object):
 		if events is None:
 			events = Event.all().filter('version =', version).ancestor(db.Key.from_path('Event', config.db['eventdb_name'])).fetch(1)
 			if len(events) >= 1:
-				_events = json.loads(events[0].data)
-				events = {}
-				for item in _events:
-					events[item['id']] = item
+				events = json.loads(events[0].data)
 				if not memcache.add(config.db['eventdb_name']+'_as_obj.'+version, events, config.memcache['longtime']):
 					logging.warning('Core - Memcache set events failed')
 			else:
