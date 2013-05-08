@@ -63,10 +63,7 @@ class saveplayer(webapp2.RequestHandler):
 				
 			if player.put():
 				self.error = ''
-				self.respn	= '{'
-				self.respn += '"uuid":"'	+player.uuid	+'",'
-				self.respn += '"state": ' +player.state
-				self.respn += '}'
+				Utils.compose_player(self, player)
 			else:
 				self.error = 'unable to insert/update player data.'
 		

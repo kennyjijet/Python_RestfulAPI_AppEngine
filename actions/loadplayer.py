@@ -27,10 +27,7 @@ class loadplayer(webapp2.RequestHandler):
 		if self.error == '':		
 			player = Core.getplayer(self, uuid)
 			if player is not None:
-				self.respn	= '{'
-				self.respn += '"uuid"		: "'+player.uuid+'",'
-				self.respn += '"state"		: '+player.state
-				self.respn += '}'
+				Utils.compose_player(self, player)
 						
 		# return
 		time_taken =  time.time() - start_time;

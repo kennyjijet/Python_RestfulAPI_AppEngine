@@ -38,6 +38,13 @@ class Utils(object):
 		return now.strftime('item%S%y%M%m%H%d')+str(randint(1, 100))
 		
 	@staticmethod
+	def compose_player(self, player):
+		self.respn	= '{'
+		self.respn += '"uuid"		: "'+player.uuid+'",'
+		self.respn += '"state"		: '+player.state
+		self.respn += '}'
+		
+	@staticmethod
 	def RESTreturn(self, time_taken):
 		self.debug += '('+str(time_taken)+')'
 		if self.respn == '': 
