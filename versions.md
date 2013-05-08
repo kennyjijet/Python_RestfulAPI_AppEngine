@@ -1,5 +1,9 @@
 # GrandCentral-GAE API
 
+## 8 May 2013
+- Add support for multiple api version running simultaneously
+- Implement event call for 'reward' behaviour
+
 ## 7 May 2013
 
 - Re-structed item json object
