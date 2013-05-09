@@ -59,7 +59,7 @@ class Core(object):
 	
 		
 	@staticmethod
-	def getstoreitem(self, version):
+	def getstoreitem(self, version=str(config.server['apiVersion'])):
 		storeitem = memcache.get(config.db['storeitem_name']+'.'+version)
 		if storeitem is None:
 			storeitems = Storeitem.all().filter('version =', version).ancestor(db.Key.from_path('Storeitem', config.db['storeitem_name'])).fetch(1);
@@ -73,7 +73,7 @@ class Core(object):
 		return storeitem
 		
 	@staticmethod
-	def getstoreitem_as_arr(self, version):
+	def getstoreitem_as_arr(self, version=str(config.server['apiVersion'])):
 		storeitem = memcache.get(config.db['storeitem_name']+'_as_arr.'+version)
 		if storeitem is None:
 			storeitems = Storeitem.all().filter('version =', version).ancestor(db.Key.from_path('Storeitem', config.db['storeitem_name'])).fetch(1);
@@ -87,10 +87,10 @@ class Core(object):
 		return storeitem
 		
 	@staticmethod
-	def getstoreitem_as_obj(self, version):
+	def getstoreitem_as_obj(self, version=str(config.server['apiVersion'])):
 		storeitem = memcache.get(config.db['storeitem_name']+'_as_obj.'+version)
 		if storeitem is None:
-			storeitems = Storeitem.all().filter('version =', version).ancestor(db.Key.from_path('Storeitem', config.db['storeitem_name'])).fetch(1);
+			storeitems = Storeitem.all().filter('version =', str(float(version))).ancestor(db.Key.from_path('Storeitem', config.db['storeitem_name'])).fetch(1);
 			if len(storeitems)>=1:
 				_storeitem = json.loads(storeitems[0].data)	
 				storeitem = {}
@@ -122,6 +122,30 @@ class Core(object):
 		return items
 		
 	@staticmethod
+	def getproduceditems(self, uuid):
+		items = memcache.get(config.db['itemdb_name']+'_produced.'+uuid)
+		if items is None:
+			items = Item.all().filter('uuid =', uuid).filter('status =', 'produced').ancestor(db.Key.from_path('Item', config.db['itemdb_name']));
+			if not memcache.add(config.db['itemdb_name']+'_produced.'+uuid, items, config.memcache['holdtime']):
+				logging.warning('Core - Memcache set produced items failed')
+		return items
+		
+	@staticmethod
+	def getspecificinidproduceditem(self, uuid, inid):
+		items = Core.getproduceditems(self, uuid)
+		item = None
+		for _item in items:
+			if _item.inid == inid:
+				item = _item
+				break
+		
+		
+		#if item is not None:
+		
+		return item
+			
+		
+	@staticmethod
 	def setevents(self, version, data):
 		events = memcache.get(config.db['eventdb_name']+'.'+version)
 		if events is None:
@@ -140,7 +164,7 @@ class Core(object):
 		return False
 		
 	@staticmethod
-	def getevents_as_obj(self, version):
+	def getevents_as_obj(self, version=str(config.server['apiVersion'])):
 		events = memcache.get(config.db['eventdb_name']+'_as_obj.'+version)
 		if events is None:
 			events = Event.all().filter('version =', version).ancestor(db.Key.from_path('Event', config.db['eventdb_name'])).fetch(1)
