@@ -36,6 +36,9 @@ class saveplayer(webapp2.RequestHandler):
 		photo	= Utils.required(self, 'photo')
 		platinum= 10
 		gold	= 5000
+		xp		= 0
+		fuel	= 5
+		fuel_max= 20 
 		
 		if self.error == '' and passwd != config.testing['passwd']:
 			self.error = 'passwd is incorrect.'
@@ -52,8 +55,9 @@ class saveplayer(webapp2.RequestHandler):
 				player.state += '"photo":"'		+photo+			'",'
 				player.state += '"platinum":'	+str(platinum)+	','
 				player.state += '"gold":'		+str(gold)+		','
-				player.state += '"xp":			0				,'
-				player.state += '"fuel":		0				,'
+				player.state += '"xp":'			+str(xp)+		','
+				player.state += '"fuel":'		+str(fuel)		','
+				player.state += '"fuel_max":'	+str(fuel_max)
 				player.state += '}'
 			else:
 				player_obj = json.loads(player.state)
