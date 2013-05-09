@@ -51,7 +51,9 @@ class saveplayer(webapp2.RequestHandler):
 				player.state += '"name":"'		+name+			'",'
 				player.state += '"photo":"'		+photo+			'",'
 				player.state += '"platinum":'	+str(platinum)+	','
-				player.state += '"gold":'		+str(gold)+		''
+				player.state += '"gold":'		+str(gold)+		','
+				player.state += '"xp":			0				,'
+				player.state += '"fuel":		0				,'
 				player.state += '}'
 			else:
 				player_obj = json.loads(player.state)
