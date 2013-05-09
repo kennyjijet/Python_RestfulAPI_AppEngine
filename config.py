@@ -2,7 +2,7 @@ class config():
 
 	server = {
 		"serverName":"GrandCentral API",
-		"apiVersion":1
+		"apiVersion": 1
 	}
 	
 	db = {
