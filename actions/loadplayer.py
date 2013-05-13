@@ -21,14 +21,18 @@ class loadplayer(webapp2.RequestHandler):
 		Utils.reset(self)
 		
 		#validate
-		uuid 	= Utils.required(self, 'uuid');
-		start_time = time.time()
+		uuid 		= Utils.required(self, 'uuid');
+		specific 	= self.request.get('specific')
+		start_time 	= time.time()
 			
 		if self.error == '':		
 			player = Core.getplayer(self, uuid)
 			if player is not None:
-				Utils.compose_player(self, player)
-						
+				if specific is not None and specific != '':
+					Utils.compose_player_partial(self, player, specific)
+				else:
+					Utils.compose_player(self, player)
+				
 		# return
 		time_taken =  time.time() - start_time;
 		self.response.headers['Content-Type'] = 'text/html'

@@ -56,7 +56,7 @@ class saveplayer(webapp2.RequestHandler):
 				player.state += '"platinum":'	+str(platinum)+	','
 				player.state += '"gold":'		+str(gold)+		','
 				player.state += '"xp":'			+str(xp)+		','
-				player.state += '"fuel":'		+str(fuel)		','
+				player.state += '"fuel":'		+str(fuel)+		','
 				player.state += '"fuel_max":'	+str(fuel_max)
 				player.state += '}'
 			else:
