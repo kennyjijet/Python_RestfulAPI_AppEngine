@@ -3,7 +3,8 @@
 ## 13 May 2013
 - An option to get specific player's states (partials) 
 For instance, /loadplayer?uuid=xxxxx&specific=xp,gold will return {"xp":1234,"gold":5678}
-- 
+- Improve resource producing time system, (more consistent with other time system)
+- Add comments to code
 
 ## 9 May 2013
 - Implement deduct and collect behaviours
