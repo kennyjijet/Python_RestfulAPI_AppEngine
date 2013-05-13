@@ -54,7 +54,7 @@ class behaviour():
 			storeitem = Core.getstoreitem_as_obj(self)
 			player.state_obj[params[3]] += int(storeitem[item.itid]['resource_units'])
 			item.status = 'rewarded'
-			item.timestamp = time.time() + storeitem[item.itid]['time'] * 3600
+			item.timestamp = time.time() + storeitem[item.itid]['produce_time']
 			if item.put():
 				Core.setplayer_as_obj(self, player)
 				Utils.compose_player(self, player)
