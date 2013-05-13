@@ -1,5 +1,10 @@
 # GrandCentral-GAE API
 
+## 13 May 2013
+- An option to get specific player's states (partials) 
+For instance, /loadplayer?uuid=xxxxx&specific=xp,gold will return {"xp":1234,"gold":5678}
+- 
+
 ## 9 May 2013
 - Implement deduct and collect behaviours
 - Add fuel, fuel_max, xp to player state
