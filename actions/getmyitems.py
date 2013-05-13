@@ -61,11 +61,10 @@ class getmyitems(webapp2.RequestHandler):
 				for item in items:
 					if storeitem[str(item.itid)]:
 					
-					
 						save = False
 						if item.status == 'pending' and time.time() >= item.timestamp:
 							item.status = 'reward'
-							item.timestamp = time.time() + storeitem[str(item.itid)]['time'] * 3600 #convert hour to milisecs
+							item.timestamp = time.time() + storeitem[str(item.itid)]['produce_time']
 							save = True
 						elif item.status == 'reward':
 							item.status = 'rewarded'
