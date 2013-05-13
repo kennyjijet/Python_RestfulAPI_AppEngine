@@ -5,6 +5,8 @@
 For instance, /loadplayer?uuid=xxxxx&specific=xp,gold will return {"xp":1234,"gold":5678}
 - Improve resource producing time system, (more consistent with other time system)
 - Add comments to code
+- Migrate model class helpers from one single 'Core class' to Their own mother class. For instance, Core.getplayer() changed to Player.getplayer() etc.
+- Improve and optimize some minor code.
 
 ## 9 May 2013
 - Implement deduct and collect behaviours
