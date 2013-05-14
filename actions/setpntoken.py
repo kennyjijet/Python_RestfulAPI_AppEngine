@@ -1,59 +1,84 @@
+""" setpntoken action class
+
+	Project: GrandCentral-GAE
+	Author: Plus Pingya
+	Github: https://github.com/Gamepunks/grandcentral-gae
+	
+
+	Description
+	---------------------------------------------------------------
+	I am an API to set token for player in player state
+
+	
+	Input:
+	---------------------------------------------------------------
+	required: passwd, uuid, token
+	optional: 
+
+	
+	Output:
+	---------------------------------------------------------------
+	player uuid and entire player state
+	
+"""
+
+# built-in libraries
 import webapp2
 import json
 import logging
-logging.basicConfig(filename='setpntoken.log', level=logging.INFO)
 import time
 
+# google's libraries
 from google.appengine.api import memcache
 
 # config
 from config			import config
 
 # include
-from controllers.Core 	import Core
 from helpers.utils		import Utils
+from models.Player		import Player
 
+# class implementation
 class setpntoken(webapp2.RequestHandler):
 	
+	# standard variables
 	sinfo = ''
 	respn = ''
 	error = ''
 	debug = ''
 	
+	# get function implementation
 	def get(self):
-		Utils.reset(self)
+		Utils.reset(self)											# reset/clean standard variables
 		
-		# validate
+		# validate and assign parameters
 		passwd	= Utils.required(self, 'passwd')
 		uuid	= Utils.required(self, 'uuid')
 		token	= Utils.required(self, 'token')
+		
+		# required password to process this action
 		if self.error == '' and passwd != config.testing['passwd']:
 			self.error = 'passwd is incorrect.'
-		start_time = time.time()
-		
-		if self.error == '':
-			player = Core.getplayer(self, uuid)
 			
-			if player is not None:
-				player_obj = json.loads(player.state)
-				player_obj['token'] = token
-				player.state = json.dumps(player_obj)
-				if player.put():
-					self.respn	= '{'
-					self.respn += '"uuid":"'	+player.uuid	+'",'
-					self.respn += '"state": ' 	+player.state
-					self.respn += '}'
-					memcache.delete(config.db['playerdb_name']+'.'+uuid)
-					if not memcache.add(config.db['playerdb_name']+'.'+uuid, player, config.memcache['holdtime']):
-						logging.warning('saveplayer - Memcache set player failed')
-				else:
-					self.error = 'unable to update player data (token).'
+		start_time = time.time()									# start count 
+		
+		# if any error, skip this
+		if self.error == '':
+			player = Player.getplayer_as_obj(self, uuid)			# get player as object
+		
+		# if any error on player is none
+		if self.error =='' and player is not None:
+			player.state_obj['token'] = token
+			if Player.setplayer_as_obj(self, player):
+				Player.compose_player(self, player)
+			else:
+				self.error = 'unable to update player data (token).'
 	
-		# return
+		# calculate time taken and return the result
 		time_taken =  time.time() - start_time;
 		self.response.headers['Content-Type'] = 'text/html'
 		self.response.write(Utils.RESTreturn(self, time_taken))
 		
-		
+	# do exactly as get() does
 	def post(self):
 		self.get()
