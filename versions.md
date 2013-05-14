@@ -1,5 +1,9 @@
 # GrandCentral-GAE API
 
+## 14 May 2013
+- Optimize and write comments to hardpurchase action class
+- 
+
 ## 13 May 2013
 - An option to get specific player's states (partials) 
 For instance, /loadplayer?uuid=xxxxx&specific=xp,gold will return {"xp":1234,"gold":5678}
