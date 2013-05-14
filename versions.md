@@ -1,8 +1,7 @@
 # GrandCentral-GAE API
 
-## 14 May 2013
+## 14 May 2013 
 - Optimize and write comments to hardpurchase action class
-- 
 
 ## 13 May 2013
 - An option to get specific player's states (partials) 
