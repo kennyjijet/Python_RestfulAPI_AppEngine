@@ -65,45 +65,38 @@ class saveplayer(webapp2.RequestHandler):
 		fuel	= 5
 		fuel_max= 20 
 		
-		
 		if self.error == '' and passwd != config.testing['passwd']:				# if password is incorrect
 			self.error = 'passwd is incorrect.'									# inform user via error message
+			
 		start_time = time.time()												# start count 
 		
 		# if error, skip this
 		if self.error == '':
-			player = Player.getplayer(self, uuid)								# get player from Player model class helper, specified by uuid
+			player = Player.getplayer_as_obj(self, uuid)						# get player from Player model class helper, specified by uuid
 			if player is None:													# if no player data returned or doesn't exist
 				player = Player(parent=db.Key.from_path('Player', config.db['playerdb_name']))	# create a new player state data
 				player.uuid = uuid # = Utils.geneuuid(self, 'random')			# assign uuid
-				player.state  = '{'												# and assign all player state
-				player.state += '"token":"'		+token+		'",'
-				player.state += '"name":"'		+name+			'",'
-				player.state += '"photo":"'		+photo+			'",'
-				player.state += '"platinum":'	+str(platinum)+	','
-				player.state += '"gold":'		+str(gold)+		','
-				player.state += '"xp":'			+str(xp)+		','
-				player.state += '"fuel":'		+str(fuel)+		','
-				player.state += '"fuel_max":'	+str(fuel_max)
-				player.state += '}'
+				# and assign all player state
+				player.state_obj = {}
+				player.state_obj['token'] 		= token
+				player.state_obj['name']		= name
+				player.state_obj['photo']		= photo
+				player.state_obj['platinum'] 	= platinum
+				player.state_obj['gold'] 		= gold
+				player.state_obj['xp'] 			= xp
+				player.state_obj['fuel'] 		= fuel
+				player.state_obj['fuel_max'] 	= fuel_max
 			else:																# but if player does exist
-				player_obj = json.loads(player.state)							# parse player state as plaintext to json object, in order to manipulate
 				if token:														# if token is provided
-					player_obj['token'] = token									# assign token to player state
-				player_obj['name'] = name										# assign name
-				player_obj['photo'] = photo										# assign photo url
-				player.state = json.dumps(player_obj)							# and put it back into plaintext
+					player.state_obj['token'] = token							# assign token to player state
+				player.state_obj['name'] = name									# assign name
+				player.state_obj['photo'] = photo								# assign photo url
 				
-			if player.put():													# write down to database
+			if Player.setplayer_as_obj(self, player):							# write down to database
 				self.error = ''													# then obviously, no error
 				Player.compose_player(self, player)								# compose the entire player state to return
 			else:																# but if write down to database was failed
 				self.error = 'unable to insert/update player data.'				# inform user bia error message
-		
-			# afterall we need to save this result to memcahce ,, avoiding 
-			memcache.delete(config.db['playerdb_name']+'.'+uuid)				# we need to delete it first, bacause it may remain and reject to set a new memecache
-			if not memcache.add(config.db['playerdb_name']+'.'+uuid, player, config.memcache['holdtime']): # then add into memcache
-				logging.warning('saveplayer - Memcache set failed')				# log it, if failed to set memcache
 						
 		# calculate time taken and return the result
 		time_taken =  time.time() - start_time
