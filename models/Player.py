@@ -23,6 +23,7 @@ class Player(db.Model):
 	state 		= db.TextProperty()
 	updated		= db.DateTimeProperty(auto_now_add=True)
 	
+	"""
 	@staticmethod
 	def getplayer(self, uuid): 
 		player = memcache.get(config.db['playerdb_name']+'.'+uuid)
@@ -36,7 +37,8 @@ class Player(db.Model):
 				self.error = 'uuid='+uuid+' was not found.'
 				player = None
 		return player
-		
+	"""
+	
 	@staticmethod
 	def getplayer_as_obj(self, uuid):
 		player = memcache.get(config.db['playerdb_name']+'_as_obj.'+uuid)
