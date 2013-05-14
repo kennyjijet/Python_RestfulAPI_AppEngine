@@ -2,6 +2,7 @@
 
 ## 14 May 2013 
 - Optimize and write comments to hardpurchase action class
+- Combine deployitem and deployevent classes into one deploy class
 
 ## 13 May 2013
 - An option to get specific player's states (partials) 
