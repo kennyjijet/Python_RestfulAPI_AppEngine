@@ -6,6 +6,7 @@ class config():
 	}
 	
 	db = {
+		"datadb_name":"datadb",
 		"playerdb_name":"playerdb",
 		"scoredb_name":"scoredb",
 		"storeitem_name":"storeitemdb",
@@ -34,7 +35,7 @@ class config():
 	}
 	
 	softstore = {
-		"version": "1.0"
+		"version": 1.0
 	}
 	
 	apple = {
