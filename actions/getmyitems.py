@@ -37,7 +37,8 @@ from config				import config
 # include
 from helpers.utils		import Utils
 from models.Player		import Player
-from models.Storeitem 	import Storeitem
+#from models.Storeitem 	import Storeitem
+from models.Data		import Data
 from models.Item		import Item
 
 # class implementation
@@ -60,11 +61,11 @@ class getmyitems(webapp2.RequestHandler):
 
 		# if error, skip this
 		if self.error == '':	
-			player = Player.getplayer(self, uuid)								# get player state
+			player = Player.getplayer_as_obj(self, uuid)								# get player state
 			
 		# if error or player is none, then skip to the end
 		if self.error == '' and player is not None:
-			storeitem = Storeitem.getstoreitem_as_obj(self, config.softstore['version'])	# get store item
+			storeitem = Data.getstoreitem_as_obj(self, config.softstore['version'])	# get store item
 			items = None														# set items as none
 			if storeitem is not None:											# if storeitem is none, everything just done here, will skip to the end
 				items = Item.getitems(self, uuid)								# get all items that belongs to this uuid

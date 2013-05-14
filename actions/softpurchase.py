@@ -45,7 +45,8 @@ from helpers.utils		import Utils
 from helpers.apns		import apns
 
 from models.Player		import Player
-from models.Storeitem	import Storeitem
+#from models.Storeitem	import Storeitem
+from models.Data		import Data
 from models.Item		import Item
 
 # class implementation
@@ -77,7 +78,7 @@ class softpurchase(webapp2.RequestHandler):
 		
 		# if error or player is none, skip this
 		if self.error == '' and player is not None:		
-			storeitem = Storeitem.getstoreitem_as_obj(self, config.softstore['version'])
+			storeitem = Data.getstoreitem_as_obj(self, config.softstore['version'])
 
 		# if storeitem is not none
 		if storeitem is not None:
@@ -163,12 +164,6 @@ class softpurchase(webapp2.RequestHandler):
 							
 							self.respn = '{"uuid":"'+player.uuid+'", "state":'+player.state+', "items":'+self.respn+'}'						# compose final result
 							
-							"""
-							memcache.delete(config.db['itemdb_name']+'.'+uuid)
-							memcache.delete(config.db['playerdb_name']+'.'+uuid)
-							if not memcache.add(config.db['playerdb_name']+'.'+uuid, player, config.memcache['holdtime']):
-								logging.warning('purchasesoftitem - Memcache set player failed')
-							"""
 				else:														# if user has not enough gold
 					self.respn = '{"warning":"not enough gold!"}'			# then tell him
 

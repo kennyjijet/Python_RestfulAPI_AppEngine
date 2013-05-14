@@ -36,7 +36,8 @@ from config				import config
 # include
 from helpers.utils		import Utils
 from models.Player 		import Player
-from models.Storeitem	import Storeitem
+from models.Data		import Data
+#from models.Storeitem	import Storeitem
 from models.Item		import Item
 
 # class implementation
@@ -62,7 +63,7 @@ class getsoftstore(webapp2.RequestHandler):
 		
 		# if error or player is none, skip this
 		if self.error == '' and player is not None:
-			storeitem = Storeitem.getstoreitem_as_arr(self, config.softstore['version'])		# get store item from Storeitem model class helper
+			storeitem = Data.getstoreitem_as_arr(self)		# get store item from Storeitem model class helper
 			
 		# if error or storeitem is none, skip this
 		if self.error == '' and storeitem is not None:

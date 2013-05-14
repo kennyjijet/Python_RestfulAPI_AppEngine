@@ -45,7 +45,8 @@ from config			import config
 
 # include
 from helpers.utils		import Utils
-from models.Storeitem 	import Storeitem
+#from models.Storeitem 	import Storeitem
+from models.Data		import Data
 from models.Player		import Player
 from models.Record		import Record
 
@@ -93,7 +94,7 @@ class hardpurchase(webapp2.RequestHandler):
 			if result.status_code == 200 or receipt==config.apple['testReceipt']:	# check if we've got a complete response from Apple Service
 				resultobj = json.loads(result.content)								# if yes, parse result into json object, so we can read it
 				if resultobj['status']==0 or receipt==config.apple['testReceipt']:	# if response's status is 0, this means our receipt is valid
-					storeitem = Storeitem.getstoreitem_as_obj(self)					# get store item, so we know what to reward/deliver
+					storeitem = Data.getstoreitem_as_obj(self)					# get store item, so we know what to reward/deliver
 					item = None
 					if storeitem is not None:
 						try:
