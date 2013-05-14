@@ -46,6 +46,7 @@ from helpers.apns		import apns
 
 from models.Player		import Player
 from models.Storeitem	import Storeitem
+from models.Item		import Item
 
 # class implementation
 class softpurchase(webapp2.RequestHandler):
@@ -127,7 +128,7 @@ class softpurchase(webapp2.RequestHandler):
 						if player.state_obj['token'] != '': 				# check if user already has token
 							apns.add(player.state_obj['token'], storeitem[str(itemobj.itid)]['title']+' has been delivered to you!', itemobj.timestamp) # if so, set a push notofication to be sent
 						if Player.setplayer_as_obj(self, player):			# put player state back into the database
-							myitems = Core.getspecificitems(self, uuid, item['id'])	# get user items (only same type of purchased item), we want to list them all and return
+							myitems = Item.getspecificitems(self, uuid, item['id'])	# get user items (only same type of purchased item), we want to list them all and return
 							if myitems is not None:							# make sure we have everything ready
 								self.respn = '{'
 								for myitem in myitems:						# run through myitems
