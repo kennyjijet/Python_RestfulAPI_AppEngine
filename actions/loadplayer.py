@@ -54,7 +54,7 @@ class loadplayer(webapp2.RequestHandler):
 			
 		# if error, skip this
 		if self.error == '':
-			player = Player.getplayer(self, uuid)								# get player state from Player helper class, specified by uuid
+			player = Player.getplayer_as_obj(self, uuid)								# get player state from Player helper class, specified by uuid
 			if player is not None:												# if have some data returned					
 				if specific is not None and specific != '':						# and if user wants to request partial data, (by specifying whatever they want)
 					Player.compose_player_partial(self, player, specific)		# compose partial data to return
