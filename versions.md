@@ -9,6 +9,8 @@ This will reduce duplication code in the project.
 The GAS Test system is setup, you can see test result in google drive.
 If you have any test want to add, please contact me for consulting or do it for you.
 
+Next update will release in version 2
+
 ## 14 May 2013 
 - Optimize and write comments to hardpurchase action class
 - Combine deployitem and deployevent classes into one deploy class
