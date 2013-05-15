@@ -49,7 +49,7 @@ class getmyitems(webapp2.RequestHandler):
 	respn = ''
 	error = ''
 	debug = ''
-		
+
 	# get function implementation
 	def get(self):
 		Utils.reset(self)														# reset/clean standard variables
@@ -57,12 +57,12 @@ class getmyitems(webapp2.RequestHandler):
 		# validate and assign parameters
 		uuid 	= Utils.required(self, 'uuid')
 		
-		start_time = time.time() 												# start count 
+		start_time = time.time() 												# start count
 
 		# if error, skip this
 		if self.error == '':	
-			player = Player.getplayer_as_obj(self, uuid)								# get player state
-			
+			player = Player.getplayer_as_obj(self, uuid)						# get player state
+
 		# if error or player is none, then skip to the end
 		if self.error == '' and player is not None:
 			storeitem = Data.getstoreitem_as_obj(self, config.softstore['version'])	# get store item
@@ -74,7 +74,7 @@ class getmyitems(webapp2.RequestHandler):
 				self.respn = '{'
 				for item in items:
 					if storeitem[str(item.itid)]:
-					
+
 						# update item's status -> for more detail see softpurchase.py
 						save = False
 						if item.status == 'pending' and time.time() >= item.timestamp:
@@ -104,19 +104,19 @@ class getmyitems(webapp2.RequestHandler):
 						
 						if save == True:
 							item.put()
-							
+
 				self.respn = self.respn.rstrip(',') + '}'
 				
 				if change > 0:
 					memcache.delete(config.db['itemdb_name']+'.'+uuid)
 					if not memcache.add(config.db['itemdb_name']+'.'+uuid, items, config.memcache['holdtime']):
 						logging.warning('Core - Memcache set items failed')
-				
+
 		# calculate time taken and return result
 		time_taken =  time.time() - start_time;
 		self.response.headers['Content-Type'] = 'text/html'
 		self.response.write(Utils.RESTreturn(self, time_taken))
-		
+
 	# do exactly as get() does
 	def post(self):
 		self.get()
