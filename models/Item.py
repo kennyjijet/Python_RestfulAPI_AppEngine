@@ -45,7 +45,7 @@ class Item(db.Model):
 		
 	@staticmethod
 	def getspecificinidproduceditem(self, uuid, inid):
-		items = Core.getproduceditems(self, uuid)
+		items = Item.getproduceditems(self, uuid)
 		item = None
 		for _item in items:
 			if _item.inid == inid:

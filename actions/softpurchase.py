@@ -40,7 +40,6 @@ from config				import config
 from models.Item		import Item
 
 # include
-from controllers.Core 	import Core
 from helpers.utils		import Utils
 from helpers.apns		import apns
 

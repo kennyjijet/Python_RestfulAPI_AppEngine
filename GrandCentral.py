@@ -1,7 +1,7 @@
 import webapp2
 
 #controllers
-from controllers.Proxy 		import Proxy
+#from controllers.Proxy 		import Proxy
 
 # actions
 #from actions.testing		import _populate, _cleanup
@@ -14,9 +14,6 @@ from actions.deleteplayer 	import deleteplayer
 #from actions.savescore 		import savescore
 #from actions.loadreplay 	import loadreplay
 #from actions.getleaderboard import getleaderboard
-
-#from actions.deploystore 		import deploystore
-#from actions.deployevent		import deployevent
 from actions.deploy				import deploy
 from actions.getsoftstore		import getsoftstore
 from actions.softpurchase		import softpurchase
@@ -37,8 +34,6 @@ app = webapp2.WSGIApplication([
 		#('/savescore', savescore),
 		#('/loadreplay', loadreplay),
 		#('/getleaderboard', getleaderboard),
-		#('/deploystore', deploystore),
-		#('/deployevent', deployevent),
 		('/deploy',	deploy),
 		('/getsoftstore', getsoftstore),
 		('/softpurchase', softpurchase),
