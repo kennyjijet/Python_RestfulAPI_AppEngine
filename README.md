@@ -13,7 +13,7 @@ GC-GAE version 1 will be http://1.game-punks.appspot.com<br/>
 <b>Version available:</b><br/>
 1
 
-## Item
+## Item Sequence Processing
 1. Call getsoftstore action with uuid to get list of items that user can purchase
 2. Call softpurchase action with itid(retrieved from getsoftstore) to purchase $(itid)item
 3. $(itid)item will add to user's inventory but hold status as 'pending' until reach deliver time
