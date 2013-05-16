@@ -18,28 +18,30 @@ from actions.deploy				import deploy
 from actions.getsoftstore		import getsoftstore
 from actions.softpurchase		import softpurchase
 from actions.hardpurchase		import hardpurchase
+from actions.finishnow          import finishnow
 from actions.getmyitems			import getmyitems
 from actions.sendnotifications	import sendnotifications
 from actions.event				import event
 
 app = webapp2.WSGIApplication([
-		#('/_populate', _populate),
-		#('/_cleanup', _cleanup),
-		#('/proxy', Proxy),
-		('/exam', exam),
-		('/saveplayer', saveplayer),
-		('/setpntoken', setpntoken),
-		('/loadplayer', loadplayer),
-		('/deleteplayer', deleteplayer),
-		#('/savescore', savescore),
-		#('/loadreplay', loadreplay),
-		#('/getleaderboard', getleaderboard),
-		('/deploy',	deploy),
-		('/getsoftstore', getsoftstore),
-		('/softpurchase', softpurchase),
-		('/hardpurchase', hardpurchase),
-		('/getmyitems', getmyitems),
-		('/sendnotifications', sendnotifications),
-		('/event', event),
-		('/.*', noactions)
-	], debug=True)
+                                  #('/_populate', _populate),
+                                  #('/_cleanup', _cleanup),
+                                  #('/proxy', Proxy),
+                                  ('/exam', exam),
+                                  ('/saveplayer', saveplayer),
+                                  ('/setpntoken', setpntoken),
+                                  ('/loadplayer', loadplayer),
+                                  ('/deleteplayer', deleteplayer),
+                                  #('/savescore', savescore),
+                                  #('/loadreplay', loadreplay),
+                                  #('/getleaderboard', getleaderboard),
+                                  ('/deploy',	deploy),
+                                  ('/getsoftstore', getsoftstore),
+                                  ('/softpurchase', softpurchase),
+                                  ('/hardpurchase', hardpurchase),
+                                  ('/finishnow', finishnow),
+                                  ('/getmyitems', getmyitems),
+                                  ('/sendnotifications', sendnotifications),
+                                  ('/event', event),
+                                  ('/.*', noactions)
+                              ], debug=True)
