@@ -85,13 +85,11 @@ class hardpurchase(webapp2.RequestHandler):
             else:
                 url = config.apple['verifyingReceiptURL']
             # now we do send out verification to apple service with our receipt data
-
-            if receipt!=config.apple['testReceipt']:
-                result = urlfetch.fetch(url=url,
-                                        payload='{"receipt-data":"'+receipt+'"}',
-                                        method=urlfetch.POST,
-                                        headers={'Content-Type': 'text/json; charset=utf-8'},
-                                        validate_certificate=False)
+            result = urlfetch.fetch(url=url,
+                                    payload='{"receipt-data":"'+receipt+'"}',
+                                    method=urlfetch.POST,
+                                    headers={'Content-Type': 'text/json; charset=utf-8'},
+                                    validate_certificate=False)
 
             if result.status_code == 200 or receipt==config.apple['testReceipt']:	# check if we've got a complete response from Apple Service
                 resultobj = json.loads(result.content)								# if yes, parse result into json object, so we can read it
