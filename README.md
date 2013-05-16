@@ -24,8 +24,9 @@ GC-GAE version 1 will be http://1.game-punks.appspot.com<br/>
    and never turn back to 'reward' again.
 5. Call getmyitems action with uuid to get list of items in user inventory, this action will also
    process the item progression (item status). if item is a resource producer type, Its status will
-   turn to 'produced' when it ready to give resource. Now this item is waiting for user to collect 
+   turn to 'produced' when it is ready to give resource. Now this item is waiting for user to collect 
    its produced resource.
 6. Call event action with $(evid)=Collect and $(inid)=WhateverItemInventoryID. This action will grap
-   produced resource from item to user and clean item, start producing from 0 again.
-PS. resource refers to gold, oil, fuel, tyres, and so on
+   produced resource from item to user and clean item, set item's status back to 'rewareded', 
+   start producing from 0 again. user can do collecting only when item's statis is 'produced'.
+   PS. 'resource' refers to gold, oil, fuel, tyres, and so on
