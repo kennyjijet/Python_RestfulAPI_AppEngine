@@ -4,7 +4,7 @@ import webapp2
 #from controllers.Proxy 		import Proxy
 
 # actions
-#from actions.testing		import _populate, _cleanup
+from actions.testing		import testing
 from actions.exam			import exam
 from actions.noactions 		import noactions
 from actions.saveplayer 	import saveplayer
@@ -25,7 +25,7 @@ from actions.sendnotifications	import sendnotifications
 from actions.event				import event
 
 app = webapp2.WSGIApplication([
-                                  #('/_populate', _populate),
+                                  ('/testing', testing),
                                   #('/_cleanup', _cleanup),
                                   #('/proxy', Proxy),
                                   ('/exam', exam),

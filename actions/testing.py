@@ -1,183 +1,201 @@
-import webapp2
-import json
-import logging
-import math
-import random
-import time
+""" testing action class
 
-logging.basicConfig(filename='testing.log', level=logging.INFO)
+	Project: GrandCentral-GAE
+	Author: Plus Pingya
+	Github: https://github.com/Gamepunks/grandcentral-gae
+
+
+	Description
+	---------------------------------------------------------------
+	I am an API to do all test
+
+
+	Input:
+	---------------------------------------------------------------
+	required: passwd
+	optional:
+
+
+	Output:
+	---------------------------------------------------------------
+	result
+
+
+"""
 
 # built-in libraries
-from random 		import randint
-from datetime		import date, datetime
+import webapp2
+import logging
+import time
+import json
 
 # google's libraries
-from google.appengine.ext import db
-from google.appengine.api import memcache
+from google.appengine.api import urlfetch
 
 # config
-from config			import config
+from config import config
 
-# models
-from models.Player 	import Player
-from models.Score 	import Score
+# include
+from helpers.utils import Utils
+import GrandCentral
 
-class _populate(webapp2.RequestHandler):
-	
-	error = ''
-	respn = ''
-	debug = ''
-	
-	def reset(self):
-		self.error = ''
-		self.respn = ''
-		self.debug = ''
-	
-	def required(self, par_name):
-		if self.error == "": 
-			if self.request.get(par_name):
-				return self.request.get(par_name)
-			else: 
-				self.error = par_name + " is a required parameter."
-		return "undefined"
-		
-	def geneuuid(self, par_name):
-		if self.request.get(par_name):
-			return self.request.get(par_name)
-		else:
-			now = datetime.now()
-			return now.strftime('%S%y%M%m%H%d')+str(randint(1, 100))
-		
-		
-	def get(self):
-	
-		self.reset()
-		
-		# validate
-		passwd	= self.required('passwd')
-		start	= self.required('start')
-		num		= self.required('num')
-		
-		if self.error == '' and passwd != config.testing['passwd']:
-			self.error = 'passwd is incorrect.'
-			
-		start_time = time.time()
-		
-		if self.error == '':
-			j=0
-			l=0
-			for i in range(int(start), int(start)+int(num)):
-				player = Player(parent=db.Key.from_path('Player', config.db['playerdb_name']))
-				player.uuid 	= '_test'+str(i+1) #self.geneuuid('random')
-				player.state	= '{"name":"_test'+str(i+1)+'",'
-				player.state   += '"photo":"'+config.testing['photosample']+'"}'
-				if player.put():
-					j = j+1
-					for k in config.testing['track']:
-						for t in config.leaderboard['type']:
-							score = Score(parent=db.Key.from_path('Score', config.db['scoredb_name']))
-							score.uuid 	= player.uuid
-							score.type 	= k
-							score.point = float(randint(50, 200))
-							score.data	= '{'
-							score.data += '"name":"'	+'_test'+str(i+1)+	'",'
-							score.data += '"photo":"'	+config.testing['photosample']+	'",'
-							score.data += '"replay":"'	+config.testing['replaysample']+	'"'
-							score.data += '}'
-			
-							start_date = date.today().replace(day=1, month=1, year=2013).toordinal()
-							end_date = date.today().toordinal()
-							random_day = date.fromordinal(random.randint(start_date, end_date))
+from actions.saveplayer import saveplayer
 
-							if t == 'weekly':
-								score.created_dwmy = '0-'+str(int(math.ceil(random_day.day / 7)))+'-'+str(random_day.month)+'-'+str(random_day.year)
-							else:
-								score.created_dwmy = str(random_day.day)+'-'+str(int(math.ceil(random_day.day / 7)))+'-'+str(random_day.month)+'-'+str(random_day.year)
-							
-							if score.put():
-								l = l + 1;
-			
-			time_taken =  time.time() - start_time;
-			logging.info(str(j)+' users were added, '+str(l)+' scores were added. ('+str(time_taken)+' secs)')
-			self.respn = '"'+str(j)+' users were added, '+str(l)+' scores were added. ('+str(time_taken)+' secs)"'
-		
-		# return
-		time_taken =  time.time() - start_time;
-		self.debug += '('+str(time_taken)+')'
-		self.response.headers['Content-Type'] = 'text/html'
-		if self.respn == '': self.respn = '""'
-		if self.request.get('debug'):
-			self.response.write('{"response":'+self.respn+',"error":"'+self.error+'", "debug":"'+self.debug+'"}')
-		else:
-			self.response.write('{"response":'+self.respn+',"error":"'+self.error+'"}')
-		
-	
-	def post(self):
-		self.get()
-		
-		
-class _cleanup(webapp2.RequestHandler):
-	
-	error = ''
-	respn = ''
-	debug = ''
-	
-	def reset(self):
-		self.error = '';
-		self.respn = '';
-		self.debug = '';
-	
-	def required(self, par_name):
-		if self.error == "": 
-			if self.request.get(par_name):
-				return self.request.get(par_name)
-			else: 
-				self.error = par_name + " is a required parameter."
-		return "undefined"
-		
-		
-	def get(self):
-	
-		self.reset()
-		
-		# validate
-		passwd	= self.required('passwd')
-		start	= self.required('start')
-		num		= self.required('num')
-		
-		if self.error == '' and passwd != config.testing['passwd']:
-			self.error = 'passwd is incorrect.'
-		
-		start_time = time.time()
-		
-		if self.error == '':
-			j=0
-			l=0
-			for i in range(int(start), int(start)+int(num)):
-				players = Player.all().filter('uuid =', '_test'+str(i+1)).ancestor(db.Key.from_path('Player', config.db['playerdb_name'])).fetch(1);
-				if len(players) >= 1:
-					scores = Score.all().filter('uuid =', players[0].uuid).ancestor(db.Key.from_path('Score', config.db['scoredb_name'])).fetch(len(config.testing['track'])*len(config.leaderboard['type']));
-					for score in scores:
-						score.delete()
-						l = l + 1
-							
-					players[0].delete()
-					j = j + 1;
-					
-			time_taken =  time.time() - start_time;
-			logging.info(str(j)+' users were deleted, '+str(l)+' scores were deleted. ('+str(time_taken)+' secs)')
-			self.respn = '"'+str(j)+' users were deleted, '+str(l)+' scores were deleted. ('+str(time_taken)+' secs)"'
-			
-		# return
-		time_taken =  time.time() - start_time;
-		self.debug += '('+str(time_taken)+')'
-		self.response.headers['Content-Type'] = 'text/html'
-		if self.respn == '': self.respn = '""'
-		if self.request.get('debug'):
-			self.response.write('{"response":'+self.respn+',"error":"'+self.error+'", "debug":"'+self.debug+'"}')
-		else:
-			self.response.write('{"response":'+self.respn+',"error":"'+self.error+'"}')
-		
-		
-	def post(self):
-		self.get()
+# class implementation
+class testing(webapp2.RequestHandler):
+
+    # standard variables
+    sinfo = ''
+    respn = ''
+    error = ''
+    debug = ''
+
+    logarr = None
+
+    # get function implementation
+    def get(self):
+        Utils.reset(self)                                                        # reset/clean standard variables
+
+        self.logarr = []
+
+        # validate and assign parameters
+        passwd = Utils.required(self, 'passwd')
+
+        # check password
+        if self.error == '' and passwd != config.testing['passwd']:
+            self.error = 'passwd is incorrect.'
+
+        start_time = time.time()                                                # start count
+
+        # if error, skip this
+        if self.error == '':
+
+            # saveplayer
+            request = webapp2.Request.blank(
+                '/saveplayer?passwd=' + passwd + '&name=testPlus Pingya&photo=http://graph.facebook.com/pluspingya/picture?type=large')
+            response = request.get_response(GrandCentral.app)
+            response_obj = json.loads(response.body);
+            self.error = response_obj['error']
+        if self.error == '':
+            uuid = response_obj['response']['uuid']
+            self.log('saveplayer -> ' + uuid + " created")
+            self.log(response_obj['response'])
+
+            # getsoftstore
+            request = webapp2.Request.blank('/getsoftstore?uuid=' + uuid)
+            response = request.get_response(GrandCentral.app)
+            response_obj = json.loads(response.body);
+            self.error = response_obj['error']
+        if self.error == '':
+            num = len(response_obj['response'])
+            self.log('getsoftstore -> ' + str(num) + ' items were found from softstore')
+            self.log(response_obj['response'])
+
+            # softpurchase - not qualified to purchase
+            request = webapp2.Request.blank('/softpurchase?uuid=' + uuid + '&itid=Car.3')
+            response = request.get_response(GrandCentral.app)
+            response_obj = json.loads(response.body);
+            self.error = response_obj['error']
+        if self.error == '':
+            res = response_obj['response']['warning']
+            self.log('softpurchase(Car.3) -> ')
+            self.log(response_obj['response'])
+
+            # softpurchase - success
+            request = webapp2.Request.blank('/softpurchase?uuid=' + uuid + '&itid=Car.1')
+            response = request.get_response(GrandCentral.app)
+            response_obj = json.loads(response.body);
+            self.error = response_obj['error']
+        if self.error == '':
+            for i in response_obj['response']['items']:
+                inid = i
+            self.log('softpurchase(Car.1) -> ' + inid + ' has been purchased')
+            self.log(response_obj['response'])
+
+            # softpurchase - reach the maximum
+            request = webapp2.Request.blank('/softpurchase?uuid=' + uuid + '&itid=Car.1')
+            response = request.get_response(GrandCentral.app)
+            response_obj = json.loads(response.body);
+            self.error = response_obj['error']
+        if self.error == '':
+            res = response_obj['response']['warning']
+            self.log('softpurchase(Car.1) -> ')
+            self.log(response_obj['response'])
+
+            # hardpurchase
+            request = webapp2.Request.blank('/hardpurchase?uuid='+uuid+'&itid=Platinum.1&receipt='+config.apple['testReceipt'])
+            response = request.get_response(GrandCentral.app)
+            response_obj = json.loads(response.body);
+            self.error = response_obj['error']
+        if self.error == '':
+            self.log('hardpurchase -> ')
+            self.log(response_obj['response'])
+
+            # softpurchase - not enough gold
+            request = webapp2.Request.blank('/softpurchase?uuid='+uuid+'&itid=Car.2')
+            response = request.get_response(GrandCentral.app)
+            response_obj = json.loads(response.body);
+            self.error = response_obj['error']
+        if self.error == '':
+            self.log('softpurchase(Car.2) -> ')
+            self.log(response_obj['response'])
+
+            # setpntoken
+            request = webapp2.Request.blank('/setpntoken?passwd='+passwd+'&uuid='+uuid+'&token=testpntoken')
+            response = request.get_response(GrandCentral.app)
+            response_obj = json.loads(response.body);
+            self.error = response_obj['error']
+        if self.error == '':
+            self.log('testpntoken -> device token has been set')
+            self.log(response_obj['response'])
+
+            # finish now
+            request = webapp2.Request.blank('/finishnow?uuid='+uuid+'&inid='+inid)
+            response = request.get_response(GrandCentral.app)
+            response_obj = json.loads(response.body);
+            self.error = response_obj['error']
+        if self.error == '':
+            self.log('finishnow -> the given item should be rewarded now')
+            self.log(response_obj['response'])
+
+            # loadplayer
+            request = webapp2.Request.blank('/loadplayer?uuid='+uuid)
+            response = request.get_response(GrandCentral.app)
+            response_obj = json.loads(response.body);
+            self.error = response_obj['error']
+        if self.error == '':
+            self.log('loadplayer -> ')
+            self.log(response_obj['response'])
+
+            # getmyitems
+            request = webapp2.Request.blank('/getmyitems?uuid='+uuid)
+            response = request.get_response(GrandCentral.app)
+            response_obj = json.loads(response.body);
+            self.error = response_obj['error']
+        if self.error == '':
+            self.log('getmyitems -> ')
+            self.log(response_obj['response'])
+
+            #deleteplayer
+            request = webapp2.Request.blank('/deleteplayer?passwd='+passwd+'&uuid='+uuid)
+            response = request.get_response(GrandCentral.app)
+            response_obj = json.loads(response.body);
+            self.error = response_obj['error']
+        if self.error == '':
+            self.log('deleteplayer -> ' + uuid + " deleted")
+            self.log(response_obj['response'])
+
+            self.respn = json.dumps(self.logarr)
+
+        # calculate time taken and return the result
+        time_taken =  time.time() - start_time
+        self.response.headers['Content-Type'] = 'text/html'
+        self.response.write(Utils.RESTreturn(self, time_taken))
+
+    # do exactly as get() does
+    def post(self):
+        self.get()
+
+    def log(self, txt):
+        logging.info(txt)
+        self.logarr.append(txt)
