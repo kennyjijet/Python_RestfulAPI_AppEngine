@@ -15,6 +15,7 @@ from actions.deleteplayer 	import deleteplayer
 #from actions.loadreplay 	import loadreplay
 #from actions.getleaderboard import getleaderboard
 from actions.deploy				import deploy
+from actions.getdata            import getdata
 from actions.getsoftstore		import getsoftstore
 from actions.softpurchase		import softpurchase
 from actions.hardpurchase		import hardpurchase
@@ -36,6 +37,7 @@ app = webapp2.WSGIApplication([
                                   #('/loadreplay', loadreplay),
                                   #('/getleaderboard', getleaderboard),
                                   ('/deploy',	deploy),
+                                  ('/getdata', getdata),
                                   ('/getsoftstore', getsoftstore),
                                   ('/softpurchase', softpurchase),
                                   ('/hardpurchase', hardpurchase),
