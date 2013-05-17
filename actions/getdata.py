@@ -35,8 +35,6 @@ from config         import config
 # include
 from helpers.utils  import Utils
 from models.Data    import Data
-from models.Item    import Item
-from models.Player  import Player
 
 # class implementation
 class getdata(webapp2.RequestHandler):

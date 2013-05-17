@@ -37,15 +37,13 @@ from random 		import randint
 from datetime 		import datetime, date
 
 # google's libraries
-from google.appengine.ext import db
-from google.appengine.api import memcache, urlfetch
+from google.appengine.api import urlfetch
 
 # config
 from config			import config
 
 # include
 from helpers.utils		import Utils
-#from models.Storeitem 	import Storeitem
 from models.Data		import Data
 from models.Player		import Player
 from models.Record		import Record
