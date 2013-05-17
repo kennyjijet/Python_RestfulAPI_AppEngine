@@ -79,7 +79,7 @@ class deploy(webapp2.RequestHandler):
 			if idata is None:																# if no data was found
 				idata = Data(parent=db.Key.from_path('Data', config.db['datadb_name']))		# create a new one
 				idata.type = type															# assign type
-				idata.version = version														# assign version
+				idata.version = float(version)														# assign version
 				self.error = ''																# clean error
 
 		# if any error or idata is none, then skip to the end
