@@ -22,9 +22,9 @@ class Record(db.Model):
 		m.update(receipt)					# to hash our given receipt
 		hreceipt = m.hexdigest()			# but our purpose is that we want to minimize the receipt and make it unique 
 		# we will looking for our record in memcache first
-		record = memcache.get(config.db['recorddb_name']+'.'+hreceipt)						# using hashed receipt as a key
+		record = memcache.get(config.db['recorddb_name']+'.'+uuid+'.'+hreceipt)						# using hashed receipt as a key
 		if record is None:					# if record was not found in memcahce
-			records = Record.all().filter('hreceipt =', hreceipt).ancestor(db.Key.from_path('Record', config.db['recorddb_name'])).fetch(1) # then have a look in database (Datastore)
+			records = Record.all().filter('uuid =', uuid).filter('hreceipt =', hreceipt).ancestor(db.Key.from_path('Record', config.db['recorddb_name'])).fetch(1) # then have a look in database (Datastore)
 			if len(records)>=1: 			# count result, to see that how many record we've got, if more than one
 				record = records[0]			# we only need one, so we pick the first one
 			else:							# if record was not found, it means this record is new
@@ -34,8 +34,8 @@ class Record(db.Model):
 				record.hreceipt = hreceipt
 				record.status = 'pending'	# set default status as pending
 				if record.put():			# put it into datastore
-					memcache.delete(config.db['recorddb_name']+'.'+hreceipt)				# clean an existing record
-					if not memcache.add(config.db['recorddb_name']+'.'+hreceipt, record, config.memcache['holdtime']):	# and re-add it into memcache, so if we need this data soon, we don't need to access datastore, which is expensive
+					memcache.delete(config.db['recorddb_name']+'.'+uuid+'.'+hreceipt)				# clean an existing record
+					if not memcache.add(config.db['recorddb_name']+'.'+uuid+'.'+hreceipt, record, config.memcache['holdtime']):	# and re-add it into memcache, so if we need this data soon, we don't need to access datastore, which is expensive
 						logging.warning('hardpurchase - Memcache set record failed')		# if failed, write into the log file
 		if record is not None:
 			if record.status == 'rewarded':	# if we can find the record from memcache or datastore, this record migth already been rewarded
@@ -48,8 +48,8 @@ class Record(db.Model):
 	def setrecord(self, record):
 		if record:
 			if record.put():
-				memcache.delete(config.db['recorddb_name']+'.'+record.hreceipt)					# clean an existing record
-				if not memcache.add(config.db['recorddb_name']+'.'+record.hreceipt, record, config.memcache['holdtime']):	# 
+				memcache.delete(config.db['recorddb_name']+'.'+record.uuid+'.'+record.hreceipt)					# clean an existing record
+				if not memcache.add(config.db['recorddb_name']+'.'+record.uuid+'.'+record.hreceipt, record, config.memcache['holdtime']):	#
 					logging.warning('hardpurchase - Memcache set record failed')				# if failed, write into the log file
 				return True
 		return False
