@@ -185,6 +185,15 @@ class testing(webapp2.RequestHandler):
             self.log('deleteplayer -> ' + uuid + " deleted")
             self.log(response_obj['response'])
 
+            #getdata (advisdor)
+            request = webapp2.Request.blank('/getdata?passwd='+passwd+'&type=advisor&version=1')
+            response = request.get_response(GrandCentral.app)
+            response_obj = json.loads(response.body);
+            self.error = response_obj['error']
+        if self.error == '':
+            self.log('getdata(advisor) ->')
+            self.log(response_obj['response'])
+
             self.respn = json.dumps(self.logarr)
 
         # calculate time taken and return the result
