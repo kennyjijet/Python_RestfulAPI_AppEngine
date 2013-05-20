@@ -72,6 +72,6 @@ class getdata(webapp2.RequestHandler):
 		self.response.headers['Content-Type'] = 'text/html'
 		self.response.write(Utils.RESTreturn(self, time_taken))
 
-	# do exactly as get() does
-	def post(self):
-		self.get()
+    # do exactly as get() does
+    def post(self):
+        self.get()
