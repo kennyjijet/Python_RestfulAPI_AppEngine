@@ -36,7 +36,7 @@ app = webapp2.WSGIApplication([
                                   #('/savescore', savescore),
                                   #('/loadreplay', loadreplay),
                                   #('/getleaderboard', getleaderboard),
-                                  ('/deploy',	deploy),
+                                  ('/deploy', deploy),
                                   ('/getdata', getdata),
                                   ('/getsoftstore', getsoftstore),
                                   ('/softpurchase', softpurchase),
