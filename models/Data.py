@@ -18,9 +18,7 @@ class Data(db.Model):
     @staticmethod
     def getData(self, type, version):
         data = memcache.get(config.db['datadb_name']+'.'+type+'.'+str(version))
-        logging.info(str(version))
         if data is None:
-            logging.info('2')
             datas = Data.all().filter('type =', type).filter('version =', version).ancestor(db.Key.from_path('Data', config.db['datadb_name'])).fetch(1)
             if len(datas) >= 1:
                 logging.info('3')

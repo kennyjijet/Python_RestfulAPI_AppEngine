@@ -37,7 +37,6 @@ from config				import config
 from helpers.utils		import Utils
 from models.Player 		import Player
 from models.Data		import Data
-#from models.Storeitem	import Storeitem
 from models.Item		import Item
 
 # class implementation
