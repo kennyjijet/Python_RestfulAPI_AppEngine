@@ -34,12 +34,15 @@ GC-GAE version 1 will be http://1.game-punks.appspot.com<br/>
    PS. 'resource' refers to gold, oil, fuel, tyres, and so on
 
 ## Multiple language-content supported
-GrandCentral supports multiple language in game content, using the same concept as dictionary.
-All words, sentenses, paragraphs, and any texts are defined in spreadsheet (Google Drive).
-Deploy the dictionary spreadsheet to GrandCentral-GAE, and GrandCentral will serve it for users.
+GrandCentral supports multiple languages for text-contents, using the same concept as dictionary.
+All words, sentenses, dialogs, narrative, and any text-contents are defined in each language in spreadsheet (Google Drive).
+And deploy (using DeployToGAE app script) the spreadsheet to GrandCentral-GAE, and GrandCentral will serve it to users.
 
 <b>For example:</b> <br/>
+Game client might want to skin the game in German language, the game will need to grab german-dictionary from GC-GAE
 Fetch http://game-punks.appspot.com/getdict?password=....&lang=German
+This will respond with list of keys and its text-content in German. 
+After client retrieved dictionary, then it should placed text into postion regard its key
 
 <b>Supported languages are following:</b> <br/>
 English, Spanish, German, French, Italian, SimplifiedChinese, TraditionalChinese, Japanese, Korean, 
