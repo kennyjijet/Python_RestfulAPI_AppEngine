@@ -34,6 +34,9 @@ class config():
     event = {
         "version": 1.0
     }
+    dictionary = {
+        "version": 1.0
+    }
     apple = {
         "sandbox": True,
         "verifyingReceiptURL": "https://buy.itunes.apple.com/verifyReceipt",
