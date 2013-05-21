@@ -41,7 +41,7 @@ And deploy (using DeployToGAE app script) the spreadsheet to GrandCentral-GAE, a
 <b>For example:</b> <br/>
 Game client might want to skin the game in German language, the game will need to grab german-dictionary from GC-GAE
 using action 'getdict' (requires two parameters: passwd and lang)
-Fetch http://game-punks.appspot.com/getdict?password=....&lang=German
+Fetch http://game-punks.appspot.com/getdict?passwd=....&lang=German
 This will respond with list of keys and its text-content in German. 
 After client has retrieved dictionary, it should place the text into the postion regarding its key
 
