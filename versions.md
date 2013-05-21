@@ -1,5 +1,19 @@
 # GrandCentral-GAE API
 
+## 21 May 2013
+### Multiple language-content supported
+GrandCentral supports multiple language in game content, using the same concept as dictionary.
+All words, sentenses, paragraphs, and any texts are defined in spreadsheet (Google Drive).
+Deploy the dictionary spreadsheet to GrandCentral-GAE, and GrandCentral will serve it for users.
+
+For example:
+Fetch http://game-punks.appspot.com/getdict?password=....&lang=German
+
+Supported languages are following:
+English, Spanish, German, French, Italian, SimplifiedChinese, TraditionalChinese, Japanese, Korean, 
+Russian, and BrazilianPortuguese
+
+
 ## 16 May 2013
 ### Item Sequence Processing
 1. Call getsoftstore action with uuid to get list of items that user can purchase
