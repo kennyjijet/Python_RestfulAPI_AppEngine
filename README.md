@@ -32,3 +32,15 @@ GC-GAE version 1 will be http://1.game-punks.appspot.com<br/>
    produced resource from item to user and clean item, set item's status back to 'rewareded', 
    start producing from 0 again. user can do collecting only when item's statis is 'produced'.
    PS. 'resource' refers to gold, oil, fuel, tyres, and so on
+
+## Multiple language-content supported
+GrandCentral supports multiple language in game content, using the same concept as dictionary.
+All words, sentenses, paragraphs, and any texts are defined in spreadsheet (Google Drive).
+Deploy the dictionary spreadsheet to GrandCentral-GAE, and GrandCentral will serve it for users.
+
+<b>For example:</b> <br/>
+Fetch http://game-punks.appspot.com/getdict?password=....&lang=German
+
+<b>Supported languages are following:</b> <br/>
+English, Spanish, German, French, Italian, SimplifiedChinese, TraditionalChinese, Japanese, Korean, 
+Russian, and BrazilianPortuguese
