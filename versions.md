@@ -2,14 +2,18 @@
 
 ## 21 May 2013
 ### Multiple language-content supported
-GrandCentral supports multiple language in game content, using the same concept as dictionary.
-All words, sentenses, paragraphs, and any texts are defined in spreadsheet (Google Drive).
-Deploy the dictionary spreadsheet to GrandCentral-GAE, and GrandCentral will serve it for users.
+GrandCentral supports multiple languages for text-contents, using the same concept as dictionary.
+All words, sentenses, dialogs, narrative, and any text-contents are defined in each language in spreadsheet (Google Drive).
+And deploy (using DeployToGAE app script) the spreadsheet to GrandCentral-GAE, and GrandCentral will serve it to users.
 
-For example:
-Fetch http://game-punks.appspot.com/getdict?password=....&lang=German
+<b>For example:</b> <br/>
+Game client might want to skin the game in German language, the game will need to grab german-dictionary from GC-GAE
+using action 'getdict' (requires two parameters: passwd and lang)
+Fetch http://game-punks.appspot.com/getdict?passwd=....&lang=German
+This will respond with list of keys and its text-content in German. 
+After client has retrieved dictionary, it should place the text into the postion regarding its key
 
-Supported languages are following:
+<b>Supported languages are following:</b> <br/>
 English, Spanish, German, French, Italian, SimplifiedChinese, TraditionalChinese, Japanese, Korean, 
 Russian, and BrazilianPortuguese
 
