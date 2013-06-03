@@ -40,13 +40,14 @@ class Utils(object):
 			
 	@staticmethod
 	def RESTreturn(self, time_taken):
+		stampNow = int(time.time())
 		self.debug += '('+str(time_taken)+')'
 		if self.respn == '': 
 			self.respn = '""'
 		else:
 			if (self.respn[0] != '{' or self.respn[len(self.respn)-1] != '}') and (self.respn[0] != '[' or self.respn[len(self.respn)-1] != ']') and (self.respn[0] != '"' or self.respn[len(self.respn)-1] != '"'):
 				self.respn = '"'+self.respn+'"' 
-		self.sinfo = '{"serverName":"'+config.server['serverName']+'","apiVersion":'+str(config.server['apiVersion'])+',"requestDuration":'+str(time_taken)+',"currentTime":'+str(time.time())+'}'
+		self.sinfo = '{"serverName":"'+config.server['serverName']+'","apiVersion":'+str(config.server['apiVersion'])+',"requestDuration":'+str(time_taken)+',"currentTime":'+str(stampNow)+'}'
 		if self.request.get('debug'):
 			return '{"serverInformation":'+self.sinfo+',"response":'+self.respn+',"error":"'+self.error+'", "debug":"'+self.debug+'"}'
 		else:

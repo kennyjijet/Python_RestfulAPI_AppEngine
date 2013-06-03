@@ -63,7 +63,7 @@ class softpurchase(webapp2.RequestHandler):
 		uuid = Utils.required(self, 'uuid')
 		itid = Utils.required(self, 'itid')
 		data = self.request.get('data')
-		start_time = time.time()                                 	# start count
+		start_time = time.time()                               		# start count
 
 		# set variables default
 		item = None
@@ -125,11 +125,26 @@ class softpurchase(webapp2.RequestHandler):
 					if storeitem[itemobj.itid]['type'] == Item.ItemType.BUILDING:
 						itemobj.userData = data
 					itemobj.status = 'pending'                                				# assign status, probably this is pending
-					itemobj.timestamp = time.time() + float(item['time'])        			# calculate time to deliver or reward, while status pending, user can't use it
+					itemobj.timestamp = int(start_time) + int(item['time'])        				# calculate time to deliver or reward, while status pending, user can't use it
 					if itemobj.put():                                        				# put it into database
 						if player.state_obj['token'] != '':                					# check if user already has token
 							apns.add(player.state_obj['token'], storeitem[str(itemobj.itid)]['title'] + ' has been delivered to you!', itemobj.timestamp) # if so, set a push notofication to be sent
 						if Player.setplayer_as_obj(self, player):            				# put player state back into the database
+
+							self.respn = '{'
+							self.respn += '"'+itemobj.inid+'":{'
+							self.respn += '"itid":"'+itemobj.itid+'",'
+							self.respn += '"type":"'+storeitem[itemobj.itid]['type']+'",'
+							self.respn += '"title":"'+storeitem[itemobj.itid]['title']+'",'
+							self.respn += '"desc":"'+storeitem[itemobj.itid]['description']+'",'
+							self.respn += '"imgurl":"'+storeitem[itemobj.itid]['image_url_sd']+'",'
+							self.respn += '"data":"'+itemobj.userData+'",'
+							self.respn += '"status":"'+itemobj.status+'",'
+							self.respn += '"timestamp":'+str(itemobj.timestamp)
+							self.respn += '},'
+							self.respn = self.respn.rstrip(',') + '}'
+
+							"""
 							myitems = Item.getspecificitems(self, uuid, item['id'])    		# get user items (only same type of purchased item), we want to list them all and return
 							if myitems is not None:                            				# make sure we have everything ready
 								self.respn = '{'
@@ -137,9 +152,9 @@ class softpurchase(webapp2.RequestHandler):
 									if storeitem[str(myitem.itid)]:            				# check if item does exist
 
 										save = False                                                                                     	# this variable indicates should we update user's item data
-										if myitem.status == 'pending' and time.time() >= myitem.timestamp:                                  # if item status is pending and it is time to reward
+										if myitem.status == 'pending' and start_time >= myitem.timestamp:                                  # if item status is pending and it is time to reward
 											myitem.status = 'reward'                                                                        # then reward it, by changing item status
-											myitem.timestamp = time.time() + storeitem[str(myitem.itid)]['produce_time']                    # calculate next time to produce resource
+											myitem.timestamp = int(start_time) + int(storeitem[str(myitem.itid)]['produce_time'])                    # calculate next time to produce resource
 											save = True                                                                                     # cause we change item status, so we need to update database
 										elif myitem.status == 'reward':                                                                     # if status is reward,
 											myitem.status = 'rewarded'                                                                      # we should change it to rewarded, so system won't duplicate reward
@@ -163,6 +178,7 @@ class softpurchase(webapp2.RequestHandler):
 								self.respn = self.respn.rstrip(',') + '}'
 							else:                                                                                                          	# if we can't get my item,
 								self.respn = '{}'                                                                                           # then return emtpy object
+							"""
 
 							self.respn = '{"uuid":"' + player.uuid + '", "state":' + player.state + ', "items":' + self.respn + '}'         # compose final result
 

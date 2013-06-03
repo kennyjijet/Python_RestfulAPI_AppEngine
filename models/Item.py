@@ -19,7 +19,7 @@ class Item(db.Model):
     inid 			= db.StringProperty(indexed=False)
     status			= db.StringProperty()
     userData        = db.TextProperty(indexed=False)
-    timestamp		= db.FloatProperty(indexed=False)
+    timestamp		= db.IntegerProperty(indexed=False)
     created			= db.DateTimeProperty(auto_now_add=True)
 
     ItemType        = ITEMTYPE

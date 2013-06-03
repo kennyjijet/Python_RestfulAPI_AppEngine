@@ -75,9 +75,9 @@ class getmyitems(webapp2.RequestHandler):
 
 						# update item's status -> for more detail see softpurchase.py
 						save = False
-						if item.status == 'pending' and time.time() >= item.timestamp:
+						if item.status == 'pending' and int(start_time) >= item.timestamp:
 							item.status = 'reward'
-							item.timestamp = time.time() + storeitem[str(item.itid)]['produce_time']
+							item.timestamp = int(start_time) + storeitem[str(item.itid)]['produce_time']
 							save = True
 						elif item.status == 'reward':
 							item.status = 'rewarded'
@@ -85,7 +85,7 @@ class getmyitems(webapp2.RequestHandler):
 
 						if storeitem[str(item.itid)]['resource_units'] >= 0:
 							if item.status == 'reward' or item.status == 'rewarded':
-								if time.time() > item.timestamp:
+								if int(start_time) > item.timestamp:
 									item.status = 'produced'
 									save = True
 
