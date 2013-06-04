@@ -77,15 +77,15 @@ class getmyitems(webapp2.RequestHandler):
 						save = False
 						if item.status == 'pending' and int(start_time) >= item.timestamp:
 							item.status = 'reward'
-							item.timestamp = int(start_time) + storeitem[str(item.itid)]['produce_time']
+							item.timestamp = int(start_time) + storeitem[item.itid]['produce_time']
 							save = True
 						elif item.status == 'reward':
 							item.status = 'rewarded'
 							save = True
 
-						if storeitem[str(item.itid)]['resource_units'] >= 0:
+						if storeitem[item.itid]['resource_units'] >= 0:
 							if item.status == 'reward' or item.status == 'rewarded':
-								if int(start_time) > item.timestamp:
+								if int(start_time) >= item.timestamp:
 									item.status = 'produced'
 									save = True
 
