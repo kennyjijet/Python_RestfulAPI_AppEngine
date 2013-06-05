@@ -22,6 +22,8 @@ from actions.softpurchase		import softpurchase
 from actions.hardpurchase		import hardpurchase
 from actions.finishnow          import finishnow
 from actions.getmyitems			import getmyitems
+from actions.getbuildingstore  	import getbuildingstore
+from actions.buybuilding		import buybuilding
 from actions.collect			import collect
 from actions.sendnotifications	import sendnotifications
 from actions.event				import event
@@ -44,10 +46,12 @@ app = webapp2.WSGIApplication([
                                   ('/getsoftstore', getsoftstore),
                                   ('/softpurchase', softpurchase),
                                   ('/hardpurchase', hardpurchase),
-                                  ('/finishnow', finishnow),
-                                  ('/getmyitems', getmyitems),
+								  ('/finishnow', finishnow),
+								  ('/getmyitems', getmyitems),
+								  ('/getbuildingstore', getbuildingstore),
+								  ('/buybuilding', buybuilding),
 								  ('/collect', collect),
-                                  ('/sendnotifications', sendnotifications),
-                                  ('/event', event),
-                                  ('/.*', noactions)
-                              ], debug=True)
+								  ('/sendnotifications', sendnotifications),
+								  ('/event', event),
+								  ('/.*', noactions)
+							  ], debug=True)
