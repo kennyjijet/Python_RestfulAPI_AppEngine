@@ -39,39 +39,39 @@ from models.Data    import Data
 # class implementation
 class getdata(webapp2.RequestHandler):
 
-    # standard variables
-    sinfo = ''
-    respn = ''
-    error = ''
-    debug = ''
+	# standard variables
+	sinfo = ''
+	respn = ''
+	error = ''
+	debug = ''
 
-    # get function implementation
-    def get(self):
-        Utils.reset(self)														# reset/clean standard variables
+	# get function implementation
+	def get(self):
+		Utils.reset(self)														# reset/clean standard variables
 
-        # validate and assign parameters
-        passwd = Utils.required(self, 'passwd')
-        type = Utils.required(self, 'type')
-        version = Utils.required(self, 'version')
+		# validate and assign parameters
+		passwd = Utils.required(self, 'passwd')
+		type = Utils.required(self, 'type')
+		version = Utils.required(self, 'version')
 
-        # check password
-        if self.error == '' and passwd != config.testing['passwd']:
-            self.error = 'passwd is incorrect.'
+		# check password
+		if self.error == '' and passwd != config.testing['passwd']:
+			self.error = 'passwd is incorrect.'
 
-        start_time = time.time()												# start count
+		start_time = time.time()												# start count
 
-        # if error, skip this
-        if self.error == '':
-            data = Data.getData(self, type, float(version))
-            if data is not None:
-                self.respn = data.data
-                logging.info(data.data);
+		# if error, skip this
+		if self.error == '':
+			data = Data.getData(self, type, float(version))
+			if data is not None:
+				self.respn = data.data
+				logging.info(data.data)
 
-        # calculate time taken and return the result
-		time_taken =  time.time() - start_time
+		# calculate time taken and return the result
+		time_taken = time.time() - start_time
 		self.response.headers['Content-Type'] = 'text/html'
 		self.response.write(Utils.RESTreturn(self, time_taken))
 
-    # do exactly as get() does
-    def post(self):
-        self.get()
+	# do exactly as get() does
+	def post(self):
+		self.get()
