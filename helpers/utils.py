@@ -37,6 +37,11 @@ class Utils(object):
 	def genitemid(self):		
 		now = datetime.now()
 		return now.strftime('item%S%y%M%m%H%d')+str(randint(1, 100))
+
+	@staticmethod
+	def genanyid(self, any):
+		now = datetime.now()
+		return now.strftime(str(any)+'%S%y%M%m%H%d')+str(randint(1, 100))
 			
 	@staticmethod
 	def RESTreturn(self, time_taken):
