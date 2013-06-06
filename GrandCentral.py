@@ -31,10 +31,10 @@ from actions.sendnotifications	import sendnotifications
 from actions.event				import event
 
 app = webapp2.WSGIApplication([
-                                  ('/testing', testing),
+                                  #('/testing', testing),
                                   #('/_cleanup', _cleanup),
                                   #('/proxy', Proxy),
-                                  ('/exam', exam),
+                                  #('/exam', exam),
                                   ('/saveplayer', saveplayer),
                                   ('/setpntoken', setpntoken),
                                   ('/loadplayer', loadplayer),
@@ -44,18 +44,18 @@ app = webapp2.WSGIApplication([
                                   #('/getleaderboard', getleaderboard),
                                   ('/deploy', deploy),
                                   ('/getdata', getdata),
-                                  ('/getdict', getdict),
-                                  ('/getsoftstore', getsoftstore),
-                                  ('/softpurchase', softpurchase),
-                                  ('/hardpurchase', hardpurchase),
-								  ('/finishnow', finishnow),
-								  ('/getmyitems', getmyitems),
+                                  #('/getdict', getdict),
+                                  #('/getsoftstore', getsoftstore),
+                                  #('/softpurchase', softpurchase),
+                                  #('/hardpurchase', hardpurchase),
+								  #('/finishnow', finishnow),
+								  #('/getmyitems', getmyitems),
 								  ('/getbuildingstore', getbuildingstore),
 								  ('/buybuilding', buybuilding),
 								  ('/finishbuilding', finishbuilding),
 								  ('/getmybuildings', getmybuildings),
 								  ('/collect', collect),
 								  ('/sendnotifications', sendnotifications),
-								  ('/event', event),
+								  #('/event', event),
 								  ('/.*', noactions)
 							  ], debug=True)

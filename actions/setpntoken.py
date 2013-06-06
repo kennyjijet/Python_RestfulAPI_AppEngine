@@ -52,9 +52,9 @@ class setpntoken(webapp2.RequestHandler):
 		Utils.reset(self)											# reset/clean standard variables
 		
 		# validate and assign parameters
-		passwd	= Utils.required(self, 'passwd')
-		uuid	= Utils.required(self, 'uuid')
-		token	= Utils.required(self, 'token')
+		passwd = Utils.required(self, 'passwd')
+		uuid = Utils.required(self, 'uuid')
+		token = Utils.required(self, 'token')
 		
 		# required password to process this action
 		if self.error == '' and passwd != config.testing['passwd']:
@@ -67,7 +67,7 @@ class setpntoken(webapp2.RequestHandler):
 			player = Player.getplayer_as_obj(self, uuid)			# get player as object
 		
 		# if any error on player is none
-		if self.error =='' and player is not None:
+		if self.error == '' and player is not None:
 			player.state_obj['token'] = token
 			if Player.setplayer_as_obj(self, player):
 				Player.compose_player(self, player)
@@ -75,7 +75,7 @@ class setpntoken(webapp2.RequestHandler):
 				self.error = 'unable to update player data (token).'
 	
 		# calculate time taken and return the result
-		time_taken =  time.time() - start_time;
+		time_taken = time.time() - start_time
 		self.response.headers['Content-Type'] = 'text/html'
 		self.response.write(Utils.RESTreturn(self, time_taken))
 		
