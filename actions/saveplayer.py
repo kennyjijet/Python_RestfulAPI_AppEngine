@@ -58,6 +58,7 @@ class saveplayer(webapp2.RequestHandler):
 		token = self.request.get('token')
 		name = Utils.required(self, 'name')
 		photo = Utils.required(self, 'photo')
+		gold = 10
 		cash = 5000
 		fuel = 5
 		tire = 5
@@ -77,13 +78,17 @@ class saveplayer(webapp2.RequestHandler):
 				player = Player(parent=db.Key.from_path('Player', config.db['playerdb_name']))    # create a new player state data
 				player.uuid = Utils.geneuuid(self, 'random')                                                # assign uuid
 				# and assign all player state
-				player.state_obj = {'token': token, 'name': name, 'photo': photo, 'cash': cash, 'fuel': fuel, 'tire': tire, 'battery': battery, 'oil': oil, 'brake': brake}
+				player.state_obj = {'token': token, 'name': name, 'photo': photo, 'gold': gold, 'cash': cash, 'fuel': fuel, 'tire': tire, 'battery': battery, 'oil': oil, 'brake': brake}
 			else:                                                                # but if player does exist
 				if token:                                                        # if token is provided
 					player.state_obj['token'] = token                            # assign token to player state
 				player.state_obj['name'] = name                                    # assign name
 				player.state_obj['photo'] = photo                                # assign photo url
 				# try .. cash and assign new property
+				try:
+					gold = player.state_obj['gold']
+				except KeyError:
+					player.state_obj['gold'] = gold
 				try:
 					cash = player.state_obj['cash']
 				except KeyError:

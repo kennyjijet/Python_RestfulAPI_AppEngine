@@ -30,6 +30,21 @@ class Data(db.Model):
 		return data
 
 	@staticmethod
+	def getDataAsObj(self, type, version):
+		data = memcache.get(config.db['datadb_name']+'.'+type+'_obj.'+str(version))
+		if data is None:
+			datas = Data.all().filter('type =', type).filter('version =', version).ancestor(db.Key.from_path('Data', config.db['datadb_name'])).fetch(1)
+			if len(datas) >= 1:
+				data = datas[0]
+				data.obj = json.loads(data.data)
+				if not memcache.add(config.db['datadb_name']+'.'+type+'_obj.'+str(version), data, config.memcache['longtime']):
+					logging.warning('Data - Memcache set data '+type+'.'+str(version)+' as object failed!')
+			else:
+				self.error = 'Data '+type+' (v.'+str(version)+') couldn\'t be retrieved!'
+				data = None
+		return data
+
+	@staticmethod
 	def setData(self, idata):
 		if idata:
 			if idata.put():
@@ -48,20 +63,23 @@ class Data(db.Model):
 			buildings = Data.getData(self, 'buildings', ver)
 			if buildings is not None:
 				buildings.as_obj = json.loads(buildings.data)
-				if not memcache.add('buildings_as_obj.'+str(ver), buildings, config.memcache['longtime']):
+				if not memcache.add('buildings.'+str(ver), buildings, config.memcache['longtime']):
 					logging.warning('Data.getbuildings memcache set failed!')
 			else:
 				self.error = 'Building data ('+str(ver)+' couldn\'t be retrieved!'
 		return buildings
+	"""
 	@staticmethod
 	def setbuildings(self, ver, buildings):
 		buildings.data = json.dumps(buildings.as_obj)
 		if buildings.put():
-			memcache.delete('buildings.'+str(ver));
+			memcache.delete('buildings.'+str(ver))
 			if not memcache.add('buildings_as_obj.'+str(ver), buildings, config.memcache['longtime']):
 				logging.warning('Data.setbuildings memcache set failed!')
 			return True
 		return False
+	"""
+
 
 
 	###############################################################################

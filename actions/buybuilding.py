@@ -101,7 +101,7 @@ class buybuilding(webapp2.RequestHandler):
 			if player.state_obj['cash'] >= building['cost']:
 				player.state_obj['cash'] -= building['cost']
 				if Player.setplayer_as_obj(self, player):
-					mybuilding = Building(parent=db.Key.from_path('Building', config.db['building_name']))
+					mybuilding = Building(parent=db.Key.from_path('Building', config.db['buildingdb_name']))
 					mybuilding.uuid = uuid
 					mybuilding.itid = itid
 					mybuilding.inid = Utils.genanyid(self, 'b')
@@ -111,12 +111,9 @@ class buybuilding(webapp2.RequestHandler):
 					if mybuilding.put():
 						self.respn = '{"state":'+player.state+','
 						self.respn += '"buildings":['
-						self.respn += '{"inid":"'+mybuilding.inid+'",'
-						self.respn += '"itid":"'+mybuilding.itid+'",'
-						self.respn += '"status":"'+mybuilding.status+'",'
-						self.respn += '"location":"'+mybuilding.location+'",'
-						self.respn += '"timestamp":'+str(mybuilding.timestamp)
-						self.respn += '}]}'
+						self.respn = Building.compose_mybuilding(self.respn, mybuilding)
+						self.respn = self.respn.rstrip(',') + ']'
+						self.respn += '}'
 			else:
 				self.respn = '{"warning":"not enough cash!"}'
 

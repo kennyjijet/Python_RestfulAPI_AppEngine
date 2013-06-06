@@ -24,6 +24,8 @@ from actions.finishnow          import finishnow
 from actions.getmyitems			import getmyitems
 from actions.getbuildingstore  	import getbuildingstore
 from actions.buybuilding		import buybuilding
+from actions.finishbuilding 	import finishbuilding
+from actions.getmybuildings		import getmybuildings
 from actions.collect			import collect
 from actions.sendnotifications	import sendnotifications
 from actions.event				import event
@@ -50,6 +52,8 @@ app = webapp2.WSGIApplication([
 								  ('/getmyitems', getmyitems),
 								  ('/getbuildingstore', getbuildingstore),
 								  ('/buybuilding', buybuilding),
+								  ('/finishbuilding', finishbuilding),
+								  ('/getmybuildings', getmybuildings),
 								  ('/collect', collect),
 								  ('/sendnotifications', sendnotifications),
 								  ('/event', event),

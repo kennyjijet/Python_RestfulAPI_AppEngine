@@ -11,7 +11,7 @@ class config():
 		"recorddb_name": "recorddb",
 		"itemdb_name": "itemdb",
 
-		"building_name": "buildingdb"
+		"buildingdb_name": "buildingdb"
 	}
 	memcache = {
 		"holdtime": 60,
@@ -39,6 +39,7 @@ class config():
 		"version": 1.0
 	}
 	data_version = {
+		"economy": 1.0,
 		"buildings": 1.0
 	}
 	apple = {

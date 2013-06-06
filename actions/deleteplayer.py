@@ -40,6 +40,7 @@ from models.Player 	import Player
 from models.Score 	import Score
 from models.Item	import Item
 from models.Record  import Record
+from models.Building import Building
 from helpers.utils		import Utils
 
 # class implementation
@@ -87,6 +88,11 @@ class deleteplayer(webapp2.RequestHandler):
 				records = Record.all().filter('uuid =', player.uuid).ancestor(db.Key.from_path('Record', config.db['recorddb_name']))
 				for record in records:
 					record.delete()
+
+				# query buildings for this player and delete them all
+				buildings = Building.all().filter('uuid =', player.uuid).ancestor(db.Key.from_path('Building', config.db['buildingdb_name']))
+				for building in buildings:
+					building.delete()
 
 				# and finally, delete this player
 				player.delete()

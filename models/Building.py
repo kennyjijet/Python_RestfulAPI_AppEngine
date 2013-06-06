@@ -15,6 +15,7 @@ class BUILDING_STATUS(object):
 	REWARD = "reward"
 	REWARDED = "rewarded"
 	PRODUCED = "produced"
+	PRODUCED_PARTIAL = "produced_partial"
 
 class Building(db.Model):
 	uuid = db.StringProperty()
@@ -26,6 +27,46 @@ class Building(db.Model):
 	created = db.DateTimeProperty(auto_now_add=True)
 
 	BuildingStatus = BUILDING_STATUS
+
+	@staticmethod
+	def getmybuildings(self, uuid):
+		buildings = memcache.get(config.db['buildingdb_name']+'.'+uuid)
+		if buildings is None:
+			buildings = Building.all().filter('uuid =', uuid).ancestor(db.Key.from_path('Building', config.db['buildingdb_name']))
+			if not memcache.add(config.db['buildingdb_name']+'.'+uuid, buildings, config.memcache['holdtime']):
+				logging.warning('Building - memcache set buildings failed')
+		return buildings
+
+	@staticmethod
+	def getmybuilding(self, uuid, inid):
+		building = memcache.get(config.db['buildingdb_name']+'.'+uuid+'.'+inid)
+		if building is None:
+			buildings = Building.getmybuildings(self, uuid)
+			for item in buildings:
+				if item.inid == inid:
+					building = item
+					break
+			if building is not None:
+				if not memcache.add(config.db['buildingdb_name']+'.'+uuid+'.'+inid, building, config.memcache['holdtime']):
+					logging.warning('Building - memcache set building '+inid+' failed')
+		if building is None:
+			self.error = 'Building='+inid+' was not found!'
+		return building
+
+	@staticmethod
+	def setmybuilding(self, building):
+		if building.put():
+			memcache.delete(config.db['buildingdb_name']+'.'+building.uuid+'.'+building.inid)
+
+	@staticmethod
+	def compose_mybuilding(txt, mybuilding):
+		txt += '{"inid":"'+mybuilding.inid+'",'
+		txt += '"itid":"'+mybuilding.itid+'",'
+		txt += '"status":"'+mybuilding.status+'",'
+		txt += '"location":"'+mybuilding.location+'",'
+		txt += '"timestamp":'+str(mybuilding.timestamp)
+		txt += '},'
+		return txt;
 
 	"""
     ItemType        = ITEMTYPE
