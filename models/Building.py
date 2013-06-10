@@ -16,6 +16,7 @@ class BUILDING_STATUS(object):
 	REWARDED = "rewarded"
 	PRODUCED = "produced"
 	PRODUCED_PARTIAL = "produced_partial"
+	UPGRADING = "upgrading"
 
 class Building(db.Model):
 	uuid = db.StringProperty()
@@ -27,6 +28,10 @@ class Building(db.Model):
 	created = db.DateTimeProperty(auto_now_add=True)
 
 	BuildingStatus = BUILDING_STATUS
+
+	@staticmethod
+	def newbuilding(self):
+		return Building(parent=db.Key.from_path('Building', config.db['buildingdb_name']))
 
 	@staticmethod
 	def getmybuildings(self, uuid):
@@ -66,7 +71,7 @@ class Building(db.Model):
 		txt += '"location":"'+mybuilding.location+'",'
 		txt += '"timestamp":'+str(mybuilding.timestamp)
 		txt += '},'
-		return txt;
+		return txt
 
 	"""
     ItemType        = ITEMTYPE

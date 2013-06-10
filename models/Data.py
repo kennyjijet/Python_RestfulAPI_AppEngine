@@ -16,6 +16,10 @@ class Data(db.Model):
 	created				= db.DateTimeProperty(auto_now_add=True)
 
 	@staticmethod
+	def newData(self):
+		return Data(parent=db.Key.from_path('Data', config.db['datadb_name']))
+
+	@staticmethod
 	def getData(self, type, version):
 		data = memcache.get(config.db['datadb_name']+'.'+type+'.'+str(version))
 		if data is None:
@@ -79,6 +83,21 @@ class Data(db.Model):
 			return True
 		return False
 	"""
+
+	###############################################################################
+	### Researches
+	@staticmethod
+	def getresearches(self, ver):
+		researches = memcache.get('researches.'+str(ver))
+		if researches is None:
+			researches = Data.getData(self, 'research', ver)
+			if researches is not None:
+				researches.as_obj = json.loads(researches.data)
+				if not memcache.add('researches.'+str(ver), researches, config.memcache['longtime']):
+					logging.warning('Data.getresearches memcache set failed!')
+			else:
+				self.error = 'Research data ('+str(ver)+' couldn\'t be retrieved!'
+		return researches
 
 
 

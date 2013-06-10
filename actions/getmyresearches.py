@@ -1,4 +1,4 @@
-""" getbuildingstore action class
+""" getmyresearches action class
 
 	Project: GrandCentral-GAE
 	Author: Plus Pingya
@@ -7,18 +7,18 @@
 
 	Description
 	---------------------------------------------------------------
-	I am an API to get list of buildings that user can buy
+	I am an API to get list of researches owned by player
 
 
 	Input:
 	---------------------------------------------------------------
-	required: passwd,
+	required: passwd, uuid
 	optional: lang, version
 
 
 	Output:
 	---------------------------------------------------------------
-	list of buildings
+	list of player's researches
 
 """
 
@@ -36,9 +36,10 @@ from helpers.utils import Utils
 from models.Data import Data
 from models.Item import Item
 from models.Player import Player
+from models.Research import Research
 
 # class implementation
-class getbuildingstore(webapp2.RequestHandler):
+class getmyresearches(webapp2.RequestHandler):
 
 	# standard variables
 	sinfo = ''
@@ -58,7 +59,7 @@ class getbuildingstore(webapp2.RequestHandler):
 		lang = config.server["defaultLanguage"]
 		if self.request.get('lang'):
 			lang = self.request.get('lang')
-		#uuid = Utils.required(self, 'uuid')
+		uuid = Utils.required(self, 'uuid')
 
 		# check password
 		if self.error == '' and passwd != config.testing['passwd']:
@@ -67,20 +68,41 @@ class getbuildingstore(webapp2.RequestHandler):
 		start_time = time.time()												# start count
 
 		# logical variables
-		buildings = None
+		player = None
+		researches = None
+		myresearches = None
 
 		# if error, skip this
 		if self.error == '':
-			buildings = Data.getbuildings(self, float(version))
+			player = Player.getplayer_as_obj(self, uuid)
 
-		if self.error == '' and buildings is not None:
+		if self.error == '' and player is not None:
+			researches = Data.getresearches(self, version)
 
+		if self.error == '' and researches is not None:
+			myresearches = Research.getmyresearches(self, uuid)
+
+		if self.error == '' and myresearches is not None:
 			self.respn = '['
-			for building in buildings.as_obj:
-				self.respn += json.dumps(buildings.as_obj[building]['1'])+','
+			for myresearch in myresearches:
+				# update building status, determine production
+				_name = str(myresearch.itid)
+				_pos = myresearch.itid.find('.', len(myresearch.itid)-4)
+				_bui = myresearch.itid[0:_pos]
+				_lev = myresearch.itid[_pos+1:len(myresearch.itid)]
+				_upd = False
+				if myresearch.status == Research.ResearchStatus.PENDING:
+					if myresearch.timestamp + (researches.as_obj[_bui][_lev]['wait']*60) <= start_time:
+						myresearch.timestamp = int(start_time)
+						myresearch.status = Research.ResearchStatus.REWARD
+						_upd = True
+				elif myresearch.status == Research.ResearchStatus.REWARD:
+					myresearch.status = Research.ResearchStatus.REWARDED
+					_upd = True
+				if _upd is True:
+					Research.setmyresearch(self, myresearch)
+				self.respn = Research.compose_myresearch(self.respn, myresearch)
 			self.respn = self.respn.rstrip(',') + ']'
-
-			#self.respn = buildings.data;
 
 		# calculate time taken and return the result
 		time_taken = time.time() - start_time

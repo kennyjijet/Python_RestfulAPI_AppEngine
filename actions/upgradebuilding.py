@@ -1,4 +1,4 @@
-""" buybuilding action class
+""" upgradebuilding action class
 
 	Project: GrandCentral-GAE
 	Author: Plus Pingya
@@ -7,13 +7,13 @@
 
 	Description
 	---------------------------------------------------------------
-	I am an API to get list of buildings that user can buy
+	I am an API to upgrade a given building to the next level
 
 
 	Input:
 	---------------------------------------------------------------
-	required: passwd, uuid, itid
-	optional: lang, version, userdata
+	required: passwd, uuid, inid
+	optional: lang, version,
 
 
 	Output:
@@ -42,7 +42,7 @@ from models.Player import Player
 from models.Building import Building
 
 # class implementation
-class buybuilding(webapp2.RequestHandler):
+class upgradebuilding(webapp2.RequestHandler):
 
 	# standard variables
 	sinfo = ''
@@ -63,8 +63,7 @@ class buybuilding(webapp2.RequestHandler):
 		if self.request.get('lang'):
 			lang = self.request.get('lang')
 		uuid = Utils.required(self, 'uuid')
-		itid = Utils.required(self, 'itid')
-		location = Utils.required(self, 'location')
+		inid = Utils.required(self, 'inid')
 
 		# check password
 		if self.error == '' and passwd != config.testing['passwd']:
@@ -76,6 +75,7 @@ class buybuilding(webapp2.RequestHandler):
 		player = None
 		buildings = None
 		building = None
+		mybuilding = None
 
 		# if error, skip this
 		if self.error == '':
@@ -85,27 +85,29 @@ class buybuilding(webapp2.RequestHandler):
 			buildings = Data.getbuildings(self, float(version))
 
 		if self.error == '' and buildings is not None:
-			_name = str(itid)
-			_pos = itid.find('.', len(itid)-4)
-			_bui = itid[0:_pos]
-			_lev = itid[_pos+1:len(itid)]
-			logging.info(_bui + ' ' + _lev)
+			mybuilding = Building.getmybuilding(self, uuid, inid)
 
-			try:
-				building = buildings.as_obj[_bui][_lev]
-			except KeyError:
-				self.error = itid + " was not found!"
+		if self.error == '' and mybuilding is not None:
+			if mybuilding.status != Building.BuildingStatus.PENDING:
+				_name = str(mybuilding.itid)
+				_pos = mybuilding.itid.find('.', len(mybuilding.itid)-4)
+				_bui = mybuilding.itid[0:_pos]
+				_lev = mybuilding.itid[_pos+1:len(mybuilding.itid)]
+				_lev2 = str(int(_lev)+1)
+				try:
+					building = buildings.as_obj[_bui][_lev2]
+				except KeyError:
+					self.error = 'Level '+str(_lev2)+' of building='+mybuilding.itid+' does not exist!'
+			else:
+				self.respn = '{"warning":"Building='+inid+' still under construction, cannot upgrade at the moment!"}'
 
-		if self.error == '' and building is not None:
+		if self.error == '' and self.respn == '' and building is not None:
+			self.respn = str(building['cost'])
 			if player.state_obj['cash'] >= building['cost']:
 				player.state_obj['cash'] -= building['cost']
 				if Player.setplayer_as_obj(self, player):
-					mybuilding = Building.newbuilding()
-					mybuilding.uuid = uuid
-					mybuilding.itid = itid
-					mybuilding.inid = Utils.genanyid(self, 'b')
+					mybuilding.itid = building['id']
 					mybuilding.status = Building.BuildingStatus.PENDING
-					mybuilding.location = location
 					mybuilding.timestamp = int(start_time)
 					Building.setmybuilding(self, mybuilding)
 					self.respn = '{"state":'+player.state+','

@@ -1,4 +1,4 @@
-""" getbuildingstore action class
+""" getresearchlist action class
 
 	Project: GrandCentral-GAE
 	Author: Plus Pingya
@@ -7,7 +7,7 @@
 
 	Description
 	---------------------------------------------------------------
-	I am an API to get list of buildings that user can buy
+	I am an API to get list of researches that user can do
 
 
 	Input:
@@ -18,7 +18,7 @@
 
 	Output:
 	---------------------------------------------------------------
-	list of buildings
+	list of researches
 
 """
 
@@ -34,11 +34,9 @@ from config import config
 # include
 from helpers.utils import Utils
 from models.Data import Data
-from models.Item import Item
-from models.Player import Player
 
 # class implementation
-class getbuildingstore(webapp2.RequestHandler):
+class getresearchlist(webapp2.RequestHandler):
 
 	# standard variables
 	sinfo = ''
@@ -52,13 +50,12 @@ class getbuildingstore(webapp2.RequestHandler):
 
 		# validate and assign parameters
 		passwd = Utils.required(self, 'passwd')
-		version = config.data_version['buildings']
+		version = config.data_version['research']
 		if self.request.get('version'):
 			version = self.request.get('version')
 		lang = config.server["defaultLanguage"]
 		if self.request.get('lang'):
 			lang = self.request.get('lang')
-		#uuid = Utils.required(self, 'uuid')
 
 		# check password
 		if self.error == '' and passwd != config.testing['passwd']:
@@ -67,20 +64,17 @@ class getbuildingstore(webapp2.RequestHandler):
 		start_time = time.time()												# start count
 
 		# logical variables
-		buildings = None
+		researches = None
 
 		# if error, skip this
 		if self.error == '':
-			buildings = Data.getbuildings(self, float(version))
+			researches = Data.getresearches(self, float(version))
 
-		if self.error == '' and buildings is not None:
-
+		if self.error == '' and researches is not None:
 			self.respn = '['
-			for building in buildings.as_obj:
-				self.respn += json.dumps(buildings.as_obj[building]['1'])+','
+			for research in researches.as_obj:
+				self.respn += json.dumps(researches.as_obj[research]['1'])+','
 			self.respn = self.respn.rstrip(',') + ']'
-
-			#self.respn = buildings.data;
 
 		# calculate time taken and return the result
 		time_taken = time.time() - start_time
