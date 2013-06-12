@@ -42,7 +42,8 @@ class config():
 	data_version = {
 		"economy": 1.0,
 		"buildings": 1.0,
-		"research": 1.0
+		"research": 1.0,
+		"advisor": 1.0
 	}
 	apple = {
 		"sandbox": True,

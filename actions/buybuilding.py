@@ -100,7 +100,7 @@ class buybuilding(webapp2.RequestHandler):
 			if player.state_obj['cash'] >= building['cost']:
 				player.state_obj['cash'] -= building['cost']
 				if Player.setplayer_as_obj(self, player):
-					mybuilding = Building.newbuilding()
+					mybuilding = Building.newbuilding(self)
 					mybuilding.uuid = uuid
 					mybuilding.itid = itid
 					mybuilding.inid = Utils.genanyid(self, 'b')

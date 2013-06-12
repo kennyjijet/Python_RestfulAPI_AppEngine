@@ -16,7 +16,9 @@ from actions.deleteplayer import deleteplayer
 #from actions.getleaderboard import getleaderboard
 from actions.deploy import deploy
 from actions.getdata import getdata
-from actions.getdict import getdict
+from actions.getadvisor import getadvisor
+from actions.getuilanglist import getuilanglist
+from actions.getuitext import getuitext
 from actions.getsoftstore import getsoftstore
 from actions.softpurchase import softpurchase
 from actions.hardpurchase import hardpurchase
@@ -49,7 +51,9 @@ app = webapp2.WSGIApplication([
 								  #('/getleaderboard', getleaderboard),
 								  ('/deploy', deploy),
 								  ('/getdata', getdata),
-								  #('/getdict', getdict),
+								  ('/getadvisor', getadvisor),
+								  ('/getuilanglist', getuilanglist),
+								  ('/getuitext', getuitext),
 								  #('/getsoftstore', getsoftstore),
 								  #('/softpurchase', softpurchase),
 								  #('/hardpurchase', hardpurchase),

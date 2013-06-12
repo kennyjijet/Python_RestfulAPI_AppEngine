@@ -1,5 +1,6 @@
 # built-in libraries
 import json
+import collections
 import logging
 
 # google's libraries
@@ -99,6 +100,20 @@ class Data(db.Model):
 				self.error = 'Research data ('+str(ver)+' couldn\'t be retrieved!'
 		return researches
 
+	###############################################################################
+	### Researches
+	@staticmethod
+	def gettransui(self, ver):
+		transuis = memcache.get('transuis.'+str(ver))
+		if transuis is None:
+			transuis = Data.getData(self, 'transui', ver)
+			if transuis is not None:
+				transuis.as_obj = json.loads(transuis.data, object_pairs_hook=collections.OrderedDict)
+				if not memcache.add('transuis.'+str(ver), transuis, config.memcache['longtime']):
+					logging.warning('Data.gettransui memcache set transuis failed!')
+			else:
+				self.error = 'Trans UI data ('+str(ver)+' couldn\'t be retrieved!'
+		return transuis
 
 
 	###############################################################################
