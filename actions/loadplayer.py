@@ -31,8 +31,8 @@ import logging
 import time
 
 # include
-from helpers.utils		import Utils
-from models.Player		import Player
+from helpers.utils import Utils
+from models.Player import Player
 
 # class implementation
 class loadplayer(webapp2.RequestHandler):
@@ -48,13 +48,13 @@ class loadplayer(webapp2.RequestHandler):
 		Utils.reset(self)														# reset/clean standard variables
 		
 		# validate and assign parameters
-		uuid 		= Utils.required(self, 'uuid');
-		specific 	= self.request.get('specific')
-		start_time 	= time.time() 												# start count 
+		uuid = Utils.required(self, 'uuid')
+		specific = self.request.get('specific')
+		start_time = time.time()                                                # start count
 			
 		# if error, skip this
 		if self.error == '':
-			player = Player.getplayer_as_obj(self, uuid)								# get player state from Player helper class, specified by uuid
+			player = Player.getplayer(self, uuid)								# get player state from Player helper class, specified by uuid
 			if player is not None:												# if have some data returned					
 				if specific is not None and specific != '':						# and if user wants to request partial data, (by specifying whatever they want)
 					Player.compose_player_partial(self, player, specific)		# compose partial data to return
@@ -62,7 +62,7 @@ class loadplayer(webapp2.RequestHandler):
 					Player.compose_player(self, player)							# just compose the entire player state to return
 				
 		# calculate time taken and return result
-		time_taken =  time.time() - start_time;
+		time_taken = time.time() - start_time
 		self.response.headers['Content-Type'] = 'text/html'
 		self.response.write(Utils.RESTreturn(self, time_taken))
 		

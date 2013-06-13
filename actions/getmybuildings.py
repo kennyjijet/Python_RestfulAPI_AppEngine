@@ -74,7 +74,7 @@ class getmybuildings(webapp2.RequestHandler):
 
 		# if error, skip this
 		if self.error == '':
-			player = Player.getplayer_as_obj(self, uuid)
+			player = Player.getplayer(self, uuid)
 
 		if self.error == '' and player is not None:
 			buildings = Data.getbuildings(self, version)
@@ -83,17 +83,12 @@ class getmybuildings(webapp2.RequestHandler):
 			mybuildings = Building.getmybuildings(self, uuid)
 
 		if self.error == '' and mybuildings is not None:
-
 			self.respn = '['
 			for mybuilding in mybuildings:
 				# update building status, determine production
-				_name = str(mybuilding.itid)
-				_pos = mybuilding.itid.find('.', len(mybuilding.itid)-4)
-				_bui = mybuilding.itid[0:_pos]
-				_lev = mybuilding.itid[_pos+1:len(mybuilding.itid)]
 				_upd = False
 				if mybuilding.status == Building.BuildingStatus.PENDING:
-					if mybuilding.timestamp + (buildings.as_obj[_bui][_lev]['wait']*60) <= start_time:
+					if mybuilding.timestamp + (buildings.as_obj[mybuilding.itid][mybuilding.level-1]['wait']*60) <= start_time:
 						mybuilding.timestamp = int(start_time)
 						mybuilding.status = Building.BuildingStatus.REWARD
 						_upd = True
@@ -102,12 +97,12 @@ class getmybuildings(webapp2.RequestHandler):
 					_upd = True
 				if mybuilding.status == Building.BuildingStatus.REWARD or mybuilding.status == Building.BuildingStatus.REWARDED or mybuilding.status == Building.BuildingStatus.PRODUCED_PARTIAL:
 					time_delta = int((start_time - mybuilding.timestamp)/60)
-					if time_delta > buildings.as_obj[_bui][_lev]['interval']:
+					if time_delta > buildings.as_obj[mybuilding.itid][mybuilding.level-1]['interval']:
 						mybuilding.status = Building.BuildingStatus.PRODUCED_PARTIAL
 						_upd = True
-					res_produced = (time_delta / buildings.as_obj[_bui][_lev]['interval']) * buildings.as_obj[_bui][_lev]['units_made']
-					if res_produced >= buildings.as_obj[_bui][_lev]['capacity']:
-						res_produced = buildings.as_obj[_bui][_lev]['capacity']
+					res_produced = (time_delta / buildings.as_obj[mybuilding.itid][mybuilding.level-1]['interval']) * buildings.as_obj[mybuilding.itid][mybuilding.level-1]['units_made']
+					if res_produced >= buildings.as_obj[mybuilding.itid][mybuilding.level-1]['capacity']:
+						res_produced = buildings.as_obj[mybuilding.itid][mybuilding.level-1]['capacity']
 						mybuilding.status = Building.BuildingStatus.PRODUCED
 						_upd = True
 				if _upd is True:

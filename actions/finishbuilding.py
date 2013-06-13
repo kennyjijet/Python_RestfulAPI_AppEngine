@@ -33,10 +33,9 @@ import math
 from config import config
 
 # include
-from helpers.utils  import Utils
-from models.Data    import Data
-from models.Item    import Item
-from models.Player  import Player
+from helpers.utils import Utils
+from models.Data import Data
+from models.Player import Player
 from models.Building import Building
 
 # class implementation
@@ -73,7 +72,7 @@ class finishbuilding(webapp2.RequestHandler):
 
 		# if error, skip this
 		if self.error == '':
-			player = Player.getplayer_as_obj(self, uuid)
+			player = Player.getplayer(self, uuid)
 
 		# if error or player is not, then skip to the end
 		if self.error == '' and player is not None:
@@ -90,12 +89,8 @@ class finishbuilding(webapp2.RequestHandler):
 				economy = Data.getDataAsObj(self, 'economy', config.data_version['economy'])
 
 		if self.error == '' and self.respn == '' and economy is not None:
-			_name = str(mybuilding.itid)
-			_pos = mybuilding.itid.find('.', len(mybuilding.itid)-4)
-			_bui = mybuilding.itid[0:_pos]
-			_lev = mybuilding.itid[_pos+1:len(mybuilding.itid)]
 			_upd = False
-			time_left = buildings.as_obj[_bui][_lev]['wait'] - int((start_time - mybuilding.timestamp)/60)
+			time_left = buildings.as_obj[mybuilding.itid][mybuilding.level-1]['wait'] - int((start_time - mybuilding.timestamp)/60)
 			if mybuilding.status == Building.BuildingStatus.PENDING:
 				if time_left > 0:
 					sele = economy.obj[0]
@@ -111,7 +106,7 @@ class finishbuilding(webapp2.RequestHandler):
 						player.state_obj['gold'] -= sele['gold_value']
 						mybuilding.status = Building.BuildingStatus.REWARD
 						_upd = True
-						Player.setplayer_as_obj(self, player)
+						Player.setplayer(self, player)
 					else:
 						self.respn = '{"warning":"not enough gold!"}'
 				else:

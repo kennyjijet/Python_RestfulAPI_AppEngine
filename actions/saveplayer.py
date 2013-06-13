@@ -12,8 +12,8 @@
 	
 	Input:
 	---------------------------------------------------------------
-	required: passwd, name, photo
-	optional: uuid, token
+	required: passwd,
+	optional: uuid, name, photo, token
 
 	
 	Output:
@@ -54,10 +54,16 @@ class saveplayer(webapp2.RequestHandler):
 
 		# validate and assign parameters
 		passwd = Utils.required(self, 'passwd')
+
 		uuid = self.request.get('uuid')
 		token = self.request.get('token')
-		name = Utils.required(self, 'name')
-		photo = Utils.required(self, 'photo')
+		name = Utils.genanyid(self, 'Guest')
+		if self.request.get('name'):
+			name = self.request.get('name')
+		photo = "http://graph.facebook.com/pluspingya/picture?type=square"
+		if self.request.get('photo'):
+			photo = self.request.get('photo')
+
 		gold = 10
 		cash = 5000
 		fuel = 5
@@ -66,24 +72,25 @@ class saveplayer(webapp2.RequestHandler):
 		oil = 5
 		brake = 5
 
-		if self.error == '' and passwd != config.testing['passwd']:                # if password is incorrect
-			self.error = 'passwd is incorrect.'                                    # inform user via error message
+		if self.error == '' and passwd != config.testing['passwd']:                	# if password is incorrect
+			self.error = 'passwd is incorrect.'                                    	# inform user via error message
 
-		start_time = time.time()                                                # start count
+		start_time = time.time()                                                	# start count
 
 		# if error, skip this
 		if self.error == '':
-			player = Player.getplayer_as_obj(self, uuid)                        # get player from Player model class helper, specified by uuid
-			if player is None:                                                    # if no player data returned or doesn't exist
+			player = Player.getplayer(self, uuid)                        			# get player from Player model class helper, specified by uuid
+			if player is None:                                                    	# if no player data returned or doesn't exist
 				player = Player(parent=db.Key.from_path('Player', config.db['playerdb_name']))    # create a new player state data
-				player.uuid = Utils.geneuuid(self, 'random')                                                # assign uuid
-				# and assign all player state
-				player.state_obj = {'token': token, 'name': name, 'photo': photo, 'gold': gold, 'cash': cash, 'fuel': fuel, 'tire': tire, 'battery': battery, 'oil': oil, 'brake': brake}
-			else:                                                                # but if player does exist
-				if token:                                                        # if token is provided
-					player.state_obj['token'] = token                            # assign token to player state
-				player.state_obj['name'] = name                                    # assign name
-				player.state_obj['photo'] = photo                                # assign photo url
+				player.uuid = Utils.genanyid(self, 'u')                        		# assign uuid
+				# and assign all player info and state
+				player.info_obj = {'uuid': player.uuid, 'token': token, 'name': name, 'photo': photo}
+				player.state_obj = {'gold': gold, 'cash': cash, 'fuel': fuel, 'tire': tire, 'battery': battery, 'oil': oil, 'brake': brake}
+			else:                                                                	# but if player does exist
+				if token:                                                        	# if token is provided
+					player.state_obj['token'] = token                            	# assign token to player state
+				player.info_obj['name'] = name                                    	# assign name
+				player.info_obj['photo'] = photo                                	# assign photo url
 				# try .. cash and assign new property
 				try:
 					gold = player.state_obj['gold']
@@ -114,7 +121,7 @@ class saveplayer(webapp2.RequestHandler):
 				except KeyError:
 					player.state_obj['brake'] = brake
 
-			if Player.setplayer_as_obj(self, player):                            # write down to database
+			if Player.setplayer(self, player):                            # write down to database
 				self.error = ''                                                    # then obviously, no error
 				Player.compose_player(self, player)                                # compose the entire player state to return
 			else:                                                                # but if write down to database was failed

@@ -22,6 +22,7 @@ class Building(db.Model):
 	uuid = db.StringProperty()
 	itid = db.StringProperty()
 	inid = db.StringProperty(indexed=False)
+	level = db.IntegerProperty(indexed=False)
 	status = db.StringProperty()
 	location = db.TextProperty(indexed=False)
 	timestamp = db.IntegerProperty(indexed=False)
@@ -67,6 +68,7 @@ class Building(db.Model):
 	def compose_mybuilding(txt, mybuilding):
 		txt += '{"inid":"'+mybuilding.inid+'",'
 		txt += '"itid":"'+mybuilding.itid+'",'
+		txt += '"level":'+str(mybuilding.level)+','
 		txt += '"status":"'+mybuilding.status+'",'
 		txt += '"location":"'+mybuilding.location+'",'
 		txt += '"timestamp":'+str(mybuilding.timestamp)

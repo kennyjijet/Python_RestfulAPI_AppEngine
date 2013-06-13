@@ -64,13 +64,13 @@ class setpntoken(webapp2.RequestHandler):
 		
 		# if any error, skip this
 		if self.error == '':
-			player = Player.getplayer_as_obj(self, uuid)			# get player as object
+			player = Player.getplayer(self, uuid)			# get player as object
 		
 		# if any error on player is none
 		if self.error == '' and player is not None:
-			player.state_obj['token'] = token
-			if Player.setplayer_as_obj(self, player):
-				Player.compose_player(self, player)
+			player.info_obj['token'] = token
+			if Player.setplayer(self, player):
+				Player.compose_player_info(self, player)
 			else:
 				self.error = 'unable to update player data (token).'
 	

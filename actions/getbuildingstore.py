@@ -75,12 +75,9 @@ class getbuildingstore(webapp2.RequestHandler):
 
 		if self.error == '' and buildings is not None:
 
-			self.respn = '['
-			for building in buildings.as_obj:
-				self.respn += json.dumps(buildings.as_obj[building]['1'])+','
-			self.respn = self.respn.rstrip(',') + ']'
-
-			#self.respn = buildings.data;
+			data = Data.getData(self, 'buildings', config.data_version['buildings'])
+			if data is not None:
+				self.respn = data.data
 
 		# calculate time taken and return the result
 		time_taken = time.time() - start_time

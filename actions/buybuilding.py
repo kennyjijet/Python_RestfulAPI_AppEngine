@@ -12,7 +12,7 @@
 
 	Input:
 	---------------------------------------------------------------
-	required: passwd, uuid, itid
+	required: passwd, uuid, itid, level
 	optional: lang, version, userdata
 
 
@@ -37,7 +37,6 @@ from config import config
 # include
 from helpers.utils import Utils
 from models.Data import Data
-from models.Item import Item
 from models.Player import Player
 from models.Building import Building
 
@@ -64,6 +63,7 @@ class buybuilding(webapp2.RequestHandler):
 			lang = self.request.get('lang')
 		uuid = Utils.required(self, 'uuid')
 		itid = Utils.required(self, 'itid')
+		level = int(Utils.required(self, 'level'))
 		location = Utils.required(self, 'location')
 
 		# check password
@@ -79,31 +79,26 @@ class buybuilding(webapp2.RequestHandler):
 
 		# if error, skip this
 		if self.error == '':
-			player = Player.getplayer_as_obj(self, uuid)
+			player = Player.getplayer(self, uuid)
 
 		if self.error == '' and player is not None:
 			buildings = Data.getbuildings(self, float(version))
 
 		if self.error == '' and buildings is not None:
-			_name = str(itid)
-			_pos = itid.find('.', len(itid)-4)
-			_bui = itid[0:_pos]
-			_lev = itid[_pos+1:len(itid)]
-			logging.info(_bui + ' ' + _lev)
-
 			try:
-				building = buildings.as_obj[_bui][_lev]
+				building = buildings.as_obj[itid][level-1]
 			except KeyError:
 				self.error = itid + " was not found!"
 
 		if self.error == '' and building is not None:
 			if player.state_obj['cash'] >= building['cost']:
 				player.state_obj['cash'] -= building['cost']
-				if Player.setplayer_as_obj(self, player):
+				if Player.setplayer(self, player):
 					mybuilding = Building.newbuilding(self)
 					mybuilding.uuid = uuid
 					mybuilding.itid = itid
 					mybuilding.inid = Utils.genanyid(self, 'b')
+					mybuilding.level = level
 					mybuilding.status = Building.BuildingStatus.PENDING
 					mybuilding.location = location
 					mybuilding.timestamp = int(start_time)
