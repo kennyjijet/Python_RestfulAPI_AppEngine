@@ -62,16 +62,16 @@ class Data(db.Model):
 	###############################################################################
 	### Buildings
 	@staticmethod
-	def getbuildings(self, ver):
-		buildings = memcache.get('buildings.'+str(ver))
+	def getbuildings(self, lang, ver):
+		buildings = memcache.get('buildings_'+lang+'.'+str(ver))
 		if buildings is None:
-			buildings = Data.getData(self, 'buildings', ver)
+			buildings = Data.getData(self, 'buildings_'+lang, ver)
 			if buildings is not None:
 				buildings.as_obj = json.loads(buildings.data)
-				if not memcache.add('buildings.'+str(ver), buildings, config.memcache['longtime']):
+				if not memcache.add('buildings_'+lang+'.'+str(ver), buildings, config.memcache['longtime']):
 					logging.warning('Data.getbuildings memcache set failed!')
 			else:
-				self.error = 'Building data ('+str(ver)+' couldn\'t be retrieved!'
+				self.error = 'Building data ('+str(ver)+') couldn\'t be retrieved!'
 		return buildings
 	"""
 	@staticmethod
@@ -88,16 +88,16 @@ class Data(db.Model):
 	###############################################################################
 	### Researches
 	@staticmethod
-	def getresearches(self, ver):
-		researches = memcache.get('researches.'+str(ver))
+	def getresearches(self, lang, ver):
+		researches = memcache.get('researches_'+lang+'.'+str(ver))
 		if researches is None:
-			researches = Data.getData(self, 'research', ver)
+			researches = Data.getData(self, 'research_'+lang, ver)
 			if researches is not None:
 				researches.as_obj = json.loads(researches.data)
-				if not memcache.add('researches.'+str(ver), researches, config.memcache['longtime']):
+				if not memcache.add('researches_'+lang+'.'+str(ver), researches, config.memcache['longtime']):
 					logging.warning('Data.getresearches memcache set failed!')
 			else:
-				self.error = 'Research data ('+str(ver)+' couldn\'t be retrieved!'
+				self.error = 'Research data ('+str(ver)+') couldn\'t be retrieved!'
 		return researches
 
 	###############################################################################

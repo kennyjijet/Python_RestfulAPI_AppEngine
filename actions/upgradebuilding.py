@@ -79,25 +79,20 @@ class upgradebuilding(webapp2.RequestHandler):
 
 		# if error, skip this
 		if self.error == '':
-			player = Player.getplayer_as_obj(self, uuid)
+			player = Player.getplayer(self, uuid)
 
 		if self.error == '' and player is not None:
-			buildings = Data.getbuildings(self, float(version))
+			buildings = Data.getbuildings(self, lang, float(version))
 
 		if self.error == '' and buildings is not None:
 			mybuilding = Building.getmybuilding(self, uuid, inid)
 
 		if self.error == '' and mybuilding is not None:
 			if mybuilding.status != Building.BuildingStatus.PENDING:
-				_name = str(mybuilding.itid)
-				_pos = mybuilding.itid.find('.', len(mybuilding.itid)-4)
-				_bui = mybuilding.itid[0:_pos]
-				_lev = mybuilding.itid[_pos+1:len(mybuilding.itid)]
-				_lev2 = str(int(_lev)+1)
 				try:
-					building = buildings.as_obj[_bui][_lev2]
+					building = buildings.as_obj[mybuilding.itid][mybuilding.level]
 				except KeyError:
-					self.error = 'Level '+str(_lev2)+' of building='+mybuilding.itid+' does not exist!'
+					self.error = 'Level '+str(mybuilding.level+1)+' of building='+mybuilding.itid+' does not exist!'
 			else:
 				self.respn = '{"warning":"Building='+inid+' still under construction, cannot upgrade at the moment!"}'
 
@@ -105,9 +100,10 @@ class upgradebuilding(webapp2.RequestHandler):
 			self.respn = str(building['cost'])
 			if player.state_obj['cash'] >= building['cost']:
 				player.state_obj['cash'] -= building['cost']
-				if Player.setplayer_as_obj(self, player):
+				if Player.setplayer(self, player):
 					mybuilding.itid = building['id']
 					mybuilding.status = Building.BuildingStatus.PENDING
+					mybuilding.level = building['level']
 					mybuilding.timestamp = int(start_time)
 					Building.setmybuilding(self, mybuilding)
 					self.respn = '{"state":'+player.state+','

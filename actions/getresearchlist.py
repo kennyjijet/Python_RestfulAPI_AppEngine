@@ -68,7 +68,7 @@ class getresearchlist(webapp2.RequestHandler):
 
 		# if error, skip this
 		if self.error == '':
-			researches = Data.getresearches(self, float(version))
+			researches = Data.getresearches(self, lang, float(version))
 
 		if self.error == '' and researches is not None:
 			self.respn = '['

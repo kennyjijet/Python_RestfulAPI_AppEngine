@@ -77,7 +77,7 @@ class getmybuildings(webapp2.RequestHandler):
 			player = Player.getplayer(self, uuid)
 
 		if self.error == '' and player is not None:
-			buildings = Data.getbuildings(self, version)
+			buildings = Data.getbuildings(self, lang, version)
 
 		if self.error == '' and buildings is not None:
 			mybuildings = Building.getmybuildings(self, uuid)

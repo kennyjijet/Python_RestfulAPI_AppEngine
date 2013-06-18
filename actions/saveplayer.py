@@ -13,7 +13,7 @@
 	Input:
 	---------------------------------------------------------------
 	required: passwd,
-	optional: uuid, name, photo, token
+	optional: uuid, name, photo, token, lang
 
 	
 	Output:
@@ -57,6 +57,9 @@ class saveplayer(webapp2.RequestHandler):
 
 		uuid = self.request.get('uuid')
 		token = self.request.get('token')
+		lang = config.server["defaultLanguage"]
+		if self.request.get('lang'):
+			lang = self.request.get('lang')
 		name = Utils.genanyid(self, 'Guest')
 		if self.request.get('name'):
 			name = self.request.get('name')
@@ -84,13 +87,15 @@ class saveplayer(webapp2.RequestHandler):
 				player = Player(parent=db.Key.from_path('Player', config.db['playerdb_name']))    # create a new player state data
 				player.uuid = Utils.genanyid(self, 'u')                        		# assign uuid
 				# and assign all player info and state
-				player.info_obj = {'uuid': player.uuid, 'token': token, 'name': name, 'photo': photo}
+				player.info_obj = {'uuid': player.uuid, 'token': token, 'name': name, 'photo': photo, 'lang': lang}
 				player.state_obj = {'gold': gold, 'cash': cash, 'fuel': fuel, 'tire': tire, 'battery': battery, 'oil': oil, 'brake': brake}
 			else:                                                                	# but if player does exist
 				if token:                                                        	# if token is provided
 					player.state_obj['token'] = token                            	# assign token to player state
 				player.info_obj['name'] = name                                    	# assign name
 				player.info_obj['photo'] = photo                                	# assign photo url
+				if self.request.get('lang'):
+					player.info_obj['lang'] = lang
 				# try .. cash and assign new property
 				try:
 					gold = player.state_obj['gold']

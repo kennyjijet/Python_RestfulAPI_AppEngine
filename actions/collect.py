@@ -54,6 +54,9 @@ class collect(webapp2.RequestHandler):
 		version = config.data_version['buildings']
 		if self.request.get('version'):
 			version = self.request.get('version')
+		lang = config.server["defaultLanguage"]
+		if self.request.get('lang'):
+			lang = self.request.get('lang')
 		uuid = Utils.required(self, 'uuid')
 		inid = Utils.required(self, 'inid')
 
@@ -74,7 +77,7 @@ class collect(webapp2.RequestHandler):
 			player = Player.getplayer(self, uuid)
 
 		if self.error == '' and player is not None:
-			buildings = Data.getbuildings(self, version)
+			buildings = Data.getbuildings(self, lang, version)
 
 		if self.error == '' and buildings is not None:
 			mybuilding = Building.getmybuilding(self, uuid, inid)

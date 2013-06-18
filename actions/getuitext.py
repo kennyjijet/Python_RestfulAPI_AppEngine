@@ -10,8 +10,8 @@
 
 	Input:
 	---------------------------------------------------------------
-	required: passwd, lang,
-	optional: version
+	required: passwd,
+	optional: version, lang
 
 	Output:
 	---------------------------------------------------------------
@@ -52,6 +52,7 @@ class getuitext(webapp2.RequestHandler):
 		passwd = Utils.required(self, 'passwd')
 		lang = Utils.required(self, 'lang')
 		version = self.request.get('version')
+
 		if version is None or version == '':
 			version = config.dictionary['version']
 

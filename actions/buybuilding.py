@@ -82,7 +82,7 @@ class buybuilding(webapp2.RequestHandler):
 			player = Player.getplayer(self, uuid)
 
 		if self.error == '' and player is not None:
-			buildings = Data.getbuildings(self, float(version))
+			buildings = Data.getbuildings(self, lang, float(version))
 
 		if self.error == '' and buildings is not None:
 			try:
@@ -98,7 +98,7 @@ class buybuilding(webapp2.RequestHandler):
 					mybuilding.uuid = uuid
 					mybuilding.itid = itid
 					mybuilding.inid = Utils.genanyid(self, 'b')
-					mybuilding.level = level
+					mybuilding.level = building['level']
 					mybuilding.status = Building.BuildingStatus.PENDING
 					mybuilding.location = location
 					mybuilding.timestamp = int(start_time)

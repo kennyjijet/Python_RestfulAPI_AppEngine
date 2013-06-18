@@ -12,7 +12,7 @@
 	Input:
 	---------------------------------------------------------------
 	required: passwd,
-	optional:
+	optional: lang, version
 
 	Output:
 	---------------------------------------------------------------
@@ -47,6 +47,12 @@ class getadvisor(webapp2.RequestHandler):
 
 		# validate and assign parameters
 		passwd = Utils.required(self, 'passwd')
+		version = config.data_version['research']
+		if self.request.get('version'):
+			version = self.request.get('version')
+		lang = config.server["defaultLanguage"]
+		if self.request.get('lang'):
+			lang = self.request.get('lang')
 
 		# check password
 		if self.error == '' and passwd != config.testing['passwd']:
@@ -56,7 +62,7 @@ class getadvisor(webapp2.RequestHandler):
 
 		# if error, skip this
 		if self.error == '':
-			data = Data.getData(self, 'advisor', config.data_version['advisor'])
+			data = Data.getData(self, 'advisor_'+lang, version)
 			if data is not None:
 				self.respn = data.data
 

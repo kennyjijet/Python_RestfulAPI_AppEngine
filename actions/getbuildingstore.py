@@ -34,8 +34,6 @@ from config import config
 # include
 from helpers.utils import Utils
 from models.Data import Data
-from models.Item import Item
-from models.Player import Player
 
 # class implementation
 class getbuildingstore(webapp2.RequestHandler):
@@ -58,7 +56,6 @@ class getbuildingstore(webapp2.RequestHandler):
 		lang = config.server["defaultLanguage"]
 		if self.request.get('lang'):
 			lang = self.request.get('lang')
-		#uuid = Utils.required(self, 'uuid')
 
 		# check password
 		if self.error == '' and passwd != config.testing['passwd']:
@@ -71,13 +68,10 @@ class getbuildingstore(webapp2.RequestHandler):
 
 		# if error, skip this
 		if self.error == '':
-			buildings = Data.getbuildings(self, float(version))
+			buildings = Data.getbuildings(self, lang, float(version))
 
 		if self.error == '' and buildings is not None:
-
-			data = Data.getData(self, 'buildings', config.data_version['buildings'])
-			if data is not None:
-				self.respn = data.data
+			self.respn = buildings.data
 
 		# calculate time taken and return the result
 		time_taken = time.time() - start_time
