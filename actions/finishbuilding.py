@@ -93,7 +93,7 @@ class finishbuilding(webapp2.RequestHandler):
 
 		if self.error == '' and self.respn == '' and economy is not None:
 			_upd = False
-			time_left = buildings.as_obj[mybuilding.itid][mybuilding.level-1]['wait'] - int((start_time - mybuilding.timestamp)/60)
+			time_left = buildings.as_obj[mybuilding.itid][mybuilding.level-1]['build_time'] - int((start_time - mybuilding.timestamp)/60)
 			if mybuilding.status == Building.BuildingStatus.PENDING:
 				if time_left > 0:
 					sele = economy.obj[0]

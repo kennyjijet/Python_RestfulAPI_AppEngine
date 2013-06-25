@@ -73,8 +73,10 @@ class getresearchlist(webapp2.RequestHandler):
 		if self.error == '' and researches is not None:
 			self.respn = '['
 			for research in researches.as_obj:
-				self.respn += json.dumps(researches.as_obj[research]['1'])+','
+				logging.info(research)
+				self.respn += json.dumps(researches.as_obj[research][0])+','
 			self.respn = self.respn.rstrip(',') + ']'
+
 
 		# calculate time taken and return the result
 		time_taken = time.time() - start_time

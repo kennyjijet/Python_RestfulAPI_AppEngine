@@ -60,10 +60,10 @@ class saveplayer(webapp2.RequestHandler):
 		lang = config.server["defaultLanguage"]
 		if self.request.get('lang'):
 			lang = self.request.get('lang')
-		name = Utils.genanyid(self, 'Guest')
+		name = 'Guest' #Utils.genanyid(self, 'Guest')
 		if self.request.get('name'):
 			name = self.request.get('name')
-		photo = "http://graph.facebook.com/pluspingya/picture?type=square"
+		photo = ''
 		if self.request.get('photo'):
 			photo = self.request.get('photo')
 

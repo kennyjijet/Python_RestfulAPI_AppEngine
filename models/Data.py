@@ -53,9 +53,12 @@ class Data(db.Model):
 	def setData(self, idata):
 		if idata:
 			if idata.put():
+				memcache.flush_all()
+				"""
 				memcache.delete(config.db['datadb_name']+'.'+idata.type+'.'+str(idata.version))
 				if not memcache.add(config.db['datadb_name']+'.'+idata.type+'.'+str(idata.version), idata, config.memcache['longtime']):
 					logging.warning('Data - Memcache set data '+idata.type+'.'+str(idata.version)+' failed!')
+				"""
 				return True
 		return False
 

@@ -85,7 +85,7 @@ class collect(webapp2.RequestHandler):
 		if self.error == '' and mybuilding is not None:
 			_upd = False
 			if mybuilding.status == Building.BuildingStatus.PENDING:
-				if mybuilding.timestamp + (buildings.as_obj[mybuilding.itid][mybuilding.level-1]['wait']*60) <= start_time:
+				if mybuilding.timestamp + (buildings.as_obj[mybuilding.itid][mybuilding.level-1]['build_time']*60) <= start_time:
 					mybuilding.timestamp = int(start_time)
 					mybuilding.status = Building.BuildingStatus.REWARD
 					_upd = True
@@ -94,12 +94,12 @@ class collect(webapp2.RequestHandler):
 				_upd = True
 			if mybuilding.status == Building.BuildingStatus.REWARD or mybuilding.status == Building.BuildingStatus.REWARDED or mybuilding.status == Building.BuildingStatus.PRODUCED_PARTIAL:
 				time_delta = int((start_time - mybuilding.timestamp)/60)
-				if time_delta > buildings.as_obj[mybuilding.itid][mybuilding.level-1]['interval']:
+				if time_delta > buildings.as_obj[mybuilding.itid][mybuilding.level-1]['resource_interval']:
 					mybuilding.status = Building.BuildingStatus.PRODUCED_PARTIAL
 					_upd = True
-				res_produced = (time_delta / buildings.as_obj[mybuilding.itid][mybuilding.level-1]['interval']) * buildings.as_obj[mybuilding.itid][mybuilding.level-1]['units_made']
-				if res_produced >= buildings.as_obj[mybuilding.itid][mybuilding.level-1]['capacity']:
-					res_produced = buildings.as_obj[mybuilding.itid][mybuilding.level-1]['capacity']
+				res_produced = (time_delta / buildings.as_obj[mybuilding.itid][mybuilding.level-1]['resource_interval']) * buildings.as_obj[mybuilding.itid][mybuilding.level-1]['resource_produced']
+				if res_produced >= buildings.as_obj[mybuilding.itid][mybuilding.level-1]['resource_capacity']:
+					res_produced = buildings.as_obj[mybuilding.itid][mybuilding.level-1]['resource_capacity']
 					mybuilding.status = Building.BuildingStatus.PRODUCED
 					_upd = True
 			if mybuilding.status == Building.BuildingStatus.PRODUCED_PARTIAL or mybuilding.status == Building.BuildingStatus.PRODUCED:
