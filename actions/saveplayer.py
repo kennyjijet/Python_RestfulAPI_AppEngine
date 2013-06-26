@@ -13,7 +13,7 @@
 	Input:
 	---------------------------------------------------------------
 	required: passwd,
-	optional: uuid, name, photo, token, lang
+	optional: uuid, fbid, name, photo, token, lang
 
 	
 	Output:
@@ -56,6 +56,7 @@ class saveplayer(webapp2.RequestHandler):
 		passwd = Utils.required(self, 'passwd')
 
 		uuid = self.request.get('uuid')
+		fbid = self.request.get('fbid')
 		token = self.request.get('token')
 		lang = config.server["defaultLanguage"]
 		if self.request.get('lang'):
@@ -64,8 +65,8 @@ class saveplayer(webapp2.RequestHandler):
 		if self.request.get('name'):
 			name = self.request.get('name')
 		photo = ''
-		if self.request.get('photo'):
-			photo = self.request.get('photo')
+		if fbid:
+			photo = 'https://graph.facebook.com/'+fbid+'/picture?type=large'
 
 		gold = 10
 		cash = 5000
@@ -82,55 +83,64 @@ class saveplayer(webapp2.RequestHandler):
 
 		# if error, skip this
 		if self.error == '':
-			player = Player.getplayer(self, uuid)                        			# get player from Player model class helper, specified by uuid
-			if player is None:                                                    	# if no player data returned or doesn't exist
-				player = Player(parent=db.Key.from_path('Player', config.db['playerdb_name']))    # create a new player state data
-				player.uuid = Utils.genanyid(self, 'u')                        		# assign uuid
-				# and assign all player info and state
-				player.info_obj = {'uuid': player.uuid, 'token': token, 'name': name, 'photo': photo, 'lang': lang}
-				player.state_obj = {'gold': gold, 'cash': cash, 'fuel': fuel, 'tire': tire, 'battery': battery, 'oil': oil, 'brake': brake}
-			else:                                                                	# but if player does exist
-				if token:                                                        	# if token is provided
-					player.state_obj['token'] = token                            	# assign token to player state
-				player.info_obj['name'] = name                                    	# assign name
-				player.info_obj['photo'] = photo                                	# assign photo url
-				if self.request.get('lang'):
-					player.info_obj['lang'] = lang
-				# try .. cash and assign new property
-				try:
-					gold = player.state_obj['gold']
-				except KeyError:
-					player.state_obj['gold'] = gold
-				try:
-					cash = player.state_obj['cash']
-				except KeyError:
-					player.state_obj['cash'] = cash
-				try:
-					fuel = player.state_obj['fuel']
-				except KeyError:
-					player.state_obj['fuel'] = fuel
-				try:
-					tire = player.state_obj['tire']
-				except KeyError:
-					player.state_obj['tire'] = tire
-				try:
-					battery = player.state_obj['battery']
-				except KeyError:
-					player.state_obj['battery'] = battery
-				try:
-					oil = player.state_obj['oil']
-				except KeyError:
-					player.state_obj['oil'] = oil
-				try:
-					brake = player.state_obj['brake']
-				except KeyError:
-					player.state_obj['brake'] = brake
+			player = Player.getplayerByFbid(self, fbid)
 
-			if Player.setplayer(self, player):                            # write down to database
-				self.error = ''                                                    # then obviously, no error
-				Player.compose_player(self, player)                                # compose the entire player state to return
-			else:                                                                # but if write down to database was failed
-				self.error = 'unable to insert/update player data.'                # inform user bia error message
+		if player is None:
+			player = Player.getplayer(self, uuid)                        			# get player from Player model class helper, specified by uuid
+
+		if player is None:                                                    	# if no player data returned or doesn't exist
+			player = Player(parent=db.Key.from_path('Player', config.db['playerdb_name']))    # create a new player state data
+			player.uuid = Utils.genanyid(self, 'u')                        		# assign uuid
+			player.fbid = fbid
+			# and assign all player info and state
+			player.info_obj = {'uuid': player.uuid, 'fbid': player.fbid, 'token': token, 'name': name, 'photo': photo, 'lang': lang}
+			player.state_obj = {'gold': gold, 'cash': cash, 'fuel': fuel, 'tire': tire, 'battery': battery, 'oil': oil, 'brake': brake}
+		else:                                                                	# but if player does exist
+			if token:                                                        	# if token is provided
+				player.state_obj['token'] = token                            	# assign token to player state
+			if fbid:
+				player.fbid = fbid
+				player.info_obj['fbid'] = fbid
+				player.info_obj['photo'] = photo                                	# assign photo url
+
+			player.info_obj['name'] = name                                    	# assign name
+			if self.request.get('lang'):
+				player.info_obj['lang'] = lang
+			# try .. cash and assign new property
+			try:
+				gold = player.state_obj['gold']
+			except KeyError:
+				player.state_obj['gold'] = gold
+			try:
+				cash = player.state_obj['cash']
+			except KeyError:
+				player.state_obj['cash'] = cash
+			try:
+				fuel = player.state_obj['fuel']
+			except KeyError:
+				player.state_obj['fuel'] = fuel
+			try:
+				tire = player.state_obj['tire']
+			except KeyError:
+				player.state_obj['tire'] = tire
+			try:
+				battery = player.state_obj['battery']
+			except KeyError:
+				player.state_obj['battery'] = battery
+			try:
+				oil = player.state_obj['oil']
+			except KeyError:
+				player.state_obj['oil'] = oil
+			try:
+				brake = player.state_obj['brake']
+			except KeyError:
+				player.state_obj['brake'] = brake
+
+		if Player.setplayer(self, player):                            # write down to database
+			self.error = ''                                                    # then obviously, no error
+			Player.compose_player(self, player)                                # compose the entire player state to return
+		else:                                                                # but if write down to database was failed
+			self.error = 'unable to insert/update player data.'                # inform user bia error message
 
 		# calculate time taken and return the result
 		time_taken = time.time() - start_time
