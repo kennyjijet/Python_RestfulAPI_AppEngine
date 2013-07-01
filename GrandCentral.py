@@ -10,6 +10,7 @@ from actions.noactions import noactions
 from actions.saveplayer import saveplayer
 from actions.setpntoken import setpntoken
 from actions.loadplayer import loadplayer
+from actions.getplayerdata import getplayerdata
 from actions.deleteplayer import deleteplayer
 #from actions.savescore 		import savescore
 #from actions.loadreplay 	import loadreplay
@@ -45,6 +46,7 @@ app = webapp2.WSGIApplication([
 								  ('/saveplayer', saveplayer),
 								  ('/setpntoken', setpntoken),
 								  ('/loadplayer', loadplayer),
+								  ('/getplayerdata', getplayerdata),
 								  ('/deleteplayer', deleteplayer),
 								  #('/savescore', savescore),
 								  #('/loadreplay', loadreplay),

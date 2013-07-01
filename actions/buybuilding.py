@@ -63,7 +63,7 @@ class buybuilding(webapp2.RequestHandler):
 			lang = self.request.get('lang')
 		uuid = Utils.required(self, 'uuid')
 		itid = Utils.required(self, 'itid')
-		level = int(Utils.required(self, 'level'))
+		level = Utils.required(self, 'level')
 		location = Utils.required(self, 'location')
 
 		# check password
@@ -86,7 +86,7 @@ class buybuilding(webapp2.RequestHandler):
 
 		if self.error == '' and buildings is not None:
 			try:
-				building = buildings.as_obj[itid][level-1]
+				building = buildings.as_obj[itid][int(level)-1]
 			except KeyError:
 				self.error = itid + " was not found!"
 

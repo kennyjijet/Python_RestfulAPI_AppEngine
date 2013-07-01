@@ -70,7 +70,7 @@ class saveplayer(webapp2.RequestHandler):
 			photo = 'https://graph.facebook.com/'+fbid+'/picture?type=large'
 
 		gold = 10
-		cash = 5000
+		cash = 50000
 		fuel = 5
 		tire = 5
 		battery = 5

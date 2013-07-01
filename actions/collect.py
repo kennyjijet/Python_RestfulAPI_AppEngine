@@ -94,14 +94,14 @@ class collect(webapp2.RequestHandler):
 				_upd = True
 			if mybuilding.status == Building.BuildingStatus.REWARD or mybuilding.status == Building.BuildingStatus.REWARDED or mybuilding.status == Building.BuildingStatus.PRODUCED_PARTIAL:
 				time_delta = int((start_time - mybuilding.timestamp)/60)
-				if time_delta > buildings.as_obj[mybuilding.itid][mybuilding.level-1]['resource_interval']:
+				if time_delta > buildings.as_obj[mybuilding.itid][mybuilding.level-1]['resource_interval'] > 0:
 					mybuilding.status = Building.BuildingStatus.PRODUCED_PARTIAL
 					_upd = True
-				res_produced = (time_delta / buildings.as_obj[mybuilding.itid][mybuilding.level-1]['resource_interval']) * buildings.as_obj[mybuilding.itid][mybuilding.level-1]['resource_produced']
-				if res_produced >= buildings.as_obj[mybuilding.itid][mybuilding.level-1]['resource_capacity']:
-					res_produced = buildings.as_obj[mybuilding.itid][mybuilding.level-1]['resource_capacity']
-					mybuilding.status = Building.BuildingStatus.PRODUCED
-					_upd = True
+					res_produced = (time_delta / buildings.as_obj[mybuilding.itid][mybuilding.level-1]['resource_interval']) * buildings.as_obj[mybuilding.itid][mybuilding.level-1]['resource_produced']
+					if res_produced >= buildings.as_obj[mybuilding.itid][mybuilding.level-1]['resource_capacity']:
+						res_produced = buildings.as_obj[mybuilding.itid][mybuilding.level-1]['resource_capacity']
+						mybuilding.status = Building.BuildingStatus.PRODUCED
+						_upd = True
 			if mybuilding.status == Building.BuildingStatus.PRODUCED_PARTIAL or mybuilding.status == Building.BuildingStatus.PRODUCED:
 				try:
 					player.state_obj[buildings.as_obj[mybuilding.itid][mybuilding.level-1]['resource']] += res_produced

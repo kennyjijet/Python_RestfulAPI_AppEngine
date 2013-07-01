@@ -90,9 +90,12 @@ class upgradebuilding(webapp2.RequestHandler):
 		if self.error == '' and mybuilding is not None:
 			if mybuilding.status != Building.BuildingStatus.PENDING:
 				try:
-					building = buildings.as_obj[mybuilding.itid][mybuilding.level]
+					if len(buildings.as_obj[mybuilding.itid]) > mybuilding.level:
+						building = buildings.as_obj[mybuilding.itid][mybuilding.level]
+					else:
+						self.error = 'Level '+str(mybuilding.level+1)+' of building='+mybuilding.itid+' does not exist!'
 				except KeyError:
-					self.error = 'Level '+str(mybuilding.level+1)+' of building='+mybuilding.itid+' does not exist!'
+					self.error = 'Building='+mybuilding.itid+' does not exist!'
 			else:
 				self.respn = '{"warning":"Building='+inid+' still under construction, cannot upgrade at the moment!"}'
 
