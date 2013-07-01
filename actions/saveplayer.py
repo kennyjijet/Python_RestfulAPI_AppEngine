@@ -57,6 +57,7 @@ class saveplayer(webapp2.RequestHandler):
 
 		uuid = self.request.get('uuid')
 		fbid = self.request.get('fbid')
+
 		token = self.request.get('token')
 		lang = config.server["defaultLanguage"]
 		if self.request.get('lang'):
@@ -65,7 +66,7 @@ class saveplayer(webapp2.RequestHandler):
 		if self.request.get('name'):
 			name = self.request.get('name')
 		photo = ''
-		if fbid:
+		if fbid != '':
 			photo = 'https://graph.facebook.com/'+fbid+'/picture?type=large'
 
 		gold = 10
@@ -76,16 +77,18 @@ class saveplayer(webapp2.RequestHandler):
 		oil = 5
 		brake = 5
 
+		player = None
+
 		if self.error == '' and passwd != config.testing['passwd']:                	# if password is incorrect
 			self.error = 'passwd is incorrect.'                                    	# inform user via error message
 
 		start_time = time.time()                                                	# start count
 
 		# if error, skip this
-		if self.error == '':
+		if self.error == '' and fbid != '':
 			player = Player.getplayerByFbid(self, fbid)
 
-		if player is None:
+		if player is None and uuid != '':
 			player = Player.getplayer(self, uuid)                        			# get player from Player model class helper, specified by uuid
 
 		if player is None:                                                    	# if no player data returned or doesn't exist
@@ -98,7 +101,7 @@ class saveplayer(webapp2.RequestHandler):
 		else:                                                                	# but if player does exist
 			if token:                                                        	# if token is provided
 				player.state_obj['token'] = token                            	# assign token to player state
-			if fbid:
+			if fbid != '':
 				player.fbid = fbid
 				player.info_obj['fbid'] = fbid
 				player.info_obj['photo'] = photo                                	# assign photo url
