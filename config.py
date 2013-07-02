@@ -48,8 +48,11 @@ class config():
 	gamedata = [
 		"buildings",
 		"racetypes",
+		"cars",
+		"opponents",
 		"advisor",
 		"transui",
+
 	]
 	apple = {
 		"sandbox": True,

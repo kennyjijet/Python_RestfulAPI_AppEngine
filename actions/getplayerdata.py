@@ -12,7 +12,7 @@
 
 	Input:
 	---------------------------------------------------------------
-	required: passwd, uuid, get = list of data, separate by commas
+	required: passwd, uuid, type = list of data, separate by commas
 	optional: specific
 
 
@@ -53,7 +53,7 @@ class getplayerdata(webapp2.RequestHandler):
 		# validate and assign parameters
 		passwd = Utils.required(self, 'passwd')
 		uuid = Utils.required(self, 'uuid')
-		get = Utils.required(self, 'get')
+		type = Utils.required(self, 'type')
 		version = config.data_version['buildings']
 		if self.request.get('version'):
 			version = self.request.get('version')
@@ -72,8 +72,8 @@ class getplayerdata(webapp2.RequestHandler):
 
 		if self.error == '' and player is not None:												# if have some data returned
 			self.respn = '{'
-			gets = get.split(',')
-			for item in gets:
+			types = type.split(',')
+			for item in types:
 				if item == 'info':
 					self.respn += '"info":'+player.info+','
 				elif item == 'state':
