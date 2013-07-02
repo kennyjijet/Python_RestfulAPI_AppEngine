@@ -7,19 +7,19 @@
 
 	Description
 	---------------------------------------------------------------
-	I am an API to get game data (Data deployed from Google Drive
+	I am an API to get game data(s) (Data deployed from Google Drive
 	Custom Backend
 
 
 	Input:
 	---------------------------------------------------------------
-	required: passwd, type, version
-	optional:
+	required: passwd, type,
+	optional: version, lang
 
 
 	Output:
 	---------------------------------------------------------------
-	requested game data
+	requested game data(s)
 
 
 """
@@ -28,13 +28,14 @@
 import webapp2
 import logging
 import time
+import json
 
 # config
-from config         import config
+from config import config
 
 # include
-from helpers.utils  import Utils
-from models.Data    import Data
+from helpers.utils import Utils
+from models.Data import Data
 
 # class implementation
 class getdata(webapp2.RequestHandler):
@@ -52,7 +53,12 @@ class getdata(webapp2.RequestHandler):
 		# validate and assign parameters
 		passwd = Utils.required(self, 'passwd')
 		type = Utils.required(self, 'type')
-		version = Utils.required(self, 'version')
+		version = config.data_version['buildings']
+		if self.request.get('version'):
+			version = self.request.get('version')
+		lang = config.server["defaultLanguage"]
+		if self.request.get('lang'):
+			lang = self.request.get('lang')
 
 		# check password
 		if self.error == '' and passwd != config.testing['passwd']:
@@ -62,10 +68,25 @@ class getdata(webapp2.RequestHandler):
 
 		# if error, skip this
 		if self.error == '':
-			data = Data.getData(self, type, float(version))
-			if data is not None:
-				self.respn = data.data
-				logging.info(data.data)
+			if type == 'all':
+				type = ''
+				for item in config.gamedata:
+					type += item+','
+				type = type.rstrip(',')
+
+			self.respn = '{'
+			types = type.split(',')
+			for item in types:
+				if(item == 'transui'):
+					data = Data.getData(self, item, version)
+					if data is not None:
+						data_obj = json.loads(data.data)
+						self.respn += '"transui":'+json.dumps(data_obj[lang])+','
+				else:
+					data = Data.getData(self, item+'_'+lang, version)
+					if data is not None:
+						self.respn += '"'+item+'":'+data.data+','
+			self.respn = self.respn.rstrip(',') + '}'
 
 		# calculate time taken and return the result
 		time_taken = time.time() - start_time

@@ -109,13 +109,7 @@ class getplayerdata(webapp2.RequestHandler):
 							self.respn = Building.compose_mybuilding(self.respn, mybuilding)
 						self.respn = self.respn.rstrip(',') + '],'
 			self.respn = self.respn.rstrip(',') + '}'
-			"""
 
-				if specific is not None and specific != '':						# and if user wants to request partial data, (by specifying whatever they want)
-					Player.compose_player_partial(self, player, specific)		# compose partial data to return
-				else:															# but if not
-					Player.compose_player(self, player)							# just compose the entire player state to return
-			"""
 		# calculate time taken and return result
 		time_taken = time.time() - start_time
 		self.response.headers['Content-Type'] = 'text/html'

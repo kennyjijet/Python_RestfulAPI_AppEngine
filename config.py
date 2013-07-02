@@ -45,6 +45,12 @@ class config():
 		"research": 1.0,
 		"advisor": 1.0
 	}
+	gamedata = [
+		"buildings",
+		"racetypes",
+		"advisor",
+		"transui",
+	]
 	apple = {
 		"sandbox": True,
 		"verifyingReceiptURL": "https://buy.itunes.apple.com/verifyReceipt",
