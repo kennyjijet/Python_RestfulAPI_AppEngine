@@ -53,7 +53,7 @@ class getdata(webapp2.RequestHandler):
 		# validate and assign parameters
 		passwd = Utils.required(self, 'passwd')
 		type = Utils.required(self, 'type')
-		version = config.data_version['buildings']
+		version = config.data_version['building']
 		if self.request.get('version'):
 			version = self.request.get('version')
 		lang = config.server["defaultLanguage"]

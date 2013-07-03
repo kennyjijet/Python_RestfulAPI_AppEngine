@@ -11,10 +11,11 @@ from google.appengine.api import memcache
 from config				import config
 
 class Data(db.Model):
-	version             = db.FloatProperty()
-	type				= db.StringProperty()
-	data 				= db.TextProperty()
-	created				= db.DateTimeProperty(auto_now_add=True)
+
+	version = db.FloatProperty()
+	type = db.StringProperty()
+	data = db.TextProperty()
+	created = db.DateTimeProperty(auto_now_add=True)
 
 	@staticmethod
 	def newData(self):
@@ -66,12 +67,12 @@ class Data(db.Model):
 	### Buildings
 	@staticmethod
 	def getbuildings(self, lang, ver):
-		buildings = memcache.get('buildings_'+lang+'.'+str(ver))
+		buildings = memcache.get('building_'+lang+'.'+str(ver))
 		if buildings is None:
-			buildings = Data.getData(self, 'buildings_'+lang, ver)
+			buildings = Data.getData(self, 'building_'+lang, ver)
 			if buildings is not None:
 				buildings.as_obj = json.loads(buildings.data)
-				if not memcache.add('buildings_'+lang+'.'+str(ver), buildings, config.memcache['longtime']):
+				if not memcache.add('building_'+lang+'.'+str(ver), buildings, config.memcache['longtime']):
 					logging.warning('Data.getbuildings memcache set failed!')
 			else:
 				self.error = 'Building data ('+str(ver)+') couldn\'t be retrieved!'
@@ -107,7 +108,7 @@ class Data(db.Model):
 	### Researches
 	@staticmethod
 	def gettransui(self, ver):
-		transuis = memcache.get('transuis.'+str(ver))
+		transuis = memcache.get('transui.'+str(ver))
 		if transuis is None:
 			transuis = Data.getData(self, 'transui', ver)
 			if transuis is not None:

@@ -54,7 +54,7 @@ class getplayerdata(webapp2.RequestHandler):
 		passwd = Utils.required(self, 'passwd')
 		uuid = Utils.required(self, 'uuid')
 		type = Utils.required(self, 'type')
-		version = config.data_version['buildings']
+		version = config.data_version['building']
 		if self.request.get('version'):
 			version = self.request.get('version')
 		lang = config.server["defaultLanguage"]
@@ -89,12 +89,13 @@ class getplayerdata(webapp2.RequestHandler):
 							if mybuilding.status == Building.BuildingStatus.PENDING:
 								if mybuilding.timestamp + (buildings.as_obj[mybuilding.itid][mybuilding.level-1]['build_time']*60) <= start_time:
 									mybuilding.timestamp = int(start_time)
-									mybuilding.status = Building.BuildingStatus.REWARD
+									mybuilding.status = Building.BuildingStatus.DELIVERED
 									_upd = True
-							elif mybuilding.status == Building.BuildingStatus.REWARD:
-								mybuilding.status = Building.BuildingStatus.REWARDED
+							elif mybuilding.status == Building.BuildingStatus.DELIVERED:
+								mybuilding.status = Building.BuildingStatus.OWNED
 								_upd = True
-							if mybuilding.status == Building.BuildingStatus.REWARD or mybuilding.status == Building.BuildingStatus.REWARDED or mybuilding.status == Building.BuildingStatus.PRODUCED_PARTIAL:
+							"""
+							if mybuilding.status == Building.BuildingStatus.DELIVERED or mybuilding.status == Building.BuildingStatus.OWNED or mybuilding.status == Building.BuildingStatus.PRODUCED_PARTIAL:
 								time_delta = int((start_time - mybuilding.timestamp)/60)
 								if time_delta > buildings.as_obj[mybuilding.itid][mybuilding.level-1]['resource_interval'] > 0:
 									mybuilding.status = Building.BuildingStatus.PRODUCED_PARTIAL
@@ -104,6 +105,7 @@ class getplayerdata(webapp2.RequestHandler):
 										res_produced = buildings.as_obj[mybuilding.itid][mybuilding.level-1]['resource_capacity']
 										mybuilding.status = Building.BuildingStatus.PRODUCED
 										_upd = True
+							"""
 							if _upd is True:
 								Building.setmybuilding(self, mybuilding)
 							self.respn = Building.compose_mybuilding(self.respn, mybuilding)

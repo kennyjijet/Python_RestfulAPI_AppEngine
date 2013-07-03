@@ -12,8 +12,8 @@ from config				import config
 # enum ItemType
 class RESEARCH_STATUS(object):
 	PENDING = "pending"
-	REWARD = "reward"
-	REWARDED = "rewarded"
+	DELIVERED = "delivered"
+	OWNED = "owned"
 
 class Research(db.Model):
 	uuid = db.StringProperty()

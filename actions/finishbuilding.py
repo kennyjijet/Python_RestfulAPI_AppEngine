@@ -54,7 +54,7 @@ class finishbuilding(webapp2.RequestHandler):
 
 		# validate and assign parameters
 		passwd = Utils.required(self, 'passwd')
-		version = config.data_version['buildings']
+		version = config.data_version['building']
 		if self.request.get('version'):
 			version = self.request.get('version')
 		lang = config.server["defaultLanguage"]
@@ -107,13 +107,13 @@ class finishbuilding(webapp2.RequestHandler):
 					logging.info(str(sele['time_in_minutes'])+'==>'+str(sele['gold_value']))
 					if player.state_obj['gold'] >= sele['gold_value']:
 						player.state_obj['gold'] -= sele['gold_value']
-						mybuilding.status = Building.BuildingStatus.REWARD
+						mybuilding.status = Building.BuildingStatus.DELIVERED
 						_upd = True
 						Player.setplayer(self, player)
 					else:
 						self.respn = '{"warning":"not enough gold!"}'
 				else:
-					mybuilding.status = Building.BuildingStatus.REWARD
+					mybuilding.status = Building.BuildingStatus.DELIVERED
 					_upd = True
 
 			if _upd is True:

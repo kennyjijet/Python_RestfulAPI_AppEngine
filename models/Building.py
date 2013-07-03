@@ -12,11 +12,8 @@ from config				import config
 # enum ItemType
 class BUILDING_STATUS(object):
 	PENDING = "pending"
-	REWARD = "reward"
-	REWARDED = "rewarded"
-	PRODUCED = "produced"
-	PRODUCED_PARTIAL = "produced_partial"
-	UPGRADING = "upgrading"
+	DELIVERED = "delivered"
+	OWNED = "owned"
 
 class Building(db.Model):
 	uuid = db.StringProperty()

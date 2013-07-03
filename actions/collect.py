@@ -12,7 +12,7 @@
 
 	Input:
 	---------------------------------------------------------------
-	required: passwd, uuid, inid
+	required: passwd, uuid, inid, amount
 	optional: version
 
 
@@ -51,7 +51,7 @@ class collect(webapp2.RequestHandler):
 
 		# validate and assign parameters
 		passwd = Utils.required(self, 'passwd')
-		version = config.data_version['buildings']
+		version = config.data_version['building']
 		if self.request.get('version'):
 			version = self.request.get('version')
 		lang = config.server["defaultLanguage"]
@@ -59,6 +59,7 @@ class collect(webapp2.RequestHandler):
 			lang = self.request.get('lang')
 		uuid = Utils.required(self, 'uuid')
 		inid = Utils.required(self, 'inid')
+		amount = Utils.required(self, 'amount')
 
 		# check password
 		if self.error == '' and passwd != config.testing['passwd']:
@@ -87,26 +88,30 @@ class collect(webapp2.RequestHandler):
 			if mybuilding.status == Building.BuildingStatus.PENDING:
 				if mybuilding.timestamp + (buildings.as_obj[mybuilding.itid][mybuilding.level-1]['build_time']*60) <= start_time:
 					mybuilding.timestamp = int(start_time)
-					mybuilding.status = Building.BuildingStatus.REWARD
+					mybuilding.status = Building.BuildingStatus.DELIVERED
 					_upd = True
-			elif mybuilding.status == Building.BuildingStatus.REWARD:
-				mybuilding.status = Building.BuildingStatus.REWARDED
+			elif mybuilding.status == Building.BuildingStatus.DELIVERED:
+				mybuilding.status = Building.BuildingStatus.OWNED
 				_upd = True
-			if mybuilding.status == Building.BuildingStatus.REWARD or mybuilding.status == Building.BuildingStatus.REWARDED or mybuilding.status == Building.BuildingStatus.PRODUCED_PARTIAL:
+
+			if mybuilding.status == Building.BuildingStatus.DELIVERED or mybuilding.status == Building.BuildingStatus.OWNED:
 				time_delta = int((start_time - mybuilding.timestamp)/60)
 				if time_delta > buildings.as_obj[mybuilding.itid][mybuilding.level-1]['resource_interval'] > 0:
-					mybuilding.status = Building.BuildingStatus.PRODUCED_PARTIAL
-					_upd = True
+					#mybuilding.status = Building.BuildingStatus.PRODUCED_PARTIAL
+					#_upd = True
 					res_produced = (time_delta / buildings.as_obj[mybuilding.itid][mybuilding.level-1]['resource_interval']) * buildings.as_obj[mybuilding.itid][mybuilding.level-1]['resource_produced']
 					if res_produced >= buildings.as_obj[mybuilding.itid][mybuilding.level-1]['resource_capacity']:
 						res_produced = buildings.as_obj[mybuilding.itid][mybuilding.level-1]['resource_capacity']
-						mybuilding.status = Building.BuildingStatus.PRODUCED
-						_upd = True
-			if mybuilding.status == Building.BuildingStatus.PRODUCED_PARTIAL or mybuilding.status == Building.BuildingStatus.PRODUCED:
+						##mybuilding.status = Building.BuildingStatus.PRODUCED
+						##_upd = True
+			#if mybuilding.status == Building.BuildingStatus.PRODUCED_PARTIAL or mybuilding.status == Building.BuildingStatus.PRODUCED:
+			if res_produced > 0:
+				if amount < res_produced:
+					res_produced = amount
 				try:
 					player.state_obj[buildings.as_obj[mybuilding.itid][mybuilding.level-1]['resource']] += res_produced
 					if Player.setplayer_as_obj(self, player):
-						mybuilding.status = Building.BuildingStatus.REWARDED
+						#mybuilding.status = Building.BuildingStatus.OWNED
 						mybuilding.timestamp = int(start_time)
 						_upd = True
 				except KeyError:

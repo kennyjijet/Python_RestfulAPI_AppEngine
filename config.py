@@ -41,15 +41,15 @@ class config():
 	}
 	data_version = {
 		"economy": 1.0,
-		"buildings": 1.0,
+		"building": 1.0,
 		"research": 1.0,
 		"advisor": 1.0
 	}
 	gamedata = [
-		"buildings",
-		"racetypes",
+		"building",
+		"racetype",
 		"cars",
-		"opponents",
+		"opponent",
 		"advisor",
 		"transui",
 

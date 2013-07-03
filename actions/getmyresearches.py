@@ -97,7 +97,7 @@ class getmyresearches(webapp2.RequestHandler):
 						myresearch.status = Research.ResearchStatus.REWARD
 						_upd = True
 				elif myresearch.status == Research.ResearchStatus.REWARD:
-					myresearch.status = Research.ResearchStatus.REWARDED
+					myresearch.status = Research.ResearchStatus.OWNED
 					_upd = True
 				if _upd is True:
 					Research.setmyresearch(self, myresearch)
