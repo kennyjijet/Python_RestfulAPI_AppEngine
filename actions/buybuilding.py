@@ -104,7 +104,7 @@ class buybuilding(webapp2.RequestHandler):
 					mybuilding.timestamp = int(start_time)
 					Building.setmybuilding(self, mybuilding)
 					self.respn = '{"state":'+player.state+','
-					self.respn += '"buildings":['
+					self.respn += '"building":['
 					self.respn = Building.compose_mybuilding(self.respn, mybuilding)
 					self.respn = self.respn.rstrip(',') + ']'
 					self.respn += '}'
