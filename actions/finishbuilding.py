@@ -98,13 +98,11 @@ class finishbuilding(webapp2.RequestHandler):
 				if time_left > 0:
 					sele = economy.obj[0]
 					for list in economy.obj:
-						logging.info(str(time_left)+' > '+str(list['time_in_minutes']))
 						if time_left >= list['time_in_minutes']:
 							sele = list
 						else:
-							logging.info('--->break')
 							break
-					logging.info(str(sele['time_in_minutes'])+'==>'+str(sele['gold_value']))
+
 					if player.state_obj['gold'] >= sele['gold_value']:
 						player.state_obj['gold'] -= sele['gold_value']
 						mybuilding.status = Building.BuildingStatus.DELIVERED

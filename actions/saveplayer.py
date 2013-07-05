@@ -76,6 +76,7 @@ class saveplayer(webapp2.RequestHandler):
 		battery = 5
 		oil = 5
 		brake = 5
+		advice_checklist = ''
 
 		player = None
 
@@ -97,7 +98,7 @@ class saveplayer(webapp2.RequestHandler):
 			player.fbid = fbid
 			# and assign all player info and state
 			player.info_obj = {'uuid': player.uuid, 'fbid': player.fbid, 'token': token, 'name': name, 'photo': photo, 'lang': lang}
-			player.state_obj = {'gold': gold, 'cash': cash, 'fuel': fuel, 'tire': tire, 'battery': battery, 'oil': oil, 'brake': brake}
+			player.state_obj = {'gold': gold, 'cash': cash, 'fuel': fuel, 'tire': tire, 'battery': battery, 'oil': oil, 'brake': brake, 'advice_checklist': advice_checklist}
 		else:                                                                	# but if player does exist
 			if token:                                                        	# if token is provided
 				player.state_obj['token'] = token                            	# assign token to player state
@@ -138,6 +139,10 @@ class saveplayer(webapp2.RequestHandler):
 				brake = player.state_obj['brake']
 			except KeyError:
 				player.state_obj['brake'] = brake
+			try:
+				advice_checklist = player.state_obj['advice_checklist']
+			except KeyError:
+				player.state_obj['advice_checklist'] = advice_checklist
 
 		if Player.setplayer(self, player):                            # write down to database
 			self.error = ''                                                    # then obviously, no error

@@ -95,22 +95,22 @@ class collect(webapp2.RequestHandler):
 				_upd = True
 
 			if mybuilding.status == Building.BuildingStatus.DELIVERED or mybuilding.status == Building.BuildingStatus.OWNED:
-				time_delta = int((start_time - mybuilding.timestamp)/60)
+				time_delta = (start_time - mybuilding.timestamp)/60
 				if time_delta > buildings.as_obj[mybuilding.itid][mybuilding.level-1]['resource_interval'] > 0:
 					#mybuilding.status = Building.BuildingStatus.PRODUCED_PARTIAL
 					#_upd = True
-					res_produced = (time_delta / buildings.as_obj[mybuilding.itid][mybuilding.level-1]['resource_interval']) * buildings.as_obj[mybuilding.itid][mybuilding.level-1]['resource_produced']
+					res_produced = int(time_delta / buildings.as_obj[mybuilding.itid][mybuilding.level-1]['resource_interval']) * buildings.as_obj[mybuilding.itid][mybuilding.level-1]['resource_produced']
 					if res_produced >= buildings.as_obj[mybuilding.itid][mybuilding.level-1]['resource_capacity']:
 						res_produced = buildings.as_obj[mybuilding.itid][mybuilding.level-1]['resource_capacity']
 						##mybuilding.status = Building.BuildingStatus.PRODUCED
 						##_upd = True
 			#if mybuilding.status == Building.BuildingStatus.PRODUCED_PARTIAL or mybuilding.status == Building.BuildingStatus.PRODUCED:
 			if res_produced > 0:
-				if amount < res_produced:
+				if res_produced > amount:
 					res_produced = amount
 				try:
 					player.state_obj[buildings.as_obj[mybuilding.itid][mybuilding.level-1]['resource']] += res_produced
-					if Player.setplayer_as_obj(self, player):
+					if Player.setplayer(self, player):
 						#mybuilding.status = Building.BuildingStatus.OWNED
 						mybuilding.timestamp = int(start_time)
 						_upd = True
@@ -121,7 +121,7 @@ class collect(webapp2.RequestHandler):
 				Building.setmybuilding(self, mybuilding)
 
 			if self.error == '':
-				self.respn = '{"state":'+player.state+', "buildings":['
+				self.respn = '{"state":'+player.state+', "building":['
 				self.respn = Building.compose_mybuilding(self.respn, mybuilding)
 				self.respn = self.respn.rstrip(',') + ']'
 				self.respn += '}'

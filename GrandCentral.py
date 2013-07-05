@@ -12,6 +12,7 @@ from actions.setpntoken import setpntoken
 from actions.loadplayer import loadplayer
 from actions.getplayerdata import getplayerdata
 from actions.deleteplayer import deleteplayer
+from actions.advicechecklist import advicechecklist
 #from actions.savescore 		import savescore
 #from actions.loadreplay 	import loadreplay
 #from actions.getleaderboard import getleaderboard
@@ -48,6 +49,7 @@ app = webapp2.WSGIApplication([
 								  ('/loadplayer', loadplayer),
 								  ('/getplayerdata', getplayerdata),
 								  ('/deleteplayer', deleteplayer),
+								  ('/advicechecklist', advicechecklist),
 								  #('/savescore', savescore),
 								  #('/loadreplay', loadreplay),
 								  #('/getleaderboard', getleaderboard),
