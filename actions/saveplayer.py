@@ -39,6 +39,8 @@ from config import config
 # include
 from helpers.utils import Utils
 from models.Player import Player
+from models.Data import Data
+from models.Building import Building
 
 # class implementation
 class saveplayer(webapp2.RequestHandler):
@@ -58,6 +60,8 @@ class saveplayer(webapp2.RequestHandler):
 		uuid = self.request.get('uuid')
 		fbid = self.request.get('fbid')
 
+		version = config.data_version['building']
+
 		token = self.request.get('token')
 		lang = config.server["defaultLanguage"]
 		if self.request.get('lang'):
@@ -68,7 +72,6 @@ class saveplayer(webapp2.RequestHandler):
 		photo = ''
 		if fbid != '':
 			photo = 'https://graph.facebook.com/'+fbid+'/picture?type=large'
-
 		gold = 10
 		cash = 50000
 		fuel = 5
@@ -94,12 +97,14 @@ class saveplayer(webapp2.RequestHandler):
 
 		if player is None:                                                    	# if no player data returned or doesn't exist
 			player = Player(parent=db.Key.from_path('Player', config.db['playerdb_name']))    # create a new player state data
-			player.uuid = Utils.genanyid(self, 'u')                        		# assign uuid
+			uuid = Utils.genanyid(self, 'u')
+			player.uuid = uuid                        							# assign uuid
 			player.fbid = fbid
 			# and assign all player info and state
 			player.info_obj = {'uuid': player.uuid, 'fbid': player.fbid, 'token': token, 'name': name, 'photo': photo, 'lang': lang}
 			player.state_obj = {'gold': gold, 'cash': cash, 'fuel': fuel, 'tire': tire, 'battery': battery, 'oil': oil, 'brake': brake, 'advice_checklist': advice_checklist}
 		else:                                                                	# but if player does exist
+			uuid = player.uuid
 			if token:                                                        	# if token is provided
 				player.state_obj['token'] = token                            	# assign token to player state
 			if fbid != '':
@@ -146,7 +151,38 @@ class saveplayer(webapp2.RequestHandler):
 
 		if Player.setplayer(self, player):                            # write down to database
 			self.error = ''                                                    # then obviously, no error
-			Player.compose_player(self, player)                                # compose the entire player state to return
+			type = 'info,state,building'
+			self.respn = '{"uuid":"'+uuid+'",'
+			types = type.split(',')
+			for item in types:
+				if item == 'info':
+					self.respn += '"info":'+player.info+','
+				elif item == 'state':
+					self.respn += '"state":'+player.state+','
+				elif item == 'building':
+					buildings = Data.getbuildings(self, lang, version)
+					mybuildings = Building.getmybuildings(self, uuid)
+					if buildings is not None and mybuildings is not None:
+						self.respn += '"building":['
+						for mybuilding in mybuildings:
+							# update building status, determine production
+							_upd = False
+							if mybuilding.status == Building.BuildingStatus.PENDING:
+								if mybuilding.timestamp + (buildings.as_obj[mybuilding.itid][mybuilding.level-1]['build_time']*60) <= start_time:
+									mybuilding.timestamp = int(start_time)
+									mybuilding.status = Building.BuildingStatus.DELIVERED
+									_upd = True
+							elif mybuilding.status == Building.BuildingStatus.DELIVERED:
+								mybuilding.status = Building.BuildingStatus.OWNED
+								_upd = True
+							if _upd is True:
+								Building.setmybuilding(self, mybuilding)
+							self.respn = Building.compose_mybuilding(self.respn, mybuilding)
+						self.respn = self.respn.rstrip(',') + '],'
+			self.respn = self.respn.rstrip(',') + '}'
+
+			#Player.compose_player(self, player)                                # compose the entire player state to return
+
 		else:                                                                # but if write down to database was failed
 			self.error = 'unable to insert/update player data.'                # inform user bia error message
 
