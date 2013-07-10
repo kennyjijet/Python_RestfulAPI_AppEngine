@@ -32,6 +32,12 @@ from actions.upgradebuilding import upgradebuilding
 from actions.finishbuilding import finishbuilding
 from actions.getmybuildings import getmybuildings
 from actions.collect import collect
+
+from actions.challengecreate import challengecreate
+from actions.challengelist import challengelist
+from actions.challengeupdate import challengeupdate
+from actions.challengeview import challengeview
+
 from actions.getresearchlist import getresearchlist
 from actions.startresearch import startresearch
 from actions.getmyresearches import getmyresearches
@@ -69,6 +75,12 @@ app = webapp2.WSGIApplication([
 								  ('/finishbuilding', finishbuilding),
 								  ('/getmybuildings', getmybuildings),
 								  ('/collect', collect),
+
+								  ('/challengecreate', challengecreate),
+								  ('/challengelist', challengelist),
+								  ('/challengeupdate', challengeupdate),
+								  ('/challengeview', challengeview),
+
 								  ('/getresearchlist', getresearchlist),
 								  ('/startresearch', startresearch),
 								  ('/getmyresearches', getmyresearches),

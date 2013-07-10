@@ -10,6 +10,7 @@ class config():
 		"scoredb_name": "scoredb",
 		"recorddb_name": "recorddb",
 		"itemdb_name": "itemdb",
+		"challengedb_name": "challengedb",
 
 		"buildingdb_name": "buildingdb",
 		"researchdb_name": "researchdb"
