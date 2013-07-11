@@ -41,6 +41,7 @@ from models.Score 	import Score
 from models.Item	import Item
 from models.Record  import Record
 from models.Building import Building
+from models.Challenge import Challenge
 from helpers.utils		import Utils
 
 # class implementation
@@ -93,6 +94,9 @@ class deleteplayer(webapp2.RequestHandler):
 				buildings = Building.all().filter('uuid =', player.uuid).ancestor(db.Key.from_path('Building', config.db['buildingdb_name']))
 				for building in buildings:
 					building.delete()
+
+				# delete all this user's challenge
+				Challenge.DeleteByUserId(self, player.fbid)
 
 				# and finally, delete this player
 				player.delete()

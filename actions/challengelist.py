@@ -12,7 +12,7 @@
 
 	Input:
 	---------------------------------------------------------------
-	required: passwd, uuid, track
+	required: passwd, uuid
 	optional:
 
 
@@ -52,7 +52,6 @@ class challengelist(webapp2.RequestHandler):
 		# validate and assign parameters
 		passwd = Utils.required(self, 'passwd')
 		uuid = Utils.required(self, 'uuid')
-		track = Utils.required(self, 'track')
 
 		# check password
 		if self.error == '' and passwd != config.testing['passwd']:
@@ -68,30 +67,43 @@ class challengelist(webapp2.RequestHandler):
 			player = Player.getplayer(self, uuid)
 
 		if self.error == '' and player is not None:
-			self.respn = '{'
-			challengers = Challenge.GetChallengers(self, track, player.fbid)
+			self.respn = '{"challengers":['
+			challengers = Challenge.GetChallengers(self, player.fbid)
 			if challengers is not None:
-				self.respn += '"challengers":['
 				for _challenge in challengers:
 					_gameObj = json.loads(_challenge.data)
 					self.respn += '{'
-					self.respn += '"challengId":"'+_challenge.id+'",'
+					self.respn += '"chid":"'+_challenge.id+'",'
+					self.respn += '"uidx":"'+_challenge.uid1+'",'
+					self.respn += '"track":"'+_challenge.track+'",'
 					self.respn += '"lapTime":'+str(_gameObj['player1']['lapTime'])+','
 					self.respn += '"created":"'+_gameObj['player1']['created']+'"'
 					self.respn += '},'
-				self.respn = self.respn.rstrip(',') + '],'
-			challenging = Challenge.GetChallenging(self, track, player.fbid)
+			self.respn = self.respn.rstrip(',') + '],"challenging":['
+			challenging = Challenge.GetChallenging(self, player.fbid)
 			if challenging is not None:
-				self.respn += '"challenging":['
 				for _challenge in challenging:
 					_gameObj = json.loads(_challenge.data)
 					self.respn += '{'
-					self.respn += '"challengId":"'+_challenge.id+'",'
+					self.respn += '"chid":"'+_challenge.id+'",'
+					self.respn += '"uidx":"'+_challenge.uid1+'",'
+					self.respn += '"track":"'+_challenge.track+'",'
 					self.respn += '"lapTime":'+str(_gameObj['player2']['lapTime'])+','
 					self.respn += '"created":"'+_gameObj['player2']['created']+'"'
 					self.respn += '},'
-				self.respn = self.respn.rstrip(',') + ']'
-			self.respn += '}'
+			self.respn = self.respn.rstrip(',') + '],"completed":['
+			completed = Challenge.GetCompleted(self, player.fbid)
+			if completed is not None:
+				for _challenge in completed:
+					_gameObj = json.loads(_challenge.data)
+					self.respn += '{'
+					self.respn += '"chid":"'+_challenge.id+'",'
+					self.respn += '"uidx":"'+_challenge.uid1+'",'
+					self.respn += '"track":"'+_challenge.track+'",'
+					self.respn += '"lapTime":'+str(_gameObj['player2']['lapTime'])+','
+					self.respn += '"created":"'+_gameObj['player2']['created']+'"'
+					self.respn += '},'
+			self.respn = self.respn.rstrip(',') + ']}'
 
 		# calculate time taken and return the result
 		time_taken = time.time() - start_time

@@ -36,6 +36,7 @@ from helpers.utils import Utils
 from models.Data import Data
 from models.Player import Player
 from models.Building import Building
+from models.Challenge import Challenge
 
 # class implementation
 class getplayerdata(webapp2.RequestHandler):
@@ -72,6 +73,11 @@ class getplayerdata(webapp2.RequestHandler):
 
 		if self.error == '' and player is not None:												# if have some data returned
 			self.respn = '{'
+			if type == 'all':
+				type = ''
+				for item in config.playerdata:
+					type += item+','
+				type = type.rstrip(',')
 			types = type.split(',')
 			for item in types:
 				if item == 'info':
@@ -94,22 +100,48 @@ class getplayerdata(webapp2.RequestHandler):
 							elif mybuilding.status == Building.BuildingStatus.DELIVERED:
 								mybuilding.status = Building.BuildingStatus.OWNED
 								_upd = True
-							"""
-							if mybuilding.status == Building.BuildingStatus.DELIVERED or mybuilding.status == Building.BuildingStatus.OWNED or mybuilding.status == Building.BuildingStatus.PRODUCED_PARTIAL:
-								time_delta = int((start_time - mybuilding.timestamp)/60)
-								if time_delta > buildings.as_obj[mybuilding.itid][mybuilding.level-1]['resource_interval'] > 0:
-									mybuilding.status = Building.BuildingStatus.PRODUCED_PARTIAL
-									_upd = True
-									res_produced = (time_delta / buildings.as_obj[mybuilding.itid][mybuilding.level-1]['resource_interval']) * buildings.as_obj[mybuilding.itid][mybuilding.level-1]['resource_produced']
-									if res_produced >= buildings.as_obj[mybuilding.itid][mybuilding.level-1]['resource_capacity']:
-										res_produced = buildings.as_obj[mybuilding.itid][mybuilding.level-1]['resource_capacity']
-										mybuilding.status = Building.BuildingStatus.PRODUCED
-										_upd = True
-							"""
 							if _upd is True:
 								Building.setmybuilding(self, mybuilding)
 							self.respn = Building.compose_mybuilding(self.respn, mybuilding)
 						self.respn = self.respn.rstrip(',') + '],'
+				elif item == 'challenge':
+					self.respn += '"challenge":{"challengers":['
+					challengers = Challenge.GetChallengers(self, player.fbid)
+					if challengers is not None:
+						for _challenge in challengers:
+							_gameObj = json.loads(_challenge.data)
+							self.respn += '{'
+							self.respn += '"chid":"'+_challenge.id+'",'
+							self.respn += '"uidx":"'+_challenge.uid1+'",'
+							self.respn += '"track":"'+_challenge.track+'",'
+							self.respn += '"lapTime":'+str(_gameObj['player1']['lapTime'])+','
+							self.respn += '"created":"'+_gameObj['player1']['created']+'"'
+							self.respn += '},'
+					self.respn = self.respn.rstrip(',') + '],"challenging":['
+					challenging = Challenge.GetChallenging(self, player.fbid)
+					if challenging is not None:
+						for _challenge in challenging:
+							_gameObj = json.loads(_challenge.data)
+							self.respn += '{'
+							self.respn += '"chid":"'+_challenge.id+'",'
+							self.respn += '"uidx":"'+_challenge.uid1+'",'
+							self.respn += '"track":"'+_challenge.track+'",'
+							self.respn += '"lapTime":'+str(_gameObj['player2']['lapTime'])+','
+							self.respn += '"created":"'+_gameObj['player2']['created']+'"'
+							self.respn += '},'
+					self.respn = self.respn.rstrip(',') + '],"completed":['
+					completed = Challenge.GetCompleted(self, player.fbid)
+					if completed is not None:
+						for _challenge in completed:
+							_gameObj = json.loads(_challenge.data)
+							self.respn += '{'
+							self.respn += '"chid":"'+_challenge.id+'",'
+							self.respn += '"uidx":"'+_challenge.uid1+'",'
+							self.respn += '"track":"'+_challenge.track+'",'
+							self.respn += '"lapTime":'+str(_gameObj['player2']['lapTime'])+','
+							self.respn += '"created":"'+_gameObj['player2']['created']+'"'
+							self.respn += '},'
+					self.respn = self.respn.rstrip(',') + ']},'
 			self.respn = self.respn.rstrip(',') + '}'
 
 		# calculate time taken and return result

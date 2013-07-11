@@ -53,7 +53,12 @@ class config():
 		"opponent",
 		"advisor",
 		"transui",
-
+	]
+	playerdata = [
+		"info",
+		"state",
+		"building",
+		"challenge",
 	]
 	apple = {
 		"sandbox": True,
