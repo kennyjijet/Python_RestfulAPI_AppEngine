@@ -74,6 +74,10 @@ class challengeview(webapp2.RequestHandler):
 				else:
 					self.error = 'You don\'t have permission to access data of this challenge.'
 
+			# update timestamp for player
+			player.info_obj['updated'] = start_time
+			Player.setplayer(self, player)
+
 		# calculate time taken and return the result
 		time_taken = time.time() - start_time
 		self.response.headers['Content-Type'] = 'text/html'

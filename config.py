@@ -53,6 +53,7 @@ class config():
 		"opponent",
 		"advisor",
 		"transui",
+		"upgrades",
 	]
 	playerdata = [
 		"info",

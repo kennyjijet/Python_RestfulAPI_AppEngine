@@ -105,6 +105,10 @@ class challengelist(webapp2.RequestHandler):
 					self.respn += '},'
 			self.respn = self.respn.rstrip(',') + ']}'
 
+			# update timestamp for player
+			player.info_obj['updated'] = start_time
+			Player.setplayer(self, player)
+
 		# calculate time taken and return the result
 		time_taken = time.time() - start_time
 		self.response.headers['Content-Type'] = 'text/html'

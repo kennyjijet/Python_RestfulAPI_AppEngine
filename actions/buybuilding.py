@@ -93,6 +93,7 @@ class buybuilding(webapp2.RequestHandler):
 		if self.error == '' and building is not None:
 			if player.state_obj['cash'] >= building['cost']:
 				player.state_obj['cash'] -= building['cost']
+				player.info_obj['updated'] = start_time 						# update timestamp for player
 				if Player.setplayer(self, player):
 					mybuilding = Building.newbuilding(self)
 					mybuilding.uuid = uuid

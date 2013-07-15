@@ -107,6 +107,8 @@ class finishbuilding(webapp2.RequestHandler):
 						player.state_obj['gold'] -= sele['gold_value']
 						mybuilding.status = Building.BuildingStatus.DELIVERED
 						_upd = True
+
+						player.info_obj['updated'] = start_time
 						Player.setplayer(self, player)
 					else:
 						self.respn = '{"warning":"not enough gold!"}'

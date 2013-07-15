@@ -113,6 +113,7 @@ class getplayerdata(webapp2.RequestHandler):
 							self.respn += '{'
 							self.respn += '"chid":"'+_challenge.id+'",'
 							self.respn += '"uidx":"'+_challenge.uid1+'",'
+
 							self.respn += '"track":"'+_challenge.track+'",'
 							self.respn += '"lapTime":'+str(_gameObj['player1']['lapTime'])+','
 							self.respn += '"created":"'+_gameObj['player1']['created']+'"'
@@ -124,7 +125,7 @@ class getplayerdata(webapp2.RequestHandler):
 							_gameObj = json.loads(_challenge.data)
 							self.respn += '{'
 							self.respn += '"chid":"'+_challenge.id+'",'
-							self.respn += '"uidx":"'+_challenge.uid1+'",'
+							self.respn += '"uidx":"'+_challenge.uid2+'",'
 							self.respn += '"track":"'+_challenge.track+'",'
 							self.respn += '"lapTime":'+str(_gameObj['player2']['lapTime'])+','
 							self.respn += '"created":"'+_gameObj['player2']['created']+'"'
@@ -136,7 +137,10 @@ class getplayerdata(webapp2.RequestHandler):
 							_gameObj = json.loads(_challenge.data)
 							self.respn += '{'
 							self.respn += '"chid":"'+_challenge.id+'",'
-							self.respn += '"uidx":"'+_challenge.uid1+'",'
+							if player.fbid == _challenge.uid1:
+								self.respn += '"uidx":"'+_challenge.uid2+'",'
+							else:
+								self.respn += '"uidx":"'+_challenge.uid1+'",'
 							self.respn += '"track":"'+_challenge.track+'",'
 							self.respn += '"lapTime":'+str(_gameObj['player2']['lapTime'])+','
 							self.respn += '"created":"'+_gameObj['player2']['created']+'"'

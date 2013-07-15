@@ -103,6 +103,8 @@ class upgradebuilding(webapp2.RequestHandler):
 			self.respn = str(building['cost'])
 			if player.state_obj['cash'] >= building['cost']:
 				player.state_obj['cash'] -= building['cost']
+				# update timestamp for player
+				player.info_obj['updated'] = start_time
 				if Player.setplayer(self, player):
 					mybuilding.itid = building['id']
 					mybuilding.status = Building.BuildingStatus.PENDING
@@ -116,6 +118,8 @@ class upgradebuilding(webapp2.RequestHandler):
 					self.respn += '}'
 			else:
 				self.respn = '{"warning":"not enough cash!"}'
+
+
 
 		# calculate time taken and return the result
 		time_taken = time.time() - start_time

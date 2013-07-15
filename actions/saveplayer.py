@@ -41,6 +41,7 @@ from helpers.utils import Utils
 from models.Player import Player
 from models.Data import Data
 from models.Building import Building
+from models.Challenge import Challenge
 
 # class implementation
 class saveplayer(webapp2.RequestHandler):
@@ -79,6 +80,7 @@ class saveplayer(webapp2.RequestHandler):
 		battery = 5
 		oil = 5
 		brake = 5
+		total_wins = 0
 		advice_checklist = ''
 
 		player = None
@@ -101,8 +103,8 @@ class saveplayer(webapp2.RequestHandler):
 			player.uuid = uuid                        							# assign uuid
 			player.fbid = fbid
 			# and assign all player info and state
-			player.info_obj = {'uuid': player.uuid, 'fbid': player.fbid, 'token': token, 'name': name, 'photo': photo, 'lang': lang}
-			player.state_obj = {'gold': gold, 'cash': cash, 'fuel': fuel, 'tire': tire, 'battery': battery, 'oil': oil, 'brake': brake, 'advice_checklist': advice_checklist}
+			player.info_obj = {'uuid': player.uuid, 'fbid': player.fbid, 'token': token, 'name': name, 'photo': photo, 'lang': lang, 'updated': start_time}
+			player.state_obj = {'gold': gold, 'cash': cash, 'fuel': fuel, 'tire': tire, 'battery': battery, 'oil': oil, 'brake': brake, 'total_wins': total_wins, 'advice_checklist': advice_checklist}
 		else:                                                                	# but if player does exist
 			uuid = player.uuid
 			if token:                                                        	# if token is provided
@@ -113,8 +115,13 @@ class saveplayer(webapp2.RequestHandler):
 				player.info_obj['photo'] = photo                                	# assign photo url
 
 			player.info_obj['name'] = name                                    	# assign name
+			try:
+				updated = player.state_obj['updated']
+			except KeyError:
+				player.state_obj['updated'] = start_time
 			if self.request.get('lang'):
 				player.info_obj['lang'] = lang
+
 			# try .. cash and assign new property
 			try:
 				gold = player.state_obj['gold']
@@ -145,13 +152,20 @@ class saveplayer(webapp2.RequestHandler):
 			except KeyError:
 				player.state_obj['brake'] = brake
 			try:
+				total_wins = player.state_obj['total_wins']
+			except KeyError:
+				player.state_obj['total_wins'] = total_wins
+			try:
 				advice_checklist = player.state_obj['advice_checklist']
 			except KeyError:
 				player.state_obj['advice_checklist'] = advice_checklist
 
 		if Player.setplayer(self, player):                            # write down to database
 			self.error = ''                                                    # then obviously, no error
-			type = 'info,state,building'
+			type = ''
+			for item in config.playerdata:
+				type += item+','
+			type = type.rstrip(',')
 			self.respn = '{"uuid":"'+uuid+'",'
 			types = type.split(',')
 			for item in types:
@@ -179,9 +193,48 @@ class saveplayer(webapp2.RequestHandler):
 								Building.setmybuilding(self, mybuilding)
 							self.respn = Building.compose_mybuilding(self.respn, mybuilding)
 						self.respn = self.respn.rstrip(',') + '],'
+				elif item == 'challenge':
+					self.respn += '"challenge":{"challengers":['
+					challengers = Challenge.GetChallengers(self, player.fbid)
+					if challengers is not None:
+						for _challenge in challengers:
+							_gameObj = json.loads(_challenge.data)
+							self.respn += '{'
+							self.respn += '"chid":"'+_challenge.id+'",'
+							self.respn += '"uidx":"'+_challenge.uid1+'",'
+							self.respn += '"track":"'+_challenge.track+'",'
+							self.respn += '"lapTime":'+str(_gameObj['player1']['lapTime'])+','
+							self.respn += '"created":"'+_gameObj['player1']['created']+'"'
+							self.respn += '},'
+					self.respn = self.respn.rstrip(',') + '],"challenging":['
+					challenging = Challenge.GetChallenging(self, player.fbid)
+					if challenging is not None:
+						for _challenge in challenging:
+							_gameObj = json.loads(_challenge.data)
+							self.respn += '{'
+							self.respn += '"chid":"'+_challenge.id+'",'
+							self.respn += '"uidx":"'+_challenge.uid2+'",'
+							self.respn += '"track":"'+_challenge.track+'",'
+							self.respn += '"lapTime":'+str(_gameObj['player2']['lapTime'])+','
+							self.respn += '"created":"'+_gameObj['player2']['created']+'"'
+							self.respn += '},'
+					self.respn = self.respn.rstrip(',') + '],"completed":['
+					completed = Challenge.GetCompleted(self, player.fbid)
+					if completed is not None:
+						for _challenge in completed:
+							_gameObj = json.loads(_challenge.data)
+							self.respn += '{'
+							self.respn += '"chid":"'+_challenge.id+'",'
+							if player.fbid == _challenge.uid1:
+								self.respn += '"uidx":"'+_challenge.uid2+'",'
+							else:
+								self.respn += '"uidx":"'+_challenge.uid1+'",'
+							self.respn += '"track":"'+_challenge.track+'",'
+							self.respn += '"lapTime":'+str(_gameObj['player2']['lapTime'])+','
+							self.respn += '"created":"'+_gameObj['player2']['created']+'"'
+							self.respn += '},'
+					self.respn = self.respn.rstrip(',') + ']},'
 			self.respn = self.respn.rstrip(',') + '}'
-
-			#Player.compose_player(self, player)                                # compose the entire player state to return
 
 		else:                                                                # but if write down to database was failed
 			self.error = 'unable to insert/update player data.'                # inform user bia error message

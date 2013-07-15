@@ -69,6 +69,8 @@ class setpntoken(webapp2.RequestHandler):
 		# if any error on player is none
 		if self.error == '' and player is not None:
 			player.info_obj['token'] = token
+			# update timestamp for player
+			player.info_obj['updated'] = start_time
 			if Player.setplayer(self, player):
 				Player.compose_player_info(self, player)
 			else:

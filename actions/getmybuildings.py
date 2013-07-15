@@ -95,22 +95,14 @@ class getmybuildings(webapp2.RequestHandler):
 				elif mybuilding.status == Building.BuildingStatus.DELIVERED:
 					mybuilding.status = Building.BuildingStatus.OWNED
 					_upd = True
-				"""
-				if mybuilding.status == Building.BuildingStatus.DELIVERED or mybuilding.status == Building.BuildingStatus.OWNED:
-					time_delta = int((start_time - mybuilding.timestamp)/60)
-					if time_delta > buildings.as_obj[mybuilding.itid][mybuilding.level-1]['resource_interval'] > 0:
-						mybuilding.status = Building.BuildingStatus.PRODUCED_PARTIAL
-						_upd = True
-						res_produced = (time_delta / buildings.as_obj[mybuilding.itid][mybuilding.level-1]['resource_interval']) * buildings.as_obj[mybuilding.itid][mybuilding.level-1]['resource_produced']
-						if res_produced >= buildings.as_obj[mybuilding.itid][mybuilding.level-1]['resource_capacity']:
-							res_produced = buildings.as_obj[mybuilding.itid][mybuilding.level-1]['resource_capacity']
-							mybuilding.status = Building.BuildingStatus.PRODUCED
-							_upd = True
-				"""
 				if _upd is True:
 					Building.setmybuilding(self, mybuilding)
 				self.respn = Building.compose_mybuilding(self.respn, mybuilding)
 			self.respn = self.respn.rstrip(',') + ']'
+
+			# update timestamp for player
+			player.info_obj['updated'] = start_time
+			Player.setplayer(self, player)
 
 		# calculate time taken and return the result
 		time_taken = time.time() - start_time

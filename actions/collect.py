@@ -110,6 +110,8 @@ class collect(webapp2.RequestHandler):
 					res_produced = amount
 				try:
 					player.state_obj[buildings.as_obj[mybuilding.itid][mybuilding.level-1]['resource']] += res_produced
+					# update timestamp for player
+					player.info_obj['updated'] = start_time
 					if Player.setplayer(self, player):
 						#mybuilding.status = Building.BuildingStatus.OWNED
 						mybuilding.timestamp = int(start_time)

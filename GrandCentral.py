@@ -9,8 +9,9 @@ from actions.exam import exam
 from actions.noactions import noactions
 from actions.saveplayer import saveplayer
 from actions.setpntoken import setpntoken
-from actions.loadplayer import loadplayer
+#from actions.loadplayer import loadplayer
 from actions.getplayerdata import getplayerdata
+from actions.getplayerbasicdatas import getplayerbasicdatas
 from actions.deleteplayer import deleteplayer
 from actions.advicechecklist import advicechecklist
 #from actions.savescore 		import savescore
@@ -53,8 +54,9 @@ app = webapp2.WSGIApplication([
 								  #('/exam', exam),
 								  ('/saveplayer', saveplayer),
 								  ('/setpntoken', setpntoken),
-								  ('/loadplayer', loadplayer),
+								  #('/loadplayer', loadplayer),
 								  ('/getplayerdata', getplayerdata),
+								  ('/getplayerbasicdatas', getplayerbasicdatas),
 								  ('/deleteplayer', deleteplayer),
 								  ('/advicechecklist', advicechecklist),
 								  #('/savescore', savescore),

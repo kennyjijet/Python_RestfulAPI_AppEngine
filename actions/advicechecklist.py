@@ -88,7 +88,10 @@ class advicechecklist(webapp2.RequestHandler):
 					_checklist = _checklist.rstrip(',') + ',' + checklist.lstrip(',')
 
 				player.state_obj['advice_checklist'] = _checklist
-				Player.setplayer(self, player)
+
+			# update timestamp for player
+			player.info_obj['updated'] = start_time
+			Player.setplayer(self, player)
 
 			self.respn = '{"state":{"advice_checklist":"'+player.state_obj['advice_checklist']+'"}}'
 

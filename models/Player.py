@@ -53,7 +53,7 @@ class Player(db.Model):
 				if not memcache.add(config.db['playerdb_name']+'.'+fbid, player, config.memcache['holdtime']):
 					logging.warning('Player - Memcache set player failed')
 			else:
-				self.error = 'uuid='+fbid+' was not found.'
+				self.error = 'fbid='+fbid+' was not found.'
 				player = None
 		return player
 

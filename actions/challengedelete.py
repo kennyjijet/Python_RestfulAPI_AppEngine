@@ -78,6 +78,10 @@ class challengedelete(webapp2.RequestHandler):
 				else:
 					self.respn = '{"result":"nothing was deleted"}'
 
+			# update timestamp for player
+			player.info_obj['updated'] = start_time
+			Player.setplayer(self, player)
+
 		# calculate time taken and return the result
 		time_taken = time.time() - start_time
 		self.response.headers['Content-Type'] = 'text/html'

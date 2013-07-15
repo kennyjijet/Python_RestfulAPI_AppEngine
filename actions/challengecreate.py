@@ -73,6 +73,10 @@ class challengecreate(webapp2.RequestHandler):
 			if challenge is not None:
 				Challenge.ComposeChallenge(self, challenge)
 
+			# update timestamp for player
+			player.info_obj['updated'] = start_time
+			Player.setplayer(self, player)
+
 		# calculate time taken and return the result
 		time_taken = time.time() - start_time
 		self.response.headers['Content-Type'] = 'text/html'
