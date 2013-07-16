@@ -43,19 +43,21 @@ class Player(db.Model):
 
 	@staticmethod
 	def getplayerByFbid(self, fbid):
-		player = memcache.get(config.db['playerdb_name']+'.'+fbid)
-		if player is None:
-			players = Player.all().filter('fbid =', fbid).ancestor(db.Key.from_path('Player', config.db['playerdb_name'])).fetch(1);
-			if len(players) >= 1:
-				player = players[0]
-				player.info_obj = json.loads(player.info)
-				player.state_obj = json.loads(player.state)
-				if not memcache.add(config.db['playerdb_name']+'.'+fbid, player, config.memcache['holdtime']):
-					logging.warning('Player - Memcache set player failed')
-			else:
-				self.error = 'fbid='+fbid+' was not found.'
-				player = None
-		return player
+		if fbid != '':
+			player = memcache.get(config.db['playerdb_name']+'.'+fbid)
+			if player is None:
+				players = Player.all().filter('fbid =', fbid).ancestor(db.Key.from_path('Player', config.db['playerdb_name'])).fetch(1);
+				if len(players) >= 1:
+					player = players[0]
+					player.info_obj = json.loads(player.info)
+					player.state_obj = json.loads(player.state)
+					if not memcache.add(config.db['playerdb_name']+'.'+fbid, player, config.memcache['holdtime']):
+						logging.warning('Player - Memcache set player failed')
+				else:
+					self.error = 'fbid='+fbid+' was not found.'
+					player = None
+			return player
+		return None
 
 	@staticmethod
 	def setplayer(self, player):

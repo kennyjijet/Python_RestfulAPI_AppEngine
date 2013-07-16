@@ -11,6 +11,7 @@ class config():
 		"recorddb_name": "recorddb",
 		"itemdb_name": "itemdb",
 		"challengedb_name": "challengedb",
+		"cardb_name": "cardb",
 
 		"buildingdb_name": "buildingdb",
 		"researchdb_name": "researchdb"

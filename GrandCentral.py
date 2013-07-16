@@ -34,6 +34,9 @@ from actions.finishbuilding import finishbuilding
 from actions.getmybuildings import getmybuildings
 from actions.collect import collect
 
+from actions.carbuy import carbuy
+from actions.carlist import carlist
+
 from actions.challengecreate import challengecreate
 from actions.challengelist import challengelist
 from actions.challengeupdate import challengeupdate
@@ -78,6 +81,9 @@ app = webapp2.WSGIApplication([
 								  ('/finishbuilding', finishbuilding),
 								  ('/getmybuildings', getmybuildings),
 								  ('/collect', collect),
+
+								  ('/carbuy', carbuy),
+								  ('/carlist', carlist),
 
 								  ('/challengecreate', challengecreate),
 								  ('/challengelist', challengelist),

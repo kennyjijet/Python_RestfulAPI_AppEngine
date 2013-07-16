@@ -91,6 +91,7 @@ class getplayerbasicdatas(webapp2.RequestHandler):
 						Player.setplayer(self, _friend)
 
 			self.respn = self.respn.rstrip(',') + ']'
+			self.error = ''
 
 			player.info_obj['updated'] = start_time
 			Player.setplayer(self, player)
