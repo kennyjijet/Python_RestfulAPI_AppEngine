@@ -93,6 +93,21 @@ class Data(db.Model):
 				self.error = 'Cars data ('+str(ver)+') couldn\'t be retrieved!'
 		return cars
 
+	###############################################################################
+	### Cars
+	@staticmethod
+	def getupgrades(self, lang, ver):
+		upgrades = memcache.get('upgrades_'+lang+'.'+str(ver))
+		if upgrades is None:
+			upgrades = Data.getData(self, 'upgrades_'+lang, ver)
+			if upgrades is not None:
+				upgrades.as_obj = json.loads(upgrades.data)
+				if not memcache.add('upgrades_'+lang+'.'+str(ver), upgrades, config.memcache['longtime']):
+					logging.warning('Data.getupgrades memcache set failed!')
+			else:
+				self.error = 'Upgrades data ('+str(ver)+') couldn\'t be retrieved!'
+		return upgrades
+
 	"""
 	@staticmethod
 	def setbuildings(self, ver, buildings):

@@ -13,20 +13,6 @@ indexes:
 - kind: Challenge
   ancestor: yes
   properties:
-  - name: id
-  - name: state
-
-- kind: Challenge
-  ancestor: yes
-  properties:
-  - name: track
-  - name: uid1
-  - name: uid2
-  - name: state
-
-- kind: Challenge
-  ancestor: yes
-  properties:
   - name: uid1
   - name: state
 
@@ -35,16 +21,3 @@ indexes:
   properties:
   - name: uid2
   - name: state
-
-- kind: Score
-  ancestor: yes
-  properties:
-  - name: created_dwmy
-  - name: type
-  - name: point
-
-- kind: Score
-  ancestor: yes
-  properties:
-  - name: type
-  - name: point

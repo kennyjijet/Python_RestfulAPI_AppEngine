@@ -94,25 +94,3 @@ class Player(db.Model):
 		self.respn += '"fbid":"'+player.fbid+'",'
 		self.respn += '"state":'+player.state
 		self.respn += '}'
-"""
-	@staticmethod
-	def compose_player_partial(self, player, partials):
-		player_obj = json.loads(player.state)
-		partials = partials.replace(' ', '')
-		_partials = partials.split(',')
-		self.respn = '{'
-		self.error = ''
-		for k in _partials:
-			try:
-				self.respn += '"'+k+'":'
-				v = player_obj[k]
-				if isinstance(v,str) or isinstance(v,unicode):
-					self.respn += '"'+player_obj[k]+'",'
-				else:
-					self.respn += str(player_obj[k])+','
-			except KeyError:
-				self.respn = ''
-				self.error += 'Key: '+k+' does not exist! '
-		if self.error == '':
-			self.respn = self.respn.rstrip(',') + '}'
-"""

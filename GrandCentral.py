@@ -36,6 +36,7 @@ from actions.collect import collect
 
 from actions.carbuy import carbuy
 from actions.carlist import carlist
+from actions.carupgrade import carupgrade
 
 from actions.challengecreate import challengecreate
 from actions.challengelist import challengelist
@@ -84,6 +85,7 @@ app = webapp2.WSGIApplication([
 
 								  ('/carbuy', carbuy),
 								  ('/carlist', carlist),
+								  ('/carupgrade', carupgrade),
 
 								  ('/challengecreate', challengecreate),
 								  ('/challengelist', challengelist),

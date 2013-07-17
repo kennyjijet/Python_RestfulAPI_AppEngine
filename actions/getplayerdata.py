@@ -36,6 +36,7 @@ from helpers.utils import Utils
 from models.Data import Data
 from models.Player import Player
 from models.Building import Building
+from models.Car import Car
 from models.Challenge import Challenge
 
 # class implementation
@@ -103,6 +104,13 @@ class getplayerdata(webapp2.RequestHandler):
 							if _upd is True:
 								Building.setmybuilding(self, mybuilding)
 							self.respn = Building.compose_mybuilding(self.respn, mybuilding)
+						self.respn = self.respn.rstrip(',') + '],'
+				elif item == 'car':
+					mycars = Car.list(self, uuid)
+					if mycars is not None:
+						self.respn += '"car":['
+						for _car in mycars:
+							self.respn += Car.compose_mycar('', _car) + ','
 						self.respn = self.respn.rstrip(',') + '],'
 				elif item == 'challenge':
 					self.respn += '"challenge":{"challengers":['

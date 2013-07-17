@@ -2,10 +2,10 @@ import time
 import json
 
 # config
-from config				import config
+from config import config
 # built-in libraries
-from random 		import randint
-from datetime		import datetime
+from random import randint
+from datetime import datetime
 
 class Utils(object):
 

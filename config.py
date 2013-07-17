@@ -60,6 +60,7 @@ class config():
 		"info",
 		"state",
 		"building",
+		"car",
 		"challenge",
 	]
 	apple = {

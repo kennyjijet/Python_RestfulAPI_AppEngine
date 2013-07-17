@@ -70,6 +70,7 @@ class carbuy(webapp2.RequestHandler):
 		# logical variables
 		player = None
 		cars = None
+		upgrades = None
 		car = None
 		mycars = None
 
@@ -93,28 +94,50 @@ class carbuy(webapp2.RequestHandler):
 		if self.error == '' and car is not None:
 			mycars = Car.list(self, uuid)
 			for _car in mycars:
-				info_obj = json.loads(_car.info)
-				if info_obj['crid'] == crid:
-					car = None
-					self.respn = '{"warning":"You have already purchased this car."}'
-					break
+				data_obj = json.loads(_car.data)
+				try:
+					if data_obj['info']['crid'] == crid:
+						car = None
+						self.respn = '{"warning":"You have already purchased this car."}'
+						break
+				except KeyError:
+					self.error = 'Cannot find crid (KeyError issue), please report admin!'
 
 		if self.error == '' and car is not None:
+			upgrades = Data.getupgrades(self, lang, float(version))
+
+		if self.error == '' and upgrades is not None:
+
 			if player.state_obj['cash'] >= car['cost']:
 				player.state_obj['cash'] -= car['cost']
 				player.info_obj['updated'] = start_time 						# update timestamp for player
+
 				if Player.setplayer(self, player):
 					mycar = Car.create(self, player.uuid)
-					mycar.info_obj['crid'] = car['id']
-					upgrades = car['default_upgrades'].replace(' ', '').split(',')
-					for upgrade in upgrades:
-						mycar.upgrades_obj.append({"upgrade":upgrade,"used":True})
+					mycar.data_obj['info'] = {'crid': car['id']}
+					mycar.data_obj['upgrades'] = []
+					mycar.data_obj['equip'] = {}
+					default_upgrades = car['default_upgrades'].replace(' ', '').split(',')
+
+					for default_upgrade in default_upgrades:
+						mycar.data_obj['upgrades'].append(default_upgrade)
+						for _type in upgrades.as_obj:
+							try:
+								mycar.data_obj['equip'][type]
+							except KeyError:
+								for upgrade in upgrades.as_obj[_type]:
+									if upgrade['id'] == default_upgrade:
+										mycar.data_obj['equip'][_type] = default_upgrade
+										break
+										break
+
 					if Car.update(self, mycar):
 						self.respn = '{"state":'+player.state+','
 						self.respn += '"car":['
 						self.respn = Car.compose_mycar(self.respn, mycar)
 						self.respn = self.respn.rstrip(',') + ']'
 						self.respn += '}'
+
 			else:
 				self.respn = '{"warning":"not enough cash!"}'
 

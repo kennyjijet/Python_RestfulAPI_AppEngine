@@ -62,6 +62,34 @@ class Building(db.Model):
 			memcache.delete(config.db['buildingdb_name']+'.'+building.uuid+'.'+building.inid)
 
 	@staticmethod
+	def list(self, uuid):
+		buildings = memcache.get(config.db['buildingdb_name']+'.'+uuid)
+		if buildings is None:
+			buildings = Building.all().filter('uuid =', uuid).ancestor(db.Key.from_path('Building', config.db['buildingdb_name']))
+			if buildings is not None:
+				if not memcache.set(config.db['buildingdb_name']+'.'+uuid, buildings, config.memcache['holdtime']):
+					logging.warning('Building - Set memcache for list buildings failed.')
+			else:
+				self.error = 'There is no building belongs to uuid="'+uuid+'".'
+				return None
+		return buildings
+
+	@staticmethod
+	def get(self, buid):
+		building = memcache.get(config.db['buildingdb_name']+'.'+buid)
+		if building is None:
+			buildings = Car.all().filter('inid =', buid).ancestor(db.Key.from_path('Building', config.db['buildingdb_name']))
+			if buildings is not None:
+				bulding = buildings[0]
+				#car.data_obj = json.loads(car.data)
+				if not memcache.set(config.db['buildingdb_name']+'.'+buid, bulding, config.memcache['holdtime']):
+					logging.warning('Building - Set memcache for get building failed.')
+			else:
+				self.error = 'Car buid="'+buid+'" does not exist.'
+				return None
+		return building
+
+	@staticmethod
 	def compose_mybuilding(txt, mybuilding):
 		txt += '{"inid":"'+mybuilding.inid+'",'
 		txt += '"itid":"'+mybuilding.itid+'",'
@@ -71,71 +99,3 @@ class Building(db.Model):
 		txt += '"timestamp":'+str(mybuilding.timestamp)
 		txt += '},'
 		return txt
-
-	"""
-    ItemType        = ITEMTYPE
-
-    @staticmethod
-    def getitems(self, uuid):
-        items = memcache.get(config.db['itemdb_name']+'.'+uuid)
-        if items is None:
-            items = Item.all().filter('uuid =', uuid).ancestor(db.Key.from_path('Item', config.db['itemdb_name']))
-            if not memcache.add(config.db['itemdb_name']+'.'+uuid, items, config.memcache['holdtime']):
-                logging.warning('Core - Memcache set items failed')
-        return items
-
-    @staticmethod
-    def getitembyinid(self, uuid, inid):
-        item = memcache.get(config.db['itemdb_name']+'.'+uuid+'.'+inid)
-        if item is None:
-            items = Item.getitems(self, uuid)
-            if items is not None:
-                for i in items:
-                    if i.inid == inid:
-                        item = i
-                        if not memcache.add(config.db['itemdb_name']+'.'+uuid+'.'+inid, item, config.memcache['holdtime']):
-                            logging.warning('Item - Memcache set item('+inid+') failed')
-        return item
-
-    @staticmethod
-    def setitem(self, item):
-        if item is not None:
-            if item.put():
-                memcache.delete(config.db['itemdb_name']+'.'+item.uuid+'.'+item.inid)
-                if not memcache.add(config.db['itemdb_name']+'.'+item.uuid+'.'+item.inid, item, config.memcache['holdtime']):
-                    logging.warning('Item - Memcache set item('+item.inid+') failed')
-                return True
-        return False
-
-    @staticmethod
-    def getspecificitems(self, uuid, itid):
-        items = memcache.get(config.db['itemdb_name']+'.'+itid+'.'+uuid)
-        if items is None:
-            items = Item.all().filter('uuid =', uuid).filter('itid =', itid).ancestor(db.Key.from_path('Item', config.db['itemdb_name']));
-            if not memcache.add(config.db['itemdb_name']+'.'+itid+'.'+uuid, items, config.memcache['holdtime']):
-                logging.warning('Core - Memcache set specific item failed')
-        return items
-
-    @staticmethod
-    def getproduceditems(self, uuid):
-        items = memcache.get(config.db['itemdb_name']+'_produced.'+uuid)
-        if items is None:
-            items = Item.all().filter('uuid =', uuid).filter('status =', 'produced').ancestor(db.Key.from_path('Item', config.db['itemdb_name']));
-            if not memcache.add(config.db['itemdb_name']+'_produced.'+uuid, items, config.memcache['holdtime']):
-                logging.warning('Core - Memcache set produced items failed')
-        return items
-
-    @staticmethod
-    def getspecificinidproduceditem(self, uuid, inid):
-        items = Item.getproduceditems(self, uuid)
-        item = None
-        for _item in items:
-            if _item.inid == inid:
-                item = _item
-                break
-
-
-        #if item is not None:
-
-        return item
-    """

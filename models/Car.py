@@ -25,8 +25,7 @@ class Car(db.Model):
 
 	cuid = db.StringProperty()
 	uuid = db.StringProperty()
-	info = db.StringProperty(indexed=False)
-	upgrades = db.TextProperty(indexed=False)
+	data = db.StringProperty(indexed=False)
 	updated = db.DateTimeProperty(auto_now_add=True)
 
 	@staticmethod
@@ -34,8 +33,7 @@ class Car(db.Model):
 		car = Car(parent=db.Key.from_path('Car', config.db['cardb_name']))
 		car.cuid = Utils.genanyid(self, 'cu')
 		car.uuid = uuid
-		car.info_obj = {}
-		car.upgrades_obj = []
+		car.data_obj = {}
 		return car
 
 	@staticmethod
@@ -52,25 +50,23 @@ class Car(db.Model):
 		return cars
 
 	@staticmethod
-	def get(self, crid):
-		car = memcache.get(config.db['cardb_name']+'.'+crid)
+	def get(self, cuid):
+		car = memcache.get(config.db['cardb_name']+'.'+cuid)
 		if car is None:
-			cars = Car.all().filter('crid =', crid).ancestor(db.Key.from_path('Car', config.db['cardb_name']))
-			if len(cars) > 0:
+			cars = Car.all().filter('cuid =', cuid).ancestor(db.Key.from_path('Car', config.db['cardb_name']))
+			if cars is not None:
 				car = cars[0]
-				car.info_obj = json.loads(car.info)
-				car.upgrades_obj = json.loads(car.upgrades)
+				car.data_obj = json.loads(car.data)
 				if not memcache.set(config.db['cardb_name']+'.'+car.cuid, car, config.memcache['holdtime']):
 					logging.warning('Car - Set memcache for create car failed.')
 			else:
-				self.error = 'Car crid="'+crid+'" does not exist.'
+				self.error = 'Car cuid="'+cuid+'" does not exist.'
 				return None
 		return car
 
 	@staticmethod
 	def update(self, car):
-		car.info = json.dumps(car.info_obj)
-		car.upgrades = json.dumps(car.upgrades_obj)
+		car.data = json.dumps(car.data_obj)
 		if car.put():
 			memcache.delete(config.db['cardb_name']+'.'+car.cuid)
 			if not memcache.set(config.db['cardb_name']+'.'+car.cuid, car, config.memcache['holdtime']):
@@ -82,7 +78,6 @@ class Car(db.Model):
 	def compose_mycar(text, car):
 		text += '{'
 		text += '"cuid":"'+car.cuid+'",'
-		text += '"info":'+car.info+','
-		text += '"upgrades":'+car.upgrades
+		text += '"data":'+car.data
 		text += '}'
 		return text
