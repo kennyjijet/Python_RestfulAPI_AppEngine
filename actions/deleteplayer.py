@@ -24,30 +24,31 @@
 """
 
 # build-in libraries
-import webapp2
-import logging
 import time
+
+import webapp2
+
 
 # google's libraries
 from google.appengine.ext import db
-from google.appengine.api import memcache
 
 # config
-from config			import config
+from config import config
 
 # include
-from models.Player 	import Player
-from models.Score 	import Score
-from models.Item	import Item
-from models.Record  import Record
+from models.Player import Player
+from models.Score import Score
+from models.Item import Item
+from models.Record import Record
 from models.Building import Building
+from models.Car import Car
 from models.Challenge import Challenge
-from helpers.utils		import Utils
+from helpers.utils import Utils
 
 # class implementation
 class deleteplayer(webapp2.RequestHandler):
 
-    # standard variables
+	# standard variables
 	sinfo = ''
 	respn = ''
 	error = ''
@@ -58,8 +59,8 @@ class deleteplayer(webapp2.RequestHandler):
 		Utils.reset(self)                                               # reset/clean standard variables
 
 		# validate and assign parameters
-		passwd	= Utils.required(self, 'passwd')
-		uuid	= Utils.required(self, 'uuid')
+		passwd = Utils.required(self, 'passwd')
+		uuid = Utils.required(self, 'uuid')
 
 		# check password
 		if self.error == '' and passwd != config.testing['passwd']:
@@ -95,6 +96,10 @@ class deleteplayer(webapp2.RequestHandler):
 				for building in buildings:
 					building.delete()
 
+				cars = Car.all().filter('uuid =', player.uuid).ancestor(db.Key.from_path('Car', config.db['cardb_name']))
+				for car in cars:
+					car.delete()
+
 				# delete all this user's challenge
 				Challenge.DeleteByUserId(self, player.fbid)
 
@@ -104,12 +109,12 @@ class deleteplayer(webapp2.RequestHandler):
 
 			# compose result
 			if didDelete == True:
-				self.respn =  '"'+uuid+' was deleted successfully."'
+				self.respn = '"' + uuid + ' was deleted successfully."'
 			else:
-				self.error = uuid+' does not exist in Database.'
+				self.error = uuid + ' does not exist in Database.'
 
 		# calculate time taken and return the result
-		time_taken =  time.time() - start_time
+		time_taken = time.time() - start_time
 		self.response.headers['Content-Type'] = 'text/html'
 		self.response.write(Utils.RESTreturn(self, time_taken))
 

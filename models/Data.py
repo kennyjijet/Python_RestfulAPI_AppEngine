@@ -82,12 +82,12 @@ class Data(db.Model):
 	### Cars
 	@staticmethod
 	def getcars(self, lang, ver):
-		cars = memcache.get('car_'+lang+'.'+str(ver))
+		cars = memcache.get('cars_'+lang+'.'+str(ver))
 		if cars is None:
-			cars = Data.getData(self, 'car_'+lang, ver)
+			cars = Data.getData(self, 'cars_'+lang, ver)
 			if cars is not None:
 				cars.as_obj = json.loads(cars.data)
-				if not memcache.add('car_'+lang+'.'+str(ver), cars, config.memcache['longtime']):
+				if not memcache.add('cars_'+lang+'.'+str(ver), cars, config.memcache['longtime']):
 					logging.warning('Data.getcars memcache set failed!')
 			else:
 				self.error = 'Cars data ('+str(ver)+') couldn\'t be retrieved!'
