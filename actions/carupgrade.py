@@ -7,9 +7,8 @@
 
 	Description
 	---------------------------------------------------------------
-	I am an API to buy upgrade and equip it to the car, 
-  	or just equpt it to the car if you're already have that upgrade
-
+	I am an API to buy upgrade and equip it to the car,
+	or just equip it to the car if you're already have that upgrade
 
 	Input:
 	---------------------------------------------------------------
@@ -113,7 +112,7 @@ class carupgrade(webapp2.RequestHandler):
 					qualify = True
 					break
 			if qualify is False:
-				self.error = 'Player does not have required building to buy upgrade.'
+				self.respn = '{"warning":"Player does not have required building to buy upgrade."}'
 
 		if self.error == '' and qualify is True:
 			# validate cash

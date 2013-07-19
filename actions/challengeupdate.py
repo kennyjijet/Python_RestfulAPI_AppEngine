@@ -12,7 +12,7 @@
 
 	Input:
 	---------------------------------------------------------------
-	required: passwd, uuid, chid, type, laptime, racedata
+	required: passwd, uuid, chid, type, cuid, laptime, replay
 	optional:
 
 
@@ -32,7 +32,6 @@ from config import config
 
 # include
 from helpers.utils import Utils
-from models.Data import Data
 from models.Player import Player
 from models.Challenge import Challenge
 
@@ -54,8 +53,9 @@ class challengeupdate(webapp2.RequestHandler):
 		uuid = Utils.required(self, 'uuid')
 		chid = Utils.required(self, 'chid')
 		type = Utils.required(self, 'type')
+		cuid = Utils.required(self, 'cuid')
 		laptime = Utils.required(self, 'laptime')
-		racedata = Utils.required(self, 'racedata')
+		replay = Utils.required(self, 'replay')
 
 		# check password
 		if self.error == '' and passwd != config.testing['passwd']:
@@ -71,13 +71,14 @@ class challengeupdate(webapp2.RequestHandler):
 			player = Player.getplayer(self, uuid)
 
 		if self.error == '' and player is not None:
-			challenge = Challenge.Update(self, chid, type, player.fbid, laptime, racedata)
+			challenge = Challenge.Update(self, chid, type, player.fbid, cuid, laptime, replay)
 			if challenge is not None:
 				Challenge.ComposeChallenge(self, challenge)
 
 			# update timestamp for player
-			player.info_obj['updated'] = start_time
-			Player.setplayer(self, player)
+			if challenge.manual_update is True:
+				player.info_obj['updated'] = start_time
+				Player.setplayer(self, player)
 
 		# calculate time taken and return the result
 		time_taken = time.time() - start_time

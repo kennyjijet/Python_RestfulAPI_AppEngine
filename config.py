@@ -45,7 +45,9 @@ class config():
 		"economy": 1.0,
 		"building": 1.0,
 		"research": 1.0,
-		"advisor": 1.0
+		"advisor": 1.0,
+		"opponent": 1.0,
+		'racewinnings': 1.0,
 	}
 	gamedata = [
 		"building",

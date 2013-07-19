@@ -9,6 +9,7 @@ Github: https://github.com/Gamepunks/grandcentral-gae
 # built-in libraries
 import json
 import logging
+import time
 from datetime import datetime
 
 # google's libraries
@@ -18,7 +19,10 @@ from google.appengine.api import memcache
 # config
 from config import config
 
+# include
 from helpers.utils import Utils
+from models.Data import Data
+from models.Player import Player
 
 # enum ChallengeType
 class CHALLENGE_TYPE(object):
@@ -26,6 +30,7 @@ class CHALLENGE_TYPE(object):
 	PLAYER1_FINISH = "player1_finish"
 	PLAYER2_FINISH = "player2_finish"
 	BOTH_PLAYERS_FINISH = "both_players_finish"
+	GAME_OVER = "game_over"
 
 # class implementation
 class Challenge(db.Model):
@@ -40,18 +45,24 @@ class Challenge(db.Model):
 
 	ChallengeType = CHALLENGE_TYPE
 
+
 	@staticmethod
 	def Create(self, track, uid1, uid2):
 		""" Parameters
 			track - id of the race track
-			uid1 - user id for player 1, eg fbid
-			uid2 - user id for player 2, eg fbid
+			uid1 - user id for player 1, could be fbid or uuid
+			uid2 - user id for player 2, could be fbid or uuid
+		"""
 		"""
 		challenge = memcache.get(config.db['challengedb_name']+'.'+track+'.'+uid1+'.'+uid2)
 		if challenge is None:
-			challenges = Challenge.all().filter('track =', track).filter('uid1 =', uid1).filter('uid2 =', uid2).filter('state !=', CHALLENGE_TYPE.BOTH_PLAYERS_FINISH).ancestor(db.Key.from_path('Challenge', config.db['challengedb_name'])).fetch(1)
-			if len(challenges) > 0:
-				challenge = challenges[0]
+		"""
+
+		challenge = None
+		challenges = Challenge.all().filter('track =', track).filter('uid1 =', uid1).filter('uid2 =', uid2).filter('state !=', CHALLENGE_TYPE.GAME_OVER).ancestor(db.Key.from_path('Challenge', config.db['challengedb_name'])).fetch(1)
+		if len(challenges) > 0:
+			challenge = challenges[0]
+
 		if challenge is None:
 			challenge = Challenge(parent=db.Key.from_path('Challenge', config.db['challengedb_name']))
 			challenge.id = Utils.genanyid(self, 'c')
@@ -59,13 +70,18 @@ class Challenge(db.Model):
 			challenge.uid1 = uid1
 			challenge.uid2 = uid2
 			challenge.state = CHALLENGE_TYPE.OPEN_GAME
-			challenge.data = '{"player1":{"lapTime":-1,"raceData":"","created":""},"player2":{"lapTime":-1,"raceData":"","created":""},"result":{}}'
+			challenge.data = '{"player1":null,'
+			challenge.data += '"player2":null,'
+			challenge.data += '"result":{"winner":"pending","player1_seen":false,"player2_seen":false}}'
 			if challenge.put():
+				"""
 				if not memcache.add(config.db['challengedb_name']+'.'+track+'.'+uid1+'.'+uid2, challenge, config.memcache['holdtime']):
 					logging.warning('Challenge - Set memcache for challenge failed!')
 				memcache.delete(config.db['challengedb_name']+'.'+challenge.id)
+				"""
 				if not memcache.add(config.db['challengedb_name']+'.'+challenge.id, challenge, config.memcache['holdtime']):
 					logging.warning('Challenge - Set memcache for challenge by Id failed!')
+
 		return challenge
 
 	@staticmethod
@@ -141,45 +157,149 @@ class Challenge(db.Model):
 		return self.respn
 
 	@staticmethod
-	def Update(self, chid, type, uid, laptime, racedata):
+	def Update(self, chid, type, uid, cuid, laptime, replay):
 		""" Parameters:
 			chid - Challenge Id
 			type - type of update, 'challenge' or 'accept'
-			laptime - laptime that this player made
-			racedata - racing data for this player (used in race scene)
+			uid - user id, could be fbid or uuid
+			cuid - car unit id
+			replay - racing data
 		"""
 		challenge = memcache.get(config.db['challengedb_name']+'.'+chid)
 		if challenge is None:
-			challenges = Challenge.all().filter('id =', chid).filter('state !=', CHALLENGE_TYPE.BOTH_PLAYERS_FINISH).ancestor(db.Key.from_path('Challenge', config.db['challengedb_name'])).fetch(1)
+			challenges = Challenge.all().filter('id =', chid).filter('state !=', CHALLENGE_TYPE.GAME_OVER).ancestor(db.Key.from_path('Challenge', config.db['challengedb_name'])).fetch(1)
 			if len(challenges) > 0:
 				challenge = challenges[0]
 				if not memcache.add(config.db['challengedb_name']+'.'+chid, challenge, config.memcache['holdtime']):
 					logging.warning('Challenge - Set memcache for challenge by Id failed (Update)!')
+
 		if challenge is not None:
 			game = json.loads(challenge.data)
-			_player = 'player1'
-			if type != 'challenge':
-				_player = 'player2'
-			if (_player == 'player1' and challenge.uid1 == uid and (challenge.state == CHALLENGE_TYPE.OPEN_GAME or challenge.state == CHALLENGE_TYPE.PLAYER2_FINISH)) \
-				or (_player == 'player2' and challenge.uid2 == uid and (challenge.state == CHALLENGE_TYPE.OPEN_GAME or challenge.state == CHALLENGE_TYPE.PLAYER1_FINISH)):
-				game[_player]['lapTime'] = laptime
-				game[_player]['raceData'] = racedata
-				game[_player]['created'] = str(datetime.now())
-			if game['player1']['lapTime'] != -1:
-				challenge.state = CHALLENGE_TYPE.PLAYER1_FINISH
-			if game['player2']['lapTime'] != -1:
-				challenge.state = CHALLENGE_TYPE.PLAYER2_FINISH
-			if game['player1']['lapTime'] == -1 and game['player2']["lapTime"] == -1:
-				challenge.state = CHALLENGE_TYPE.OPEN_GAME
-			if game['player1']['lapTime'] != -1 and game['player2']["lapTime"] != -1:
-				challenge.state = CHALLENGE_TYPE.BOTH_PLAYERS_FINISH
-			challenge.data = json.dumps(game)
-			if challenge.put():
-				memcache.delete(config.db['challengedb_name']+'.'+challenge.id)
-				if not memcache.add(config.db['challengedb_name']+'.'+challenge.id, challenge):
-					logging.warning('Challenge - Set memcache for challenge by Id failed!')
+			_upd = False
+			if challenge.state != CHALLENGE_TYPE.GAME_OVER:
+
+				start_time = time.time()
+				challenge.manual_update = False
+
+				#game = json.loads(challenge.data)
+				_player = 'player1'
+				if type != 'challenge':
+					_player = 'player2'
+				if (_player == 'player1' and challenge.uid1 == uid and (challenge.state == CHALLENGE_TYPE.OPEN_GAME or challenge.state == CHALLENGE_TYPE.PLAYER2_FINISH)) \
+					or (_player == 'player2' and challenge.uid2 == uid and (challenge.state == CHALLENGE_TYPE.OPEN_GAME or challenge.state == CHALLENGE_TYPE.PLAYER1_FINISH)):
+					game[_player] = {'player':{'id':uid,'cuid':cuid},'laptime':float(laptime),'replay':json.loads(replay),'submitted':start_time}
+
+				if game['player1'] is not None:
+					challenge.state = CHALLENGE_TYPE.PLAYER1_FINISH
+				if game['player2'] is not None:
+					challenge.state = CHALLENGE_TYPE.PLAYER2_FINISH
+				if game['player1'] is None and game['player2'] is None:
+					challenge.state = CHALLENGE_TYPE.OPEN_GAME
+				if game['player1'] is not None and game['player2'] is not None:
+					challenge.state = CHALLENGE_TYPE.BOTH_PLAYERS_FINISH
+
+					player1 = None
+					player2 = None
+					opponents = None
+					win_prize = 0
+					lose_prize = 0
+					racewinnings = None
+					winner = 'draw'
+
+					player1 = Player.getplayerByFbid(self, challenge.uid1)
+					if player1 is None:
+						player1 = Player.getplayer(self, challenge.uid1)
+
+					if player1 is not None:
+						player2 = Player.getplayerByFbid(self, challenge.uid2)
+						if player2 is None:
+							player2 = Player.getplayer(self, challenge.uid2)
+
+					if player2 is not None:
+						racewinnings = Data.getDataAsObj(self, 'racewinnings', config.data_version['racewinnings'])
+
+					if racewinnings is not None:
+						opponents = Data.getDataAsObj(self, 'opponent_en', config.data_version['opponent'])
+
+					if opponents is not None:
+						prize1 = 0
+						prize2 = 0
+						win_prize = opponents.obj[challenge.track][0]['win_prize']
+						lose_prize = opponents.obj[challenge.track][0]['lose_prize']
+						if game['player1']['laptime'] < game['player2']['laptime']: 		# player1 wins
+							winner = 'player1'
+							prize1 = win_prize
+							prize2 = lose_prize
+							player1.state_obj['total_wins'] += 1
+						elif game['player1']['laptime'] > game['player2']['laptime']:
+							winner = 'player2'
+							prize1 = lose_prize
+							prize2 = win_prize
+							player2.state_obj['total_wins'] += 1
+						else:
+							winner = 'draw'
+							prize1 = lose_prize
+							prize2 = lose_prize
+
+						for record in game['player1']['replay']:
+							for winnings in racewinnings.obj:
+								if abs(record['a']-record['b']) <= winnings['timing']:
+									if record['id'] == 'start':
+										prize1 += win_prize*winnings['start_bonus']
+									elif record['id'] == 'shift':
+										prize1 += win_prize*winnings['shift_bonus']
+									elif record['id'] == 'drift':
+										prize1 += win_prize*winnings['drift_bonus']
+									break
+									break
+						player1.state_obj['cash'] += prize1
+						if uid == challenge.uid1:
+							player1.info_obj['updated'] = start_time
+						if Player.setplayer(self, player1):
+							logging.info('player1 saved')
+
+						for record in game['player2']['replay']:
+							for winnings in racewinnings.obj:
+								if abs(record['a']-record['b']) <= winnings['timing']:
+									if record['id'] == 'start':
+										prize2 += win_prize*winnings['start_bonus']
+									elif record['id'] == 'shift':
+										prize2 += win_prize*winnings['shift_bonus']
+									elif record['id'] == 'drift':
+										prize2 += win_prize*winnings['drift_bonus']
+									break
+									break
+						player2.state_obj['cash'] += prize2
+						if uid == challenge.uid2:
+							player2.info_obj['updated'] = start_time
+						if Player.setplayer(self, player2):
+							logging.info('player2 saved')
+
+						challenge.state = CHALLENGE_TYPE.GAME_OVER
+						game['result'] = {'winner':winner,'player1_prize':prize1,'player2_prize':prize2,'player1_seen':uid==challenge.uid1,'player2_seen':uid==challenge.uid2}
+
+				_upd = True
+
+			elif game['result']['player1_seen'] is False or game['result']['player2_seen'] is False:
+				if uid == challenge.uid1:
+					game['result']['player1_seen'] = True
+					_upd = True
+				if uid == challenge.uid2:
+					game['result']['player2_seen'] = True
+					_upd = True
+
+				challenge.manual_update = True
+
+			if _upd is True:
+				challenge.data = json.dumps(game)
+				if challenge.put():
+					memcache.delete(config.db['challengedb_name']+'.'+challenge.id)
+					if not memcache.add(config.db['challengedb_name']+'.'+challenge.id, challenge):
+						logging.warning('Challenge - Set memcache for challenge by Id failed!')
+
 		else:
 			self.error = 'Challenge ID='+chid+' could not be found.'
+
 		return challenge
 
 	@staticmethod

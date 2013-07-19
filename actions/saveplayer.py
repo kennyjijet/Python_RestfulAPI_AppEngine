@@ -100,6 +100,8 @@ class saveplayer(webapp2.RequestHandler):
 		if player is None:                                                    	# if no player data returned or doesn't exist
 			player = Player(parent=db.Key.from_path('Player', config.db['playerdb_name']))    # create a new player state data
 			uuid = Utils.genanyid(self, 'u')
+			if fbid == '':
+				fbid = uuid
 			player.uuid = uuid                        							# assign uuid
 			player.fbid = fbid
 			# and assign all player info and state

@@ -13,6 +13,20 @@ indexes:
 - kind: Challenge
   ancestor: yes
   properties:
+  - name: id
+  - name: state
+
+- kind: Challenge
+  ancestor: yes
+  properties:
+  - name: track
+  - name: uid1
+  - name: uid2
+  - name: state
+
+- kind: Challenge
+  ancestor: yes
+  properties:
   - name: uid1
   - name: state
 
