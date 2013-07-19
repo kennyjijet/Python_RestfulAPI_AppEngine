@@ -97,8 +97,17 @@ class carbuy(webapp2.RequestHandler):
 				data_obj = json.loads(_car.data)
 				try:
 					if data_obj['info']['crid'] == crid:
-						car = None
-						self.respn = '{"warning":"You have already purchased this car."}'
+
+						#self.respn = '{"warning":"You have already purchased this car."}'
+						player.state_obj['current_car'] = _car.cuid
+						player.info_obj['updated'] = start_time
+						if Player.setplayer(self, player):
+							self.respn = '{"state":'+player.state+','
+							self.respn += '"car":['
+							self.respn = Car.compose_mycar(self.respn, _car)
+							self.respn = self.respn.rstrip(',') + ']'
+							self.respn += '}'
+							car = None
 						break
 				except KeyError:
 					self.error = 'Cannot find crid (KeyError issue), please report admin!'
@@ -112,25 +121,26 @@ class carbuy(webapp2.RequestHandler):
 				player.state_obj['cash'] -= car['cost']
 				player.info_obj['updated'] = start_time 						# update timestamp for player
 
+				mycar = Car.create(self, player.uuid)
+				mycar.data_obj['info'] = {'crid': car['id']}
+				mycar.data_obj['upgrades'] = []
+				mycar.data_obj['equip'] = {}
+				player.state_obj['current_car'] = mycar.cuid
+				default_upgrades = car['default_upgrades'].replace(' ', '').split(',')
+
+				for default_upgrade in default_upgrades:
+					mycar.data_obj['upgrades'].append(default_upgrade)
+					for _type in upgrades.as_obj:
+						try:
+							mycar.data_obj['equip'][type]
+						except KeyError:
+							for upgrade in upgrades.as_obj[_type]:
+								if upgrade['id'] == default_upgrade:
+									mycar.data_obj['equip'][_type] = default_upgrade
+									break
+									break
+
 				if Player.setplayer(self, player):
-					mycar = Car.create(self, player.uuid)
-					mycar.data_obj['info'] = {'crid': car['id']}
-					mycar.data_obj['upgrades'] = []
-					mycar.data_obj['equip'] = {}
-					default_upgrades = car['default_upgrades'].replace(' ', '').split(',')
-
-					for default_upgrade in default_upgrades:
-						mycar.data_obj['upgrades'].append(default_upgrade)
-						for _type in upgrades.as_obj:
-							try:
-								mycar.data_obj['equip'][type]
-							except KeyError:
-								for upgrade in upgrades.as_obj[_type]:
-									if upgrade['id'] == default_upgrade:
-										mycar.data_obj['equip'][_type] = default_upgrade
-										break
-										break
-
 					if Car.update(self, mycar):
 						self.respn = '{"state":'+player.state+','
 						self.respn += '"car":['
