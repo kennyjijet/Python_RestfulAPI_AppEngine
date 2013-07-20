@@ -1,4 +1,4 @@
-""" getdata action class
+""" getadvisor action class
 
 	Project: GrandCentral-GAE
 	Author: Plus Pingya
@@ -7,20 +7,16 @@
 
 	Description
 	---------------------------------------------------------------
-	I am an API to get game data(s) (Data deployed from Google Drive
-	Custom Backend
-
+	I am an API to get advisor data (Data deployed from Google Drive)
 
 	Input:
 	---------------------------------------------------------------
-	required: passwd, type,
-	optional: version, lang
-
+	required: passwd,
+	optional: lang, version
 
 	Output:
 	---------------------------------------------------------------
-	requested game data(s)
-
+	advisor data
 
 """
 
@@ -28,7 +24,6 @@
 import webapp2
 import logging
 import time
-import json
 
 # config
 from config import config
@@ -38,7 +33,7 @@ from helpers.utils import Utils
 from models.Data import Data
 
 # class implementation
-class getdata(webapp2.RequestHandler):
+class getadvisor(webapp2.RequestHandler):
 
 	# standard variables
 	sinfo = ''
@@ -52,8 +47,7 @@ class getdata(webapp2.RequestHandler):
 
 		# validate and assign parameters
 		passwd = Utils.required(self, 'passwd')
-		type = Utils.required(self, 'type')
-		version = config.data_version['building']
+		version = config.data_version['research']
 		if self.request.get('version'):
 			version = self.request.get('version')
 		lang = config.server["defaultLanguage"]
@@ -68,25 +62,9 @@ class getdata(webapp2.RequestHandler):
 
 		# if error, skip this
 		if self.error == '':
-			if type == 'all':
-				type = ''
-				for item in config.gamedata:
-					type += item+','
-				type = type.rstrip(',')
-
-			self.respn = '{'
-			types = type.split(',')
-			for item in types:
-				if(item == 'transui'):
-					data = Data.getData(self, item, version)
-					if data is not None:
-						data_obj = json.loads(data.data)
-						self.respn += '"transui":'+json.dumps(data_obj[lang])+','
-				else:
-					data = Data.getData(self, item+'_'+lang, version)
-					if data is not None:
-						self.respn += '"'+item+'":'+data.data+','
-			self.respn = self.respn.rstrip(',') + '}'
+			data = Data.getData(self, 'advisor_'+lang, version)
+			if data is not None:
+				self.respn = data.data
 
 		# calculate time taken and return the result
 		time_taken = time.time() - start_time

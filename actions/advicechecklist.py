@@ -1,4 +1,4 @@
-""" getdata action class
+""" advicechecklist action class
 
 	Project: GrandCentral-GAE
 	Author: Plus Pingya
@@ -7,20 +7,18 @@
 
 	Description
 	---------------------------------------------------------------
-	I am an API to get game data(s) (Data deployed from Google Drive
-	Custom Backend
+	I am an API to add checklist to advice_clicklist and return
 
 
 	Input:
 	---------------------------------------------------------------
-	required: passwd, type,
-	optional: version, lang
+	required: passwd, uuid
+	optional: version, lang, checklist (string separate by commas)
 
 
 	Output:
 	---------------------------------------------------------------
-	requested game data(s)
-
+	updated with added advice checklist in player's state
 
 """
 
@@ -28,7 +26,6 @@
 import webapp2
 import logging
 import time
-import json
 
 # config
 from config import config
@@ -36,9 +33,11 @@ from config import config
 # include
 from helpers.utils import Utils
 from models.Data import Data
+from models.Player import Player
+from models.Building import Building
 
 # class implementation
-class getdata(webapp2.RequestHandler):
+class advicechecklist(webapp2.RequestHandler):
 
 	# standard variables
 	sinfo = ''
@@ -52,13 +51,14 @@ class getdata(webapp2.RequestHandler):
 
 		# validate and assign parameters
 		passwd = Utils.required(self, 'passwd')
-		type = Utils.required(self, 'type')
+		uuid = Utils.required(self, 'uuid')
 		version = config.data_version['building']
 		if self.request.get('version'):
 			version = self.request.get('version')
 		lang = config.server["defaultLanguage"]
 		if self.request.get('lang'):
 			lang = self.request.get('lang')
+		checklist = self.request.get('checklist')
 
 		# check password
 		if self.error == '' and passwd != config.testing['passwd']:
@@ -66,27 +66,34 @@ class getdata(webapp2.RequestHandler):
 
 		start_time = time.time()												# start count
 
+		# logic variables
+		player = None
+
 		# if error, skip this
 		if self.error == '':
-			if type == 'all':
-				type = ''
-				for item in config.gamedata:
-					type += item+','
-				type = type.rstrip(',')
+			player = Player.getplayer(self, uuid)
 
-			self.respn = '{'
-			types = type.split(',')
-			for item in types:
-				if(item == 'transui'):
-					data = Data.getData(self, item, version)
-					if data is not None:
-						data_obj = json.loads(data.data)
-						self.respn += '"transui":'+json.dumps(data_obj[lang])+','
+		if self.error == '' and player is not None:
+
+			_checklist = ''
+			try:
+				_checklist = player.state_obj['advice_checklist']
+			except KeyError:
+				player.state_obj['advice_checklist'] = _checklist
+
+			if checklist:
+				if _checklist == '':
+					_checklist = checklist
 				else:
-					data = Data.getData(self, item+'_'+lang, version)
-					if data is not None:
-						self.respn += '"'+item+'":'+data.data+','
-			self.respn = self.respn.rstrip(',') + '}'
+					_checklist = _checklist.rstrip(',') + ',' + checklist.lstrip(',')
+
+				player.state_obj['advice_checklist'] = _checklist
+
+			# update timestamp for player
+			player.info_obj['updated'] = start_time
+			Player.setplayer(self, player)
+
+			self.respn = '{"state":{"advice_checklist":"'+player.state_obj['advice_checklist']+'"}}'
 
 		# calculate time taken and return the result
 		time_taken = time.time() - start_time

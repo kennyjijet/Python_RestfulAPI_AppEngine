@@ -2,10 +2,10 @@ import time
 import json
 
 # config
-from config				import config
+from config import config
 # built-in libraries
-from random 		import randint
-from datetime		import datetime
+from random import randint
+from datetime import datetime
 
 class Utils(object):
 
@@ -37,16 +37,22 @@ class Utils(object):
 	def genitemid(self):		
 		now = datetime.now()
 		return now.strftime('item%S%y%M%m%H%d')+str(randint(1, 100))
+
+	@staticmethod
+	def genanyid(self, any):
+		now = datetime.now()
+		return now.strftime(str(any)+'%S%y%M%m%H%d')+str(randint(1, 100))
 			
 	@staticmethod
 	def RESTreturn(self, time_taken):
+		stampNow = int(time.time())
 		self.debug += '('+str(time_taken)+')'
 		if self.respn == '': 
 			self.respn = '""'
 		else:
 			if (self.respn[0] != '{' or self.respn[len(self.respn)-1] != '}') and (self.respn[0] != '[' or self.respn[len(self.respn)-1] != ']') and (self.respn[0] != '"' or self.respn[len(self.respn)-1] != '"'):
 				self.respn = '"'+self.respn+'"' 
-		self.sinfo = '{"serverName":"'+config.server['serverName']+'","apiVersion":'+str(config.server['apiVersion'])+',"requestDuration":'+str(time_taken)+',"currentTime":'+str(time.time())+'}'
+		self.sinfo = '{"serverName":"'+config.server['serverName']+'","apiVersion":'+str(config.server['apiVersion'])+',"requestDuration":'+str(time_taken)+',"currentTime":'+str(stampNow)+'}'
 		if self.request.get('debug'):
 			return '{"serverInformation":'+self.sinfo+',"response":'+self.respn+',"error":"'+self.error+'", "debug":"'+self.debug+'"}'
 		else:

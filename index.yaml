@@ -10,15 +10,28 @@ indexes:
 # automatically uploaded to the admin console when you next deploy
 # your application using appcfg.py.
 
-- kind: Score
+- kind: Challenge
   ancestor: yes
   properties:
-  - name: created_dwmy
-  - name: type
-  - name: point
+  - name: id
+  - name: state
 
-- kind: Score
+- kind: Challenge
   ancestor: yes
   properties:
-  - name: type
-  - name: point
+  - name: track
+  - name: uid1
+  - name: uid2
+  - name: state
+
+- kind: Challenge
+  ancestor: yes
+  properties:
+  - name: uid1
+  - name: state
+
+- kind: Challenge
+  ancestor: yes
+  properties:
+  - name: uid2
+  - name: state

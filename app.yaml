@@ -1,10 +1,14 @@
 application: game-punks
-version: 1
+version: 3
 runtime: python27
 api_version: 1
 threadsafe: true
 
 handlers:
+- url: /crossdomain\.xml
+  static_files: crossdomain.xml
+  upload: crossdomain\.xml
+
 - url: /public
   static_dir: public
   

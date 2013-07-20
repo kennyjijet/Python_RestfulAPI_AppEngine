@@ -9,13 +9,20 @@ from google.appengine.api import memcache
 # config
 from config				import config
 
+# enum ItemType
+class ITEMTYPE(object):
+    BUILDING        = "Building"
+
 class Item(db.Model):
     uuid 			= db.StringProperty()
     itid			= db.StringProperty()
     inid 			= db.StringProperty(indexed=False)
     status			= db.StringProperty()
-    timestamp		= db.FloatProperty(indexed=False)
+    userData        = db.TextProperty(indexed=False)
+    timestamp		= db.IntegerProperty(indexed=False)
     created			= db.DateTimeProperty(auto_now_add=True)
+
+    ItemType        = ITEMTYPE
 
     @staticmethod
     def getitems(self, uuid):

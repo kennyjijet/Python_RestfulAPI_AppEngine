@@ -1,4 +1,4 @@
-""" getdata action class
+""" getresearchlist action class
 
 	Project: GrandCentral-GAE
 	Author: Plus Pingya
@@ -7,20 +7,18 @@
 
 	Description
 	---------------------------------------------------------------
-	I am an API to get game data(s) (Data deployed from Google Drive
-	Custom Backend
+	I am an API to get list of researches that user can do
 
 
 	Input:
 	---------------------------------------------------------------
-	required: passwd, type,
-	optional: version, lang
+	required: passwd,
+	optional: lang, version
 
 
 	Output:
 	---------------------------------------------------------------
-	requested game data(s)
-
+	list of researches
 
 """
 
@@ -38,7 +36,7 @@ from helpers.utils import Utils
 from models.Data import Data
 
 # class implementation
-class getdata(webapp2.RequestHandler):
+class getresearchlist(webapp2.RequestHandler):
 
 	# standard variables
 	sinfo = ''
@@ -52,8 +50,7 @@ class getdata(webapp2.RequestHandler):
 
 		# validate and assign parameters
 		passwd = Utils.required(self, 'passwd')
-		type = Utils.required(self, 'type')
-		version = config.data_version['building']
+		version = config.data_version['research']
 		if self.request.get('version'):
 			version = self.request.get('version')
 		lang = config.server["defaultLanguage"]
@@ -66,27 +63,20 @@ class getdata(webapp2.RequestHandler):
 
 		start_time = time.time()												# start count
 
+		# logical variables
+		researches = None
+
 		# if error, skip this
 		if self.error == '':
-			if type == 'all':
-				type = ''
-				for item in config.gamedata:
-					type += item+','
-				type = type.rstrip(',')
+			researches = Data.getresearches(self, lang, float(version))
 
-			self.respn = '{'
-			types = type.split(',')
-			for item in types:
-				if(item == 'transui'):
-					data = Data.getData(self, item, version)
-					if data is not None:
-						data_obj = json.loads(data.data)
-						self.respn += '"transui":'+json.dumps(data_obj[lang])+','
-				else:
-					data = Data.getData(self, item+'_'+lang, version)
-					if data is not None:
-						self.respn += '"'+item+'":'+data.data+','
-			self.respn = self.respn.rstrip(',') + '}'
+		if self.error == '' and researches is not None:
+			self.respn = '['
+			for research in researches.as_obj:
+				logging.info(research)
+				self.respn += json.dumps(researches.as_obj[research][0])+','
+			self.respn = self.respn.rstrip(',') + ']'
+
 
 		# calculate time taken and return the result
 		time_taken = time.time() - start_time
