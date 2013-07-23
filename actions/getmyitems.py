@@ -54,12 +54,18 @@ class getmyitems(webapp2.RequestHandler):
 
 		# validate and assign parameters
 		uuid = Utils.required(self, 'uuid')
+		guid = self.request.get('guid')
 
 		start_time = time.time()                                                # start count
 
 		# if error, skip this
 		if self.error == '':
 			player = Player.getplayer_as_obj(self, uuid)                        # get player state
+
+		if self.error == '' and player is not None and guid != '':
+			if guid != player.state_obj['guid']:
+				player = None
+				self.error = config.error_message['dup_login']
 
 		# if error or player is none, then skip to the end
 		if self.error == '' and player is not None:

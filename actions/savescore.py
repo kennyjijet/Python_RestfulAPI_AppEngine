@@ -47,6 +47,7 @@ class savescore(webapp2.RequestHandler):
 		# validate
 		passwd	= self.required('passwd')
 		uuid 	= self.required('uuid')
+		guid = self.request.get('guid')
 		name	= self.required('name')
 		photo	= self.request.get('photo')
 		track 	= self.required('track')

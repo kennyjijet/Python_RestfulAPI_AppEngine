@@ -77,3 +77,7 @@ class config():
 	apns = {
 		"proxyurl": "http://gamepunks.com/clients/grandcentral/apns.php"
 	}
+
+	error_message = {
+		"dup_login": "Your account is running on another device, please try again!"
+	}

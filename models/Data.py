@@ -71,7 +71,13 @@ class Data(db.Model):
 		if buildings is None:
 			buildings = Data.getData(self, 'building_'+lang, ver)
 			if buildings is not None:
-				buildings.as_obj = json.loads(buildings.data)
+				buildings.as_obj = json.loads(buildings.data);
+				_buildings = {}
+				for list in buildings.as_obj:
+					_buildings[list[0]['id']] = []
+					for item in list:
+						_buildings[list[0]['id']].append(item)
+				buildings.as_obj = _buildings
 				if not memcache.add('building_'+lang+'.'+str(ver), buildings, config.memcache['longtime']):
 					logging.warning('Data.getbuildings memcache set failed!')
 			else:

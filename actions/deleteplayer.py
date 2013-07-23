@@ -61,6 +61,7 @@ class deleteplayer(webapp2.RequestHandler):
 		# validate and assign parameters
 		passwd = Utils.required(self, 'passwd')
 		uuid = Utils.required(self, 'uuid')
+		guid = self.request.get('guid')
 
 		# check password
 		if self.error == '' and passwd != config.testing['passwd']:

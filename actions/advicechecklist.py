@@ -52,6 +52,7 @@ class advicechecklist(webapp2.RequestHandler):
 		# validate and assign parameters
 		passwd = Utils.required(self, 'passwd')
 		uuid = Utils.required(self, 'uuid')
+		guid = self.request.get('guid')
 		version = config.data_version['building']
 		if self.request.get('version'):
 			version = self.request.get('version')
@@ -73,6 +74,12 @@ class advicechecklist(webapp2.RequestHandler):
 		if self.error == '':
 			player = Player.getplayer(self, uuid)
 
+		if self.error == '' and player is not None and guid != '':
+			logging.info(guid + '==' + player.state_obj['guid'])
+			if guid != player.state_obj['guid']:
+				player = None
+				self.error = config.error_message['dup_login']
+
 		if self.error == '' and player is not None:
 
 			_checklist = ''
@@ -90,7 +97,7 @@ class advicechecklist(webapp2.RequestHandler):
 				player.state_obj['advice_checklist'] = _checklist
 
 			# update timestamp for player
-			player.info_obj['updated'] = start_time
+			player.state_obj['updated'] = start_time
 			Player.setplayer(self, player)
 
 			self.respn = '{"state":{"advice_checklist":"'+player.state_obj['advice_checklist']+'"}}'

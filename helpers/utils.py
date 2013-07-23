@@ -1,5 +1,6 @@
 import time
 import json
+import uuid
 
 # config
 from config import config
@@ -30,18 +31,18 @@ class Utils(object):
 		if self.request.get(par_name):
 			return self.request.get(par_name)
 		else:
-			now = datetime.now()
-			return now.strftime('%S%y%M%m%H%d')+str(randint(1, 100))
+			#now = datetime.now()
+			return 'uuid-'+str(uuid.uuid4()) #now.strftime('%m%H%d')+str(randint(1, 1000000))
 
 	@staticmethod
 	def genitemid(self):		
-		now = datetime.now()
-		return now.strftime('item%S%y%M%m%H%d')+str(randint(1, 100))
+		#now = datetime.now()
+		return 'item-'+str(uuid.uuid4()) #now.strftime('item%m%H%d')+str(randint(1, 1000000))
 
 	@staticmethod
 	def genanyid(self, any):
-		now = datetime.now()
-		return now.strftime(str(any)+'%S%y%M%m%H%d')+str(randint(1, 100))
+		#now = datetime.now()
+		return any+'-'+str(uuid.uuid4()) #now.strftime(str(any)+'%m%H%d')+str(randint(1, 1000000))
 			
 	@staticmethod
 	def RESTreturn(self, time_taken):

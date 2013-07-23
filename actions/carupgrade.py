@@ -60,6 +60,7 @@ class carupgrade(webapp2.RequestHandler):
 		if self.request.get('lang'):
 			lang = self.request.get('lang')
 		uuid = Utils.required(self, 'uuid')
+		guid = self.request.get('guid')
 		cuid = Utils.required(self, 'cuid')
 		upid = Utils.required(self, 'upid')
 
@@ -79,6 +80,11 @@ class carupgrade(webapp2.RequestHandler):
 		# if error, skip this
 		if self.error == '':
 			player = Player.getplayer(self, uuid)
+
+		if self.error == '' and player is not None and guid != '':
+			if guid != player.state_obj['guid']:
+				player = None
+				self.error = config.error_message['dup_login']
 
 		if self.error == '' and player is not None:
 			mycar = Car.get(self, cuid)
@@ -119,7 +125,7 @@ class carupgrade(webapp2.RequestHandler):
 			if already_have is False: 												# then you need to buy it, dude!
 				if player.state_obj['cash'] >= upgrade['cost']:
 					player.state_obj['cash'] -= upgrade['cost']
-					player.info_obj['updated'] = start_time
+					player.state_obj['updated'] = start_time
 					if Player.setplayer(self, player):
 						mycar.data_obj['upgrades'].append(upgrade['id'])
 				else:

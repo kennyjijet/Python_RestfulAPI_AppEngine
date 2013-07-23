@@ -61,6 +61,7 @@ class finishbuilding(webapp2.RequestHandler):
 		if self.request.get('lang'):
 			lang = self.request.get('lang')
 		uuid = Utils.required(self, 'uuid')
+		guid = self.request.get('guid')
 		inid = Utils.required(self, 'inid')
 
 		# start count
@@ -76,6 +77,11 @@ class finishbuilding(webapp2.RequestHandler):
 		# if error, skip this
 		if self.error == '':
 			player = Player.getplayer(self, uuid)
+
+		if self.error == '' and player is not None and guid != '':
+			if guid != player.state_obj['guid']:
+				player = None
+				self.error = config.error_message['dup_login']
 
 		# if error or player is not, then skip to the end
 		if self.error == '' and player is not None:
@@ -108,7 +114,7 @@ class finishbuilding(webapp2.RequestHandler):
 						mybuilding.status = Building.BuildingStatus.DELIVERED
 						_upd = True
 
-						player.info_obj['updated'] = start_time
+						player.state_obj['updated'] = start_time
 						Player.setplayer(self, player)
 					else:
 						self.respn = '{"warning":"not enough gold!"}'

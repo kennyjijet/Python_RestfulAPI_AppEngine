@@ -61,6 +61,7 @@ class softpurchase(webapp2.RequestHandler):
 
 		# validate and assign parameters
 		uuid = Utils.required(self, 'uuid')
+		guid = self.request.get('guid')
 		itid = Utils.required(self, 'itid')
 		data = self.request.get('data')
 		start_time = time.time()                               		# start count
@@ -73,6 +74,11 @@ class softpurchase(webapp2.RequestHandler):
 		# if error, skip this
 		if self.error == '':
 			player = Player.getplayer_as_obj(self, uuid)
+
+		if self.error == '' and player is not None and guid != '':
+			if guid != player.state_obj['guid']:
+				player = None
+				self.error = config.error_message['dup_login']
 
 		# if error or player is none, skip this
 		if self.error == '' and player is not None:

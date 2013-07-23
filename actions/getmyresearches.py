@@ -60,6 +60,7 @@ class getmyresearches(webapp2.RequestHandler):
 		if self.request.get('lang'):
 			lang = self.request.get('lang')
 		uuid = Utils.required(self, 'uuid')
+		guid = self.request.get('guid')
 
 		# check password
 		if self.error == '' and passwd != config.testing['passwd']:
@@ -75,6 +76,11 @@ class getmyresearches(webapp2.RequestHandler):
 		# if error, skip this
 		if self.error == '':
 			player = Player.getplayer_as_obj(self, uuid)
+
+		if self.error == '' and player is not None and guid != '':
+			if guid != player.state_obj['guid']:
+				player = None
+				self.error = config.error_message['dup_login']
 
 		if self.error == '' and player is not None:
 			researches = Data.getresearches(self, version)

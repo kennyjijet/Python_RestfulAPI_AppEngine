@@ -58,6 +58,7 @@ class finishresearch(webapp2.RequestHandler):
 		if self.request.get('version'):
 			version = self.request.get('version')
 		uuid = Utils.required(self, 'uuid')
+		guid = self.request.get('guid')
 		inid = Utils.required(self, 'inid')
 
 		# start count
@@ -73,6 +74,11 @@ class finishresearch(webapp2.RequestHandler):
 		# if error, skip this
 		if self.error == '':
 			player = Player.getplayer_as_obj(self, uuid)
+
+		if self.error == '' and player is not None and guid != '':
+			if guid != player.state_obj['guid']:
+				player = None
+				self.error = config.error_message['dup_login']
 
 		# if error or player is not, then skip to the end
 		if self.error == '' and player is not None:

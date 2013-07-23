@@ -53,13 +53,19 @@ class getsoftstore(webapp2.RequestHandler):
 		Utils.reset(self)											# reset/clean standard variables
 			
 		# validate and assign parameters
-		uuid	= Utils.required(self, 'uuid')
+		uuid = Utils.required(self, 'uuid')
+		guid = self.request.get('guid')
 		start_time = time.time()									# start count
 			
 		# if error, skip this
 		if self.error == '':										
 			player = Player.getplayer_as_obj(self, uuid)			# get player state from Player model class helper
-		
+
+		if self.error == '' and player is not None and guid != '':
+			if guid != player.state_obj['guid']:
+				player = None
+				self.error = config.error_message['dup_login']
+
 		# if error or player is none, skip this
 		if self.error == '' and player is not None:
 			storeitem = Data.getstoreitem_as_arr(self)		# get store item from Storeitem model class helper

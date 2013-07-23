@@ -58,6 +58,7 @@ class collect(webapp2.RequestHandler):
 		if self.request.get('lang'):
 			lang = self.request.get('lang')
 		uuid = Utils.required(self, 'uuid')
+		guid = self.request.get('guid')
 		inid = Utils.required(self, 'inid')
 		amount = Utils.required(self, 'amount')
 
@@ -76,6 +77,11 @@ class collect(webapp2.RequestHandler):
 		# if error, skip this
 		if self.error == '':
 			player = Player.getplayer(self, uuid)
+
+		if self.error == '' and player is not None and guid != '':
+			if guid != player.state_obj['guid']:
+				player = None
+				self.error = config.error_message['dup_login']
 
 		if self.error == '' and player is not None:
 			buildings = Data.getbuildings(self, lang, version)
@@ -111,7 +117,7 @@ class collect(webapp2.RequestHandler):
 				try:
 					player.state_obj[buildings.as_obj[mybuilding.itid][mybuilding.level-1]['resource']] += res_produced
 					# update timestamp for player
-					player.info_obj['updated'] = start_time
+					player.state_obj['updated'] = start_time
 					if Player.setplayer(self, player):
 						#mybuilding.status = Building.BuildingStatus.OWNED
 						mybuilding.timestamp = int(start_time)

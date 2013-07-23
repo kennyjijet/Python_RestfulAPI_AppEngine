@@ -51,6 +51,7 @@ class challengeupdate(webapp2.RequestHandler):
 		# validate and assign parameters
 		passwd = Utils.required(self, 'passwd')
 		uuid = Utils.required(self, 'uuid')
+		guid = self.request.get('guid')
 		chid = Utils.required(self, 'chid')
 		type = Utils.required(self, 'type')
 		cuid = Utils.required(self, 'cuid')
@@ -70,6 +71,11 @@ class challengeupdate(webapp2.RequestHandler):
 		if self.error == '':
 			player = Player.getplayer(self, uuid)
 
+		if self.error == '' and player is not None and guid != '':
+			if guid != player.state_obj['guid']:
+				player = None
+				self.error = config.error_message['dup_login']
+
 		if self.error == '' and player is not None:
 			challenge = Challenge.Update(self, chid, type, player.fbid, cuid, laptime, replay)
 			if challenge is not None:
@@ -77,7 +83,7 @@ class challengeupdate(webapp2.RequestHandler):
 
 			# update timestamp for player
 			if challenge.manual_update is True:
-				player.info_obj['updated'] = start_time
+				player.state_obj['updated'] = start_time
 				Player.setplayer(self, player)
 
 		# calculate time taken and return the result

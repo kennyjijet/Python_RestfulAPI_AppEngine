@@ -60,6 +60,7 @@ class saveplayer(webapp2.RequestHandler):
 		passwd = Utils.required(self, 'passwd')
 
 		uuid = self.request.get('uuid')
+		guid = self.request.get('guid')
 		fbid = self.request.get('fbid')
 
 		version = config.data_version['building']
@@ -112,8 +113,8 @@ class saveplayer(webapp2.RequestHandler):
 				player.uuid = uuid                        							# assign uuid
 				player.fbid = fbid
 				# and assign all player info and state
-				player.info_obj = {'uuid': player.uuid, 'fbid': player.fbid, 'token': token, 'name': name, 'photo': photo, 'lang': lang, 'updated': start_time}
-				player.state_obj = {'gold': gold, 'cash': cash, 'current_car':'', 'fuel': fuel, 'tire': tire, 'battery': battery, 'oil': oil, 'brake': brake, 'total_wins': total_wins, 'advice_checklist': advice_checklist}
+				player.info_obj = {'uuid': player.uuid, 'fbid': player.fbid, 'token': token, 'name': name, 'photo': photo, 'lang': lang}
+				player.state_obj = {'guid': guid, 'cash': cash, 'gold': gold, 'current_car':'', 'total_wins': total_wins, 'advice_checklist': advice_checklist, 'updated': start_time}
 
 				#####################################################################################################################
 				## Init default item for new player
@@ -182,7 +183,6 @@ class saveplayer(webapp2.RequestHandler):
 					player.fbid = fbid
 					player.info_obj['fbid'] = fbid
 					player.info_obj['photo'] = photo                                	# assign photo url
-
 				player.info_obj['name'] = name                                    	# assign name
 				try:
 					updated = player.state_obj['updated']
@@ -191,35 +191,17 @@ class saveplayer(webapp2.RequestHandler):
 				if self.request.get('lang'):
 					player.info_obj['lang'] = lang
 
-				# try .. cash and assign new property
 				try:
-					gold = player.state_obj['gold']
+					if guid:
+						player.state_obj['guid'] = guid
 				except KeyError:
-					player.state_obj['gold'] = gold
+					player.state_obj['guid'] = ''
+
+				# try .. cash and assign new property
 				try:
 					cash = player.state_obj['cash']
 				except KeyError:
 					player.state_obj['cash'] = cash
-				try:
-					fuel = player.state_obj['fuel']
-				except KeyError:
-					player.state_obj['fuel'] = fuel
-				try:
-					tire = player.state_obj['tire']
-				except KeyError:
-					player.state_obj['tire'] = tire
-				try:
-					battery = player.state_obj['battery']
-				except KeyError:
-					player.state_obj['battery'] = battery
-				try:
-					oil = player.state_obj['oil']
-				except KeyError:
-					player.state_obj['oil'] = oil
-				try:
-					brake = player.state_obj['brake']
-				except KeyError:
-					player.state_obj['brake'] = brake
 				try:
 					total_wins = player.state_obj['total_wins']
 				except KeyError:
@@ -228,8 +210,6 @@ class saveplayer(webapp2.RequestHandler):
 					advice_checklist = player.state_obj['advice_checklist']
 				except KeyError:
 					player.state_obj['advice_checklist'] = advice_checklist
-
-
 
 			if Player.setplayer(self, player):                            # write down to database
 				self.error = ''                                                    # then obviously, no error

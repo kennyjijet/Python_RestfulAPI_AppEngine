@@ -9,7 +9,6 @@ from actions.exam import exam
 from actions.noactions import noactions
 from actions.saveplayer import saveplayer
 from actions.setpntoken import setpntoken
-#from actions.loadplayer import loadplayer
 from actions.getplayerdata import getplayerdata
 from actions.getplayerbasicdatas import getplayerbasicdatas
 from actions.deleteplayer import deleteplayer
@@ -24,8 +23,6 @@ from actions.getuilanglist import getuilanglist
 from actions.getuitext import getuitext
 from actions.getsoftstore import getsoftstore
 from actions.softpurchase import softpurchase
-from actions.hardpurchase import hardpurchase
-from actions.finishnow import finishnow
 from actions.getmyitems import getmyitems
 from actions.getbuildingstore import getbuildingstore
 from actions.buybuilding import buybuilding
@@ -58,7 +55,6 @@ app = webapp2.WSGIApplication([
 								  #('/exam', exam),
 								  ('/saveplayer', saveplayer),
 								  ('/setpntoken', setpntoken),
-								  #('/loadplayer', loadplayer),
 								  ('/getplayerdata', getplayerdata),
 								  ('/getplayerbasicdatas', getplayerbasicdatas),
 								  ('/deleteplayer', deleteplayer),
@@ -73,7 +69,6 @@ app = webapp2.WSGIApplication([
 								  ('/getuitext', getuitext),
 								  #('/getsoftstore', getsoftstore),
 								  #('/softpurchase', softpurchase),
-								  #('/hardpurchase', hardpurchase),
 								  #('/finishnow', finishnow),
 								  #('/getmyitems', getmyitems),
 								  ('/getbuildingstore', getbuildingstore),

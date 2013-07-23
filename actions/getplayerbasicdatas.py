@@ -55,6 +55,7 @@ class getplayerbasicdatas(webapp2.RequestHandler):
 		# validate and assign parameters
 		passwd = Utils.required(self, 'passwd')
 		uuid = Utils.required(self, 'uuid')
+		guid = self.request.get('guid')
 		fbids = Utils.required(self, 'fbids')
 
 		if self.error == '' and passwd != config.testing['passwd']:                	# if password is incorrect
@@ -65,6 +66,11 @@ class getplayerbasicdatas(webapp2.RequestHandler):
 		# if error, skip this
 		if self.error == '':
 			player = Player.getplayer(self, uuid)								# get player state from Player helper class, specified by uuid
+
+		if self.error == '' and player is not None and guid != '':
+			if guid != player.state_obj['guid']:
+				player = None
+				self.error = config.error_message['dup_login']
 
 		if self.error == '' and player is not None:												# if have some data returned
 			self.respn = '['
@@ -93,7 +99,7 @@ class getplayerbasicdatas(webapp2.RequestHandler):
 			self.respn = self.respn.rstrip(',') + ']'
 			self.error = ''
 
-			player.info_obj['updated'] = start_time
+			player.state_obj['updated'] = start_time
 			Player.setplayer(self, player)
 
 		# calculate time taken and return result

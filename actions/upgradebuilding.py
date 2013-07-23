@@ -63,6 +63,7 @@ class upgradebuilding(webapp2.RequestHandler):
 		if self.request.get('lang'):
 			lang = self.request.get('lang')
 		uuid = Utils.required(self, 'uuid')
+		guid = self.request.get('guid')
 		inid = Utils.required(self, 'inid')
 
 		# check password
@@ -80,6 +81,11 @@ class upgradebuilding(webapp2.RequestHandler):
 		# if error, skip this
 		if self.error == '':
 			player = Player.getplayer(self, uuid)
+
+		if self.error == '' and player is not None and guid != '':
+			if guid != player.state_obj['guid']:
+				player = None
+				self.error = config.error_message['dup_login']
 
 		if self.error == '' and player is not None:
 			buildings = Data.getbuildings(self, lang, float(version))
@@ -104,7 +110,7 @@ class upgradebuilding(webapp2.RequestHandler):
 			if player.state_obj['cash'] >= building['cost']:
 				player.state_obj['cash'] -= building['cost']
 				# update timestamp for player
-				player.info_obj['updated'] = start_time
+				player.state_obj['updated'] = start_time
 				if Player.setplayer(self, player):
 					mybuilding.itid = building['id']
 					mybuilding.status = Building.BuildingStatus.PENDING

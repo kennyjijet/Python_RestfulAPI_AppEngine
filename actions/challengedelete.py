@@ -51,6 +51,7 @@ class challengedelete(webapp2.RequestHandler):
 		# validate and assign parameters
 		passwd = Utils.required(self, 'passwd')
 		uuid = Utils.required(self, 'uuid')
+		guid = self.request.get('guid')
 		chid = self.request.get('chid')
 
 		# check password
@@ -66,6 +67,11 @@ class challengedelete(webapp2.RequestHandler):
 		if self.error == '':
 			player = Player.getplayer(self, uuid)
 
+		if self.error == '' and player is not None and guid != '':
+			if guid != player.state_obj['guid']:
+				player = None
+				self.error = config.error_message['dup_login']
+
 		if self.error == '' and player is not None:
 			if chid:
 				if Challenge.DeleteById(self, chid):
@@ -79,7 +85,7 @@ class challengedelete(webapp2.RequestHandler):
 					self.respn = '{"result":"nothing was deleted"}'
 
 			# update timestamp for player
-			player.info_obj['updated'] = start_time
+			player.state_obj['updated'] = start_time
 			Player.setplayer(self, player)
 
 		# calculate time taken and return the result

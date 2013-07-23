@@ -59,6 +59,7 @@ class carbuy(webapp2.RequestHandler):
 		if self.request.get('lang'):
 			lang = self.request.get('lang')
 		uuid = Utils.required(self, 'uuid')
+		guid = self.request.get('guid')
 		crid = Utils.required(self, 'crid')
 
 		# check password
@@ -77,6 +78,11 @@ class carbuy(webapp2.RequestHandler):
 		# if error, skip this
 		if self.error == '':
 			player = Player.getplayer(self, uuid)
+
+		if self.error == '' and player is not None and guid != '':
+			if guid != player.state_obj['guid']:
+				player = None
+				self.error = config.error_message['dup_login']
 
 		if self.error == '' and player is not None:
 			cars = Data.getcars(self, lang, float(version))
@@ -100,7 +106,7 @@ class carbuy(webapp2.RequestHandler):
 
 						#self.respn = '{"warning":"You have already purchased this car."}'
 						player.state_obj['current_car'] = _car.cuid
-						player.info_obj['updated'] = start_time
+						player.state_obj['updated'] = start_time
 						if Player.setplayer(self, player):
 							self.respn = '{"state":'+player.state+','
 							self.respn += '"car":['
@@ -119,7 +125,7 @@ class carbuy(webapp2.RequestHandler):
 
 			if player.state_obj['cash'] >= car['cost']:
 				player.state_obj['cash'] -= car['cost']
-				player.info_obj['updated'] = start_time 						# update timestamp for player
+				player.state_obj['updated'] = start_time 						# update timestamp for player
 
 				mycar = Car.create(self, player.uuid)
 				mycar.data_obj['info'] = {'crid': car['id']}

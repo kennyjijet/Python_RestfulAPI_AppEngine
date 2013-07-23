@@ -62,6 +62,7 @@ class buybuilding(webapp2.RequestHandler):
 		if self.request.get('lang'):
 			lang = self.request.get('lang')
 		uuid = Utils.required(self, 'uuid')
+		guid = self.request.get('guid')
 		itid = Utils.required(self, 'itid')
 		level = Utils.required(self, 'level')
 		location = Utils.required(self, 'location')
@@ -81,6 +82,11 @@ class buybuilding(webapp2.RequestHandler):
 		if self.error == '':
 			player = Player.getplayer(self, uuid)
 
+		if self.error == '' and player is not None and guid != '':
+			if guid != player.state_obj['guid']:
+				player = None
+				self.error = config.error_message['dup_login']
+
 		if self.error == '' and player is not None:
 			buildings = Data.getbuildings(self, lang, float(version))
 
@@ -93,7 +99,7 @@ class buybuilding(webapp2.RequestHandler):
 		if self.error == '' and building is not None:
 			if player.state_obj['cash'] >= building['cost']:
 				player.state_obj['cash'] -= building['cost']
-				player.info_obj['updated'] = start_time 						# update timestamp for player
+				player.state_obj['updated'] = start_time 						# update timestamp for player
 				if Player.setplayer(self, player):
 					mybuilding = Building.newbuilding(self)
 					mybuilding.uuid = uuid

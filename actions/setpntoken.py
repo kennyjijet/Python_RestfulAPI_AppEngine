@@ -54,6 +54,7 @@ class setpntoken(webapp2.RequestHandler):
 		# validate and assign parameters
 		passwd = Utils.required(self, 'passwd')
 		uuid = Utils.required(self, 'uuid')
+		guid = self.request.get('guid')
 		token = Utils.required(self, 'token')
 		
 		# required password to process this action
@@ -65,12 +66,17 @@ class setpntoken(webapp2.RequestHandler):
 		# if any error, skip this
 		if self.error == '':
 			player = Player.getplayer(self, uuid)			# get player as object
-		
+
+		if self.error == '' and player is not None and guid != '':
+			if guid != player.state_obj['guid']:
+				player = None
+				self.error = config.error_message['dup_login']
+
 		# if any error on player is none
 		if self.error == '' and player is not None:
 			player.info_obj['token'] = token
 			# update timestamp for player
-			player.info_obj['updated'] = start_time
+			player.state_obj['updated'] = start_time
 			if Player.setplayer(self, player):
 				Player.compose_player_info(self, player)
 			else:
