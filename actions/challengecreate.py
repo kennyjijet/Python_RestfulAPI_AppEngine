@@ -55,6 +55,9 @@ class challengecreate(webapp2.RequestHandler):
 		guid = self.request.get('guid')
 		track = Utils.required(self, 'track')
 		toid = Utils.required(self, 'toid')
+		friend = False
+		if self.request.get('friend'):
+			friend = bool(self.request.get('friend'))
 
 		# check password
 		if self.error == '' and passwd != config.testing['passwd']:
@@ -75,7 +78,7 @@ class challengecreate(webapp2.RequestHandler):
 				self.error = config.error_message['dup_login']
 
 		if self.error == '' and player is not None:
-			challenge = Challenge.Create(self, track, player.fbid, toid)
+			challenge = Challenge.Create(self, track, player.fbid, toid, friend)
 			if challenge is not None:
 				Challenge.ComposeChallenge(self, challenge)
 

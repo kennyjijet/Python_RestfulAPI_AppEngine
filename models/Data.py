@@ -114,6 +114,34 @@ class Data(db.Model):
 				self.error = 'Upgrades data ('+str(ver)+') couldn\'t be retrieved!'
 		return upgrades
 
+	###############################################################################
+	### Recent Player List
+	@staticmethod
+	def GetRecentPlayerList(self):
+		recentplayerlist = memcache.get('recent_player_list')
+		if recentplayerlist is None:
+			recentplayerlist = Data.getData(self, 'recent_player_list', 1.0)
+			if recentplayerlist is None:
+				recentplayerlist = Data.newData(self)
+				recentplayerlist.version = 1.0
+				recentplayerlist.type = 'recent_player_list'
+				recentplayerlist.data = '[]'
+				self.error = ''
+			recentplayerlist.obj = json.loads(recentplayerlist.data)
+			if not memcache.add('recent_player_list', recentplayerlist, config.memcache['longtime']):
+				logging.warning('Data set memcache for recent_player_list failed!')
+		return recentplayerlist
+
+	@staticmethod
+	def SetRecentPlayerList(self, list):
+		list.data = json.dumps(list.obj)
+		if list.put():
+			memcache.delete('recent_player_list')
+			if not memcache.add('recent_player_list', list, config.memcache['longtime']):
+				logging.warning('Data set memcache for recent_player_list failed!')
+			return True
+		return False
+
 	"""
 	@staticmethod
 	def setbuildings(self, ver, buildings):

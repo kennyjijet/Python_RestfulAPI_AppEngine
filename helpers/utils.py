@@ -1,6 +1,7 @@
 import time
 import json
 import uuid
+import logging
 
 # config
 from config import config
@@ -31,18 +32,28 @@ class Utils(object):
 		if self.request.get(par_name):
 			return self.request.get(par_name)
 		else:
-			#now = datetime.now()
 			return 'uuid-'+str(uuid.uuid4()) #now.strftime('%m%H%d')+str(randint(1, 1000000))
 
 	@staticmethod
-	def genitemid(self):		
-		#now = datetime.now()
+	def genitemid(self):
 		return 'item-'+str(uuid.uuid4()) #now.strftime('item%m%H%d')+str(randint(1, 1000000))
 
 	@staticmethod
 	def genanyid(self, any):
-		#now = datetime.now()
 		return any+'-'+str(uuid.uuid4()) #now.strftime(str(any)+'%m%H%d')+str(randint(1, 1000000))
+
+	@staticmethod
+	def GetRandomOfNumberInArray(self, size, _range):
+		arr = []
+		for i in range(0, size):
+			while True:
+				number = randint(0, _range-1)
+				try:
+					arr.index(number)
+				except ValueError:
+					arr.append(number)
+					break
+		return arr
 			
 	@staticmethod
 	def RESTreturn(self, time_taken):

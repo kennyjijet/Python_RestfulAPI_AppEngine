@@ -65,7 +65,6 @@ class Player(db.Model):
 		player.info = json.dumps(player.info_obj)
 		player.state = json.dumps(player.state_obj)
 		if player.put():
-			logging.info(player.state)
 			memcache.delete(config.db['playerdb_name']+'.'+player.uuid)
 			if not memcache.add(config.db['playerdb_name']+'.'+player.uuid, player, config.memcache['holdtime']):
 				logging.warning('Player - Memcache set player failed')

@@ -293,6 +293,56 @@ class saveplayer(webapp2.RequestHandler):
 						self.respn = self.respn.rstrip(',') + ']},'
 				self.respn = self.respn.rstrip(',') + '}'
 
+				#####################################################################################################################
+				## Add to recent player list
+				recentplayerlist = Data.GetRecentPlayerList(self)
+				_add = True
+
+				# check if this user
+				num = 0
+				challengers = Challenge.GetChallengers(self, player.info_obj['fbid'])
+				if challengers is not None:
+					for challenger in challengers:
+						obj = json.loads(challenger.data)
+						if obj['friend'] is False:
+							num += 1
+							if num > config.recentplayer['maxchallengers']:
+								_add = False
+								break
+
+				# find if it already exists?
+				num = 0
+				_deletelist = []
+				for recentplayer in recentplayerlist.obj:
+
+					if recentplayer['fbid'] == player.info_obj['fbid']:
+						if _add is False:					# this player reach the maximum of challengers
+							_deletelist.append(num)			# we should delete him from the list, so nobody can challenge him
+						else:
+							_add = False
+
+					# if the list is longer than maxlist, delete the rest
+					if num >= config.recentplayer['maxlist']:
+						_deletelist.append(num)
+
+					# remove if player does not exist any more
+					else:
+						someplayer = Player.getplayerByFbid(self, recentplayer['fbid'])
+						if someplayer is None:
+							self.error = ''
+							_deletelist.append(num)
+					num += 1
+
+				num = len(_deletelist)
+				for i in range(0, num):
+					del recentplayerlist.obj[num-1-i]
+
+				if _add is True:
+					recentplayerlist.obj.append({'fbid': player.info_obj['fbid'], 'name': player.info_obj['name'], 'photo': player.info_obj['photo'], 'total_wins': player.state_obj['total_wins'], 'updated': player.state_obj['updated']})
+
+				Data.SetRecentPlayerList(self, recentplayerlist)
+
+
 			else:                                                                # but if write down to database was failed
 				self.error = 'unable to insert/update player data.'                # inform user bia error message
 

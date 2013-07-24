@@ -47,17 +47,12 @@ class Challenge(db.Model):
 
 
 	@staticmethod
-	def Create(self, track, uid1, uid2):
+	def Create(self, track, uid1, uid2, are_they_friend):
 		""" Parameters
 			track - id of the race track
 			uid1 - user id for player 1, could be fbid or uuid
 			uid2 - user id for player 2, could be fbid or uuid
 		"""
-		"""
-		challenge = memcache.get(config.db['challengedb_name']+'.'+track+'.'+uid1+'.'+uid2)
-		if challenge is None:
-		"""
-
 		challenge = None
 		challenges = Challenge.all().filter('track =', track).filter('uid1 =', uid1).filter('uid2 =', uid2).filter('state !=', CHALLENGE_TYPE.GAME_OVER).ancestor(db.Key.from_path('Challenge', config.db['challengedb_name'])).fetch(1)
 		if len(challenges) > 0:
@@ -72,13 +67,9 @@ class Challenge(db.Model):
 			challenge.state = CHALLENGE_TYPE.OPEN_GAME
 			challenge.data = '{"player1":null,'
 			challenge.data += '"player2":null,'
+			challenge.data += '"friend":'+str(are_they_friend).lower()+','
 			challenge.data += '"result":{"winner":"pending","player1_seen":false,"player2_seen":false}}'
 			if challenge.put():
-				"""
-				if not memcache.add(config.db['challengedb_name']+'.'+track+'.'+uid1+'.'+uid2, challenge, config.memcache['holdtime']):
-					logging.warning('Challenge - Set memcache for challenge failed!')
-				memcache.delete(config.db['challengedb_name']+'.'+challenge.id)
-				"""
 				if not memcache.add(config.db['challengedb_name']+'.'+challenge.id, challenge, config.memcache['holdtime']):
 					logging.warning('Challenge - Set memcache for challenge by Id failed!')
 

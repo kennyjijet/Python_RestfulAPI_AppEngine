@@ -81,3 +81,8 @@ class config():
 	error_message = {
 		"dup_login": "Your account is running on another device, please try again!"
 	}
+	recentplayer = {
+		"maxlist": 100,
+		"numlist": 5,
+		"maxchallengers": 2
+	}

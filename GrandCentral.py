@@ -32,6 +32,7 @@ from actions.challengelist import challengelist
 from actions.challengeupdate import challengeupdate
 from actions.challengeview import challengeview
 from actions.challengedelete import challengedelete
+from actions.getrecentplayerlist import getrecentplayerlist
 
 from actions.getresearchlist import getresearchlist
 from actions.startresearch import startresearch
@@ -67,6 +68,7 @@ app = webapp2.WSGIApplication([
 								  ('/challengeupdate', challengeupdate),
 								  ('/challengeview', challengeview),
 								  ('/challengedelete', challengedelete),
+								  ('/getrecentplayerlist', getrecentplayerlist),
 
 								  ('/getresearchlist', getresearchlist),
 								  ('/startresearch', startresearch),
