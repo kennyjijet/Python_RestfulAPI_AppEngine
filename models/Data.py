@@ -71,7 +71,7 @@ class Data(db.Model):
 		if buildings is None:
 			buildings = Data.getData(self, 'building_'+lang, ver)
 			if buildings is not None:
-				buildings.as_obj = json.loads(buildings.data);
+				buildings.as_obj = json.loads(buildings.data)
 				_buildings = {}
 				for list in buildings.as_obj:
 					_buildings[list[0]['id']] = []
