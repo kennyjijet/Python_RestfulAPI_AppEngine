@@ -94,257 +94,257 @@ class saveplayer(webapp2.RequestHandler):
 		start_time = time.time()                                                	# start count
 
 		# if error, skip this
-		if self.error == '' and fbid != '':
-			player = Player.getplayerByFbid(self, fbid)
+		if self.error == '':
+			if fbid != '':
+				player = Player.getplayerByFbid(self, fbid)
 
-		if player is None and uuid != '':
-			player = Player.getplayer(self, uuid)                        			# get player from Player model class helper, specified by uuid
+			if player is None and uuid != '':
+				player = Player.getplayer(self, uuid)                        			# get player from Player model class helper, specified by uuid
 
-		defaultitems = Data.getDataAsObj(self, 'defaultitems', config.data_version['defaultitems'])
-		if defaultitems is not None:
+			defaultitems = Data.getDataAsObj(self, 'defaultitems', config.data_version['defaultitems'])
+			if defaultitems is not None:
 
-			if player is None:                                                    	# if no player data returned or doesn't exist
-				#####################################################################################################################
-				## Create new player data
-				player = Player(parent=db.Key.from_path('Player', config.db['playerdb_name']))    # create a new player state data
-				uuid = Utils.genanyid(self, 'u')
-				if fbid == '':
-					fbid = uuid
-				player.uuid = uuid                        							# assign uuid
-				player.fbid = fbid
-				# and assign all player info and state
-				player.info_obj = {'uuid': player.uuid, 'fbid': player.fbid, 'token': token, 'name': name, 'photo': photo, 'lang': lang}
-				player.state_obj = {'guid': guid, 'cash': cash, 'gold': gold, 'current_car':'', 'total_wins': total_wins, 'advice_checklist': advice_checklist, 'updated': start_time}
-
-				#####################################################################################################################
-				## Init default item for new player
-				buildings = Data.getbuildings(self, lang, float(version))
-				cars = Data.getcars(self, lang, float(version))
-				upgrades = Data.getupgrades(self, lang, float(version))
-
-				if buildings is not None and cars is not None and upgrades is not None:
-
-					for item in defaultitems.obj:
-						if item['type'] == 'state':
-							player.state_obj[item['id']] = item['value']
-						elif item['type'] == 'building':
-							try:
-								building = buildings.as_obj[item['id']][0]
-								if building is not None:
-									if player.state_obj['cash'] >= building['cost']:
-										player.state_obj['cash'] -= building['cost']
-										mybuilding = Building.newbuilding(self)
-										mybuilding.uuid = player.uuid
-										mybuilding.itid = item['id']
-										mybuilding.inid = Utils.genanyid(self, 'b')
-										mybuilding.level = building['level']
-										mybuilding.status = Building.BuildingStatus.PENDING
-										mybuilding.location = item['value']
-										mybuilding.timestamp = int(start_time)
-										Building.setmybuilding(self, mybuilding)
-							except KeyError:
-								logging.warning('KeyError, key not found!')
-
-						elif item['type'] == 'car':
-							type = ''
-							car = None
-							for _car in cars.as_obj:
-								if _car['id'] == item['id']:
-									car = _car
-									break
-							if player.state_obj['cash'] >= car['cost']:
-								player.state_obj['cash'] -= car['cost']
-								mycar = Car.create(self, player.uuid)
-								mycar.data_obj['info'] = {'crid': car['id']}
-								mycar.data_obj['upgrades'] = []
-								mycar.data_obj['equip'] = {}
-								player.state_obj['current_car'] = mycar.cuid
-								default_upgrades = car['default_upgrades'].replace(' ', '').split(',')
-								for default_upgrade in default_upgrades:
-									mycar.data_obj['upgrades'].append(default_upgrade)
-									for _type in upgrades.as_obj:
-										try:
-											mycar.data_obj['equip'][type]
-										except KeyError:
-											for upgrade in upgrades.as_obj[_type]:
-												if upgrade['id'] == default_upgrade:
-													mycar.data_obj['equip'][_type] = default_upgrade
-													break
-													break
-								Car.update(self, mycar)
-
-			else:                                                                	# but if player does exist
-				#####################################################################################################################
-				## Found existing user
-				uuid = player.uuid
-				if token:                                                        	# if token is provided
-					player.state_obj['token'] = token                            	# assign token to player state
-				if fbid != '':
+				if player is None:                                                    	# if no player data returned or doesn't exist
+					#####################################################################################################################
+					## Create new player data
+					player = Player(parent=db.Key.from_path('Player', config.db['playerdb_name']))    # create a new player state data
+					uuid = Utils.genanyid(self, 'u')
+					if fbid == '':
+						fbid = uuid
+					player.uuid = uuid                        							# assign uuid
 					player.fbid = fbid
-					player.info_obj['fbid'] = fbid
-					player.info_obj['photo'] = photo                                	# assign photo url
-				player.info_obj['name'] = name                                    	# assign name
-				try:
-					updated = player.state_obj['updated']
-				except KeyError:
-					player.state_obj['updated'] = start_time
-				if self.request.get('lang'):
-					player.info_obj['lang'] = lang
+					# and assign all player info and state
+					player.info_obj = {'uuid': player.uuid, 'fbid': player.fbid, 'token': token, 'name': name, 'photo': photo, 'lang': lang}
+					player.state_obj = {'guid': guid, 'cash': cash, 'gold': gold, 'current_car':'', 'total_wins': total_wins, 'advice_checklist': advice_checklist, 'updated': start_time}
 
-				try:
-					if guid:
-						player.state_obj['guid'] = guid
-				except KeyError:
-					player.state_obj['guid'] = ''
+					#####################################################################################################################
+					## Init default item for new player
+					buildings = Data.getbuildings(self, lang, float(version))
+					cars = Data.getcars(self, lang, float(version))
+					upgrades = Data.getupgrades(self, lang, float(version))
 
-				# try .. cash and assign new property
-				try:
-					cash = player.state_obj['cash']
-				except KeyError:
-					player.state_obj['cash'] = cash
-				try:
-					total_wins = player.state_obj['total_wins']
-				except KeyError:
-					player.state_obj['total_wins'] = total_wins
-				try:
-					advice_checklist = player.state_obj['advice_checklist']
-				except KeyError:
-					player.state_obj['advice_checklist'] = advice_checklist
+					if buildings is not None and cars is not None and upgrades is not None:
 
-			if Player.setplayer(self, player):                            # write down to database
-				self.error = ''                                                    # then obviously, no error
-				type = ''
-				for item in config.playerdata:
-					type += item+','
-				type = type.rstrip(',')
-				self.respn = '{"uuid":"'+uuid+'",'
-				types = type.split(',')
-				for item in types:
-					if item == 'info':
-						self.respn += '"info":'+player.info+','
-					elif item == 'state':
-						self.respn += '"state":'+player.state+','
-					elif item == 'building':
-						buildings = Data.getbuildings(self, lang, version)
-						mybuildings = Building.getmybuildings(self, uuid)
-						if buildings is not None and mybuildings is not None:
-							self.respn += '"building":['
-							for mybuilding in mybuildings:
-								# update building status, determine production
-								_upd = False
-								if mybuilding.status == Building.BuildingStatus.PENDING:
-									if mybuilding.timestamp + (buildings.as_obj[mybuilding.itid][mybuilding.level-1]['build_time']*60) <= start_time:
-										mybuilding.timestamp = int(start_time)
-										mybuilding.status = Building.BuildingStatus.DELIVERED
+						for item in defaultitems.obj:
+							if item['type'] == 'state':
+								player.state_obj[item['id']] = item['value']
+							elif item['type'] == 'building':
+								try:
+									building = buildings.as_obj[item['id']][0]
+									if building is not None:
+										if player.state_obj['cash'] >= building['cost']:
+											player.state_obj['cash'] -= building['cost']
+											mybuilding = Building.newbuilding(self)
+											mybuilding.uuid = player.uuid
+											mybuilding.itid = item['id']
+											mybuilding.inid = Utils.genanyid(self, 'b')
+											mybuilding.level = building['level']
+											mybuilding.status = Building.BuildingStatus.PENDING
+											mybuilding.location = item['value']
+											mybuilding.timestamp = int(start_time)
+											Building.setmybuilding(self, mybuilding)
+								except KeyError:
+									logging.warning('KeyError, key not found!')
+
+							elif item['type'] == 'car':
+								type = ''
+								car = None
+								for _car in cars.as_obj:
+									if _car['id'] == item['id']:
+										car = _car
+										break
+								if player.state_obj['cash'] >= car['cost']:
+									player.state_obj['cash'] -= car['cost']
+									mycar = Car.create(self, player.uuid)
+									mycar.data_obj['info'] = {'crid': car['id']}
+									mycar.data_obj['upgrades'] = []
+									mycar.data_obj['equip'] = {}
+									player.state_obj['current_car'] = mycar.cuid
+									default_upgrades = car['default_upgrades'].replace(' ', '').split(',')
+									for default_upgrade in default_upgrades:
+										mycar.data_obj['upgrades'].append(default_upgrade)
+										for _type in upgrades.as_obj:
+											try:
+												mycar.data_obj['equip'][type]
+											except KeyError:
+												for upgrade in upgrades.as_obj[_type]:
+													if upgrade['id'] == default_upgrade:
+														mycar.data_obj['equip'][_type] = default_upgrade
+														break
+														break
+									Car.update(self, mycar)
+
+				else:                                                                	# but if player does exist
+					#####################################################################################################################
+					## Found existing user
+					uuid = player.uuid
+					if token:                                                        	# if token is provided
+						player.state_obj['token'] = token                            	# assign token to player state
+					if fbid != '':
+						player.fbid = fbid
+						player.info_obj['fbid'] = fbid
+						player.info_obj['photo'] = photo                                	# assign photo url
+					player.info_obj['name'] = name                                    	# assign name
+					try:
+						updated = player.state_obj['updated']
+					except KeyError:
+						player.state_obj['updated'] = start_time
+					if self.request.get('lang'):
+						player.info_obj['lang'] = lang
+
+					try:
+						if guid:
+							player.state_obj['guid'] = guid
+					except KeyError:
+						player.state_obj['guid'] = ''
+
+					# try .. cash and assign new property
+					try:
+						cash = player.state_obj['cash']
+					except KeyError:
+						player.state_obj['cash'] = cash
+					try:
+						total_wins = player.state_obj['total_wins']
+					except KeyError:
+						player.state_obj['total_wins'] = total_wins
+					try:
+						advice_checklist = player.state_obj['advice_checklist']
+					except KeyError:
+						player.state_obj['advice_checklist'] = advice_checklist
+
+				if Player.setplayer(self, player):                            # write down to database                                                # then obviously, no error
+					type = ''
+					for item in config.playerdata:
+						type += item+','
+					type = type.rstrip(',')
+					self.respn = '{"uuid":"'+uuid+'",'
+					types = type.split(',')
+					for item in types:
+						if item == 'info':
+							self.respn += '"info":'+player.info+','
+						elif item == 'state':
+							self.respn += '"state":'+player.state+','
+						elif item == 'building':
+							buildings = Data.getbuildings(self, lang, version)
+							mybuildings = Building.getmybuildings(self, uuid)
+							if buildings is not None and mybuildings is not None:
+								self.respn += '"building":['
+								for mybuilding in mybuildings:
+									# update building status, determine production
+									_upd = False
+									if mybuilding.status == Building.BuildingStatus.PENDING:
+										if mybuilding.timestamp + (buildings.as_obj[mybuilding.itid][mybuilding.level-1]['build_time']*60) <= start_time:
+											mybuilding.timestamp = int(start_time)
+											mybuilding.status = Building.BuildingStatus.DELIVERED
+											_upd = True
+									elif mybuilding.status == Building.BuildingStatus.DELIVERED:
+										mybuilding.status = Building.BuildingStatus.OWNED
 										_upd = True
-								elif mybuilding.status == Building.BuildingStatus.DELIVERED:
-									mybuilding.status = Building.BuildingStatus.OWNED
-									_upd = True
-								if _upd is True:
-									Building.setmybuilding(self, mybuilding)
-								self.respn = Building.compose_mybuilding(self.respn, mybuilding)
+									if _upd is True:
+										Building.setmybuilding(self, mybuilding)
+									self.respn = Building.compose_mybuilding(self.respn, mybuilding)
+								self.respn = self.respn.rstrip(',') + '],'
+						elif item == 'car':
+							mycars = Car.list(self, player.uuid)
+							self.respn += '"car":['
+							for _car in mycars:
+								self.respn += Car.compose_mycar('', _car) + ','
 							self.respn = self.respn.rstrip(',') + '],'
-					elif item == 'car':
-						mycars = Car.list(self, player.uuid)
-						self.respn += '"car":['
-						for _car in mycars:
-							self.respn += Car.compose_mycar('', _car) + ','
-						self.respn = self.respn.rstrip(',') + '],'
-					elif item == 'challenge':
-						self.respn += '"challenge":{"challengers":['
-						challengers = Challenge.GetChallengers(self, player.fbid)
-						if challengers is not None:
-							for _challenge in challengers:
-								_gameObj = json.loads(_challenge.data)
-								self.respn += '{'
-								self.respn += '"chid":"'+_challenge.id+'",'
-								self.respn += '"uidx":"'+_challenge.uid1+'",'
-								self.respn += '"track":"'+_challenge.track+'",'
-								self.respn += '"lapTime":'+str(_gameObj['player1']['lapTime'])+','
-								self.respn += '"created":"'+_gameObj['player1']['created']+'"'
-								self.respn += '},'
-						self.respn = self.respn.rstrip(',') + '],"challenging":['
-						challenging = Challenge.GetChallenging(self, player.fbid)
-						if challenging is not None:
-							for _challenge in challenging:
-								_gameObj = json.loads(_challenge.data)
-								self.respn += '{'
-								self.respn += '"chid":"'+_challenge.id+'",'
-								self.respn += '"uidx":"'+_challenge.uid2+'",'
-								self.respn += '"track":"'+_challenge.track+'",'
-								self.respn += '"lapTime":'+str(_gameObj['player2']['lapTime'])+','
-								self.respn += '"created":"'+_gameObj['player2']['created']+'"'
-								self.respn += '},'
-						self.respn = self.respn.rstrip(',') + '],"completed":['
-						completed = Challenge.GetCompleted(self, player.fbid)
-						if completed is not None:
-							for _challenge in completed:
-								_gameObj = json.loads(_challenge.data)
-								self.respn += '{'
-								self.respn += '"chid":"'+_challenge.id+'",'
-								if player.fbid == _challenge.uid1:
-									self.respn += '"uidx":"'+_challenge.uid2+'",'
-								else:
+						elif item == 'challenge':
+							self.respn += '"challenge":{"challengers":['
+							challengers = Challenge.GetChallengers(self, player.fbid)
+							if challengers is not None:
+								for _challenge in challengers:
+									_gameObj = json.loads(_challenge.data)
+									self.respn += '{'
+									self.respn += '"chid":"'+_challenge.id+'",'
 									self.respn += '"uidx":"'+_challenge.uid1+'",'
-								self.respn += '"track":"'+_challenge.track+'",'
-								self.respn += '"lapTime":'+str(_gameObj['player2']['lapTime'])+','
-								self.respn += '"created":"'+_gameObj['player2']['created']+'"'
-								self.respn += '},'
-						self.respn = self.respn.rstrip(',') + ']},'
-				self.respn = self.respn.rstrip(',') + '}'
+									self.respn += '"track":"'+_challenge.track+'",'
+									self.respn += '"lapTime":'+str(_gameObj['player1']['lapTime'])+','
+									self.respn += '"created":"'+_gameObj['player1']['created']+'"'
+									self.respn += '},'
+							self.respn = self.respn.rstrip(',') + '],"challenging":['
+							challenging = Challenge.GetChallenging(self, player.fbid)
+							if challenging is not None:
+								for _challenge in challenging:
+									_gameObj = json.loads(_challenge.data)
+									self.respn += '{'
+									self.respn += '"chid":"'+_challenge.id+'",'
+									self.respn += '"uidx":"'+_challenge.uid2+'",'
+									self.respn += '"track":"'+_challenge.track+'",'
+									self.respn += '"lapTime":'+str(_gameObj['player2']['lapTime'])+','
+									self.respn += '"created":"'+_gameObj['player2']['created']+'"'
+									self.respn += '},'
+							self.respn = self.respn.rstrip(',') + '],"completed":['
+							completed = Challenge.GetCompleted(self, player.fbid)
+							if completed is not None:
+								for _challenge in completed:
+									_gameObj = json.loads(_challenge.data)
+									self.respn += '{'
+									self.respn += '"chid":"'+_challenge.id+'",'
+									if player.fbid == _challenge.uid1:
+										self.respn += '"uidx":"'+_challenge.uid2+'",'
+									else:
+										self.respn += '"uidx":"'+_challenge.uid1+'",'
+									self.respn += '"track":"'+_challenge.track+'",'
+									self.respn += '"lapTime":'+str(_gameObj['player2']['lapTime'])+','
+									self.respn += '"created":"'+_gameObj['player2']['created']+'"'
+									self.respn += '},'
+							self.respn = self.respn.rstrip(',') + ']},'
+					self.respn = self.respn.rstrip(',') + '}'
 
-				#####################################################################################################################
-				## Add to recent player list
-				recentplayerlist = Data.GetRecentPlayerList(self)
-				_add = True
+					#####################################################################################################################
+					## Add to recent player list
+					recentplayerlist = Data.GetRecentPlayerList(self)
+					_add = True
 
-				# check if this user
-				num = 0
-				challengers = Challenge.GetChallengers(self, player.info_obj['fbid'])
-				if challengers is not None:
-					for challenger in challengers:
-						obj = json.loads(challenger.data)
-						if obj['friend'] is False:
-							num += 1
-							if num > config.recentplayer['maxchallengers']:
+					# check if this user
+					num = 0
+					challengers = Challenge.GetChallengers(self, player.info_obj['fbid'])
+					if challengers is not None:
+						for challenger in challengers:
+							obj = json.loads(challenger.data)
+							if obj['friend'] is False:
+								num += 1
+								if num > config.recentplayer['maxchallengers']:
+									_add = False
+									break
+
+					# find if it already exists?
+					num = 0
+					_deletelist = []
+					for recentplayer in recentplayerlist.obj:
+
+						if recentplayer['fbid'] == player.info_obj['fbid']:
+							if _add is False:					# this player reach the maximum of challengers
+								_deletelist.append(num)			# we should delete him from the list, so nobody can challenge him
+							else:
 								_add = False
-								break
 
-				# find if it already exists?
-				num = 0
-				_deletelist = []
-				for recentplayer in recentplayerlist.obj:
-
-					if recentplayer['fbid'] == player.info_obj['fbid']:
-						if _add is False:					# this player reach the maximum of challengers
-							_deletelist.append(num)			# we should delete him from the list, so nobody can challenge him
-						else:
-							_add = False
-
-					# if the list is longer than maxlist, delete the rest
-					if num >= config.recentplayer['maxlist']:
-						_deletelist.append(num)
-
-					# remove if player does not exist any more
-					else:
-						someplayer = Player.getplayerByFbid(self, recentplayer['fbid'])
-						if someplayer is None:
-							self.error = ''
+						# if the list is longer than maxlist, delete the rest
+						if num >= config.recentplayer['maxlist']:
 							_deletelist.append(num)
-					num += 1
 
-				num = len(_deletelist)
-				for i in range(0, num):
-					del recentplayerlist.obj[num-1-i]
+						# remove if player does not exist any more
+						else:
+							someplayer = Player.getplayerByFbid(self, recentplayer['fbid'])
+							if someplayer is None:
+								self.error = ''
+								_deletelist.append(num)
+						num += 1
 
-				if _add is True:
-					recentplayerlist.obj.append({'fbid': player.info_obj['fbid'], 'name': player.info_obj['name'], 'photo': player.info_obj['photo'], 'total_wins': player.state_obj['total_wins'], 'updated': player.state_obj['updated']})
+					num = len(_deletelist)
+					for i in range(0, num):
+						del recentplayerlist.obj[num-1-i]
 
-				Data.SetRecentPlayerList(self, recentplayerlist)
+					if _add is True:
+						recentplayerlist.obj.append({'fbid': player.info_obj['fbid'], 'name': player.info_obj['name'], 'photo': player.info_obj['photo'], 'total_wins': player.state_obj['total_wins'], 'updated': player.state_obj['updated']})
+
+					Data.SetRecentPlayerList(self, recentplayerlist)
 
 
-			else:                                                                # but if write down to database was failed
-				self.error = 'unable to insert/update player data.'                # inform user bia error message
+				else:                                                                # but if write down to database was failed
+					self.error = 'unable to insert/update player data.'                # inform user bia error message
 
 		# calculate time taken and return the result
 		time_taken = time.time() - start_time
