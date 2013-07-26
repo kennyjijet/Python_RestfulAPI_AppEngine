@@ -81,7 +81,7 @@ class challengeupdate(webapp2.RequestHandler):
 			if challenge is not None:
 				Challenge.ComposeChallenge(self, challenge)
 
-			# update timestamp for player
+			# update timestamp for player - this is to update if needed
 			if challenge.manual_update is True:
 				player.state_obj['updated'] = start_time
 				Player.setplayer(self, player)

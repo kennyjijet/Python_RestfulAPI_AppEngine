@@ -24,7 +24,7 @@ class Utils(object):
 			if self.request.get(par_name):
 				return self.request.get(par_name)
 			else: 
-				self.error = par_name + " is a required parameter."
+				self.error = par_name + " is a required parameter. IP Logged."
 		return "undefined"
 		
 	@staticmethod

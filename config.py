@@ -26,7 +26,7 @@ class config():
 		"track": ['lake', 'beach', 'mountain', 'fox', 'village']
 	}
 	testing = {
-		"passwd": "( o_o)==@).*)",
+		"passwd": "3===D - ( . Y . )",
 		"nsample": 10,
 		"track": ['lake', 'beach', 'mountain', 'fox', 'village'],
 		"photosample": "https://graph.facebook.com/pluspingya/picture?type=square",

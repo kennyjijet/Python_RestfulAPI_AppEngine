@@ -108,6 +108,15 @@ class Data(db.Model):
 			upgrades = Data.getData(self, 'upgrades_'+lang, ver)
 			if upgrades is not None:
 				upgrades.as_obj = json.loads(upgrades.data)
+				_upgrades = {}
+				for list in upgrades.as_obj:
+					_upgrades[list[0]['type']] = []
+					for item in list:
+						_upgrades[list[0]['type']].append(item)
+				upgrades.as_obj = _upgrades
+
+
+
 				if not memcache.add('upgrades_'+lang+'.'+str(ver), upgrades, config.memcache['longtime']):
 					logging.warning('Data.getupgrades memcache set failed!')
 			else:
@@ -136,6 +145,7 @@ class Data(db.Model):
 	def SetRecentPlayerList(self, list):
 		list.data = json.dumps(list.obj)
 		if list.put():
+            # TODO : Memcache replace
 			memcache.delete('recent_player_list')
 			if not memcache.add('recent_player_list', list, config.memcache['longtime']):
 				logging.warning('Data set memcache for recent_player_list failed!')
