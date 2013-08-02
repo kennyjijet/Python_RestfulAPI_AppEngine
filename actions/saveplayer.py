@@ -288,13 +288,16 @@ class saveplayer(webapp2.RequestHandler):
                             if challenging is not None:
                                 for _challenge in challenging:
                                     _gameObj = json.loads(_challenge.data)
-                                    self.respn += '{'
-                                    self.respn += '"chid":"' + _challenge.id + '",'
-                                    self.respn += '"uidx":"' + _challenge.uid2 + '",'
-                                    self.respn += '"track":"' + _challenge.track + '",'
-                                    self.respn += '"lapTime":' + str(_gameObj['player2']['lapTime']) + ','
-                                    self.respn += '"created":"' + _gameObj['player2']['created'] + '"'
-                                    self.respn += '},'
+                                    if _gameObj is not None:
+                                        self.respn += '{'
+                                        self.respn += '"chid":"' + _challenge.id + '",'
+                                        self.respn += '"uidx":"' + _challenge.uid2 + '",'
+                                        if _challenge.track is not None:
+                                            self.respn += '"track":"' + _challenge.track + '",'
+                                        if _gameObj['player2'] is not None and _gameObj['player2']['lapTime'] is not None:
+                                            self.respn += '"lapTime":' + str(_gameObj['player2']['lapTime']) + ','
+                                        self.respn += '"created":"' + _gameObj['player2']['created'] + '"'
+                                        self.respn += '},'
                             self.respn = self.respn.rstrip(',') + '],"completed":['
                             completed = Challenge.GetCompleted(self, player.fbid)
                             if completed is not None:
