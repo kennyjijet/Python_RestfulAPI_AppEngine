@@ -25,7 +25,7 @@ class Car(db.Model):
 
 	cuid = db.StringProperty()
 	uuid = db.StringProperty()
-	data = db.StringProperty(indexed=False)
+	data = db.TextProperty(indexed=False)
 	updated = db.DateTimeProperty(auto_now_add=True)
 
 	@staticmethod

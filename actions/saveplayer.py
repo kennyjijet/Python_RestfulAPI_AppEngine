@@ -296,7 +296,7 @@ class saveplayer(webapp2.RequestHandler):
                                             self.respn += '"track":"' + _challenge.track + '",'
                                         if _gameObj['player2'] is not None and _gameObj['player2']['lapTime'] is not None:
                                             self.respn += '"lapTime":' + str(_gameObj['player2']['lapTime']) + ','
-                                        self.respn += '"created":"' + _gameObj['player2']['created'] + '"'
+                                            self.respn += '"created":"' + _gameObj['player2']['created'] + '"'
                                         self.respn += '},'
                             self.respn = self.respn.rstrip(',') + '],"completed":['
                             completed = Challenge.GetCompleted(self, player.fbid)

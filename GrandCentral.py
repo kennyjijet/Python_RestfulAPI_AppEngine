@@ -40,6 +40,9 @@ from actions.getmyresearches import getmyresearches
 from actions.finishresearch import finishresearch
 from actions.sendnotifications import sendnotifications
 
+from actions.ping import ping
+from actions.force500 import force500
+
 app = webapp2.WSGIApplication([
 								  ('/saveplayer', saveplayer),
 								  ('/setpntoken', setpntoken),
@@ -74,5 +77,7 @@ app = webapp2.WSGIApplication([
 								  ('/startresearch', startresearch),
 								  ('/getmyresearches', getmyresearches),
 								  ('/finishresearch', finishresearch),
-								  ('/sendnotifications', sendnotifications)
+								  ('/sendnotifications', sendnotifications),
+                                  ('/ping', ping),
+                                  ('/force500', force500)
 							  ], debug=True)
