@@ -1,4 +1,0 @@
-cron:
-- description: send notification list 
-  url: /sendnotifications
-  schedule: every 1 minutes
