@@ -251,7 +251,7 @@ class Data(db.Model):
     ###############################################################################
 	### Event
 	@staticmethod
-	def getevents_as_obj(self, version=config.config['version']):
+	def getconfig_as_obj(self, version=config.config['version']):
 		config_obj = memcache.get(config.db['datadb_name']+'_as_obj.event.'+str(version))
 		if config_obj is None:
 			_config = Data.getData(self, 'config', version)
