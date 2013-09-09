@@ -247,3 +247,22 @@ class Data(db.Model):
 			else:
 				self.error = 'item.'+str(version)+' as object data couldn\'t be retrieved!'
 		return event_obj
+
+    ###############################################################################
+	### Event
+	@staticmethod
+	def getevents_as_obj(self, version=config.config['version']):
+		config_obj = memcache.get(config.db['datadb_name']+'_as_obj.event.'+str(version))
+		if config_obj is None:
+			_config = Data.getData(self, 'config', version)
+			if _config is not None:
+				__config = json.loads(_config.data)
+				config_obj = {}
+				for item in __config:
+					config_obj[item['id']] = item
+				if not memcache.add(config.db['datadb_name']+'_as_obj.event,'+str(version), config_obj,
+                                    config.memcache['longtime']):
+					logging.warning('Data - Memcache set event.'+str(version)+' as object failed!')
+			else:
+				self.error = 'item.'+str(version)+' as object data couldn\'t be retrieved!'
+		return config_obj

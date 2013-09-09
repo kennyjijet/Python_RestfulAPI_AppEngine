@@ -49,6 +49,7 @@ class config():
 		"opponent": 1.0,
 		'racewinnings': 1.0,
 		'defaultitems': 1.0,
+        'config': 1.0,
 	}
 	gamedata = [
 		"building",
