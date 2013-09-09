@@ -114,7 +114,7 @@ class carupgrade(webapp2.RequestHandler):
 			# validate building
 			buildings = Building.list(self, player.uuid)
 			for building in buildings:
-				if building.itid == upgrade['shop'] and building.level == upgrade['shop_level']:
+				if building.itid == upgrade['shop'] and building.level >= upgrade['shop_level']:
 					qualify = True
 					break
 			if qualify is False:

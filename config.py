@@ -58,6 +58,7 @@ class config():
 		"advisor",
 		"transui",
 		"upgrades",
+        "config",
 	]
 	playerdata = [
 		"info",

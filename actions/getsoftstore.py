@@ -122,7 +122,7 @@ class getsoftstore(webapp2.RequestHandler):
 			self.respn = self.respn.rstrip(',') + ']'
 				
 		# calculate time taken and return result
-		time_taken =  time.time() - start_time;
+		time_taken = time.time() - start_time
 		self.response.headers['Content-Type'] = 'text/html'
 		self.response.write(Utils.RESTreturn(self, time_taken))
 		
