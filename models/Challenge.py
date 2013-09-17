@@ -271,10 +271,12 @@ class Challenge(db.Model):
                             prize1 = lose_prize
                             prize2 = lose_prize
 
-
                         # calculate score by linking replay times Race Winnings Data
                         for record in game['player1']['replay']:
                             for winnings in racewinnings.obj:
+                                logging.log("record['a']:" + record['a'])
+                                logging.log("record['b']:" + record['b'])
+                                logging.log("winnings['timing']:" + winnings['timing'])
                                 if abs(record['a'] - record['b']) <= winnings['timing']:
                                     if record['id'] == 'start':
                                         prize1 += win_prize * winnings['start_bonus']
