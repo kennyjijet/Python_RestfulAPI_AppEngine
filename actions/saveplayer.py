@@ -279,7 +279,7 @@ class saveplayer(webapp2.RequestHandler):
                                     self.respn += '"chid":"' + _challenge.id + '",'
                                     self.respn += '"uidx":"' + _challenge.uid1 + '",'   #TODO : change to fbid?
                                     self.respn += '"track":"' + _challenge.track + '",'
-                                    self.respn += '"lapTime":' + str(_gameObj['player1']['lapTime']) + ','
+                                    self.respn += '"laptime":' + str(_gameObj['player1']['laptime']) + ','
                                     self.respn += '"created":"' + _gameObj['player1']['created'] + '"'
                                     self.respn += '},'
                                 # challengers we've sent to others
@@ -294,8 +294,8 @@ class saveplayer(webapp2.RequestHandler):
                                         self.respn += '"uidx":"' + _challenge.uid2 + '",'
                                         if _challenge.track is not None:
                                             self.respn += '"track":"' + _challenge.track + '",'
-                                        if _gameObj['player2'] is not None and _gameObj['player2']['lapTime'] is not None:
-                                            self.respn += '"lapTime":' + str(_gameObj['player2']['lapTime']) + ','
+                                        if _gameObj['player2'] is not None and _gameObj['player2']['laptime'] is not None:
+                                            self.respn += '"laptime":' + str(_gameObj['player2']['laptime']) + ','
                                             self.respn += '"created":"' + _gameObj['player2']['created'] + '"'
                                         self.respn += '},'
                             self.respn = self.respn.rstrip(',') + '],"completed":['
@@ -310,7 +310,7 @@ class saveplayer(webapp2.RequestHandler):
                                     else:
                                         self.respn += '"uidx":"' + _challenge.uid1 + '",'
                                     self.respn += '"track":"' + _challenge.track + '",'
-                                    self.respn += '"lapTime":' + str(_gameObj['player2']['lapTime']) + ','
+                                    self.respn += '"laptime":' + str(_gameObj['player2']['laptime']) + ','
                                     self.respn += '"created":"' + _gameObj['player2']['created'] + '"'
                                     self.respn += '},'
                             self.respn = self.respn.rstrip(',') + ']},'
