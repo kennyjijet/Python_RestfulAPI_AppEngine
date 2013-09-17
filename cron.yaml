@@ -1,4 +1,4 @@
 cron:
 - description: send notification list
   url: /sendnotifications
-  schedule: every 1 months
+  schedule: 1st monday of sep,oct,nov 17:00

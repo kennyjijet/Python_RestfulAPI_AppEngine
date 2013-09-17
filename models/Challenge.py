@@ -213,7 +213,7 @@ class Challenge(db.Model):
                             .PLAYER1_FINISH)):
                     # find the key in the challenge data for the correct player and update the new state
                     game[_player] = {'player': {'id': uid, 'cuid': cuid}, 'laptime': float(laptime),
-                                     'replay': json.loads(replay), 'created': str(start_time)}
+                                     'replay': json.loads(replay), 'created': start_time}
 
                 # update challenge state by looking at participants
                 if game['player1'] is not None:
