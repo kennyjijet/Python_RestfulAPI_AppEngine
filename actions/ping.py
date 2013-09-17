@@ -48,7 +48,8 @@ class ping(webapp2.RequestHandler):
 
 	# get function implementation
 	def get(self):
-		self.respn = '{"version":"3"}'
+		self.respn = '{"version":"submitted->created' \
+                     '"}'
 
 		self.response.headers['Content-Type'] = 'text/html'
 		self.response.write(Utils.RESTreturn(self, 1))
