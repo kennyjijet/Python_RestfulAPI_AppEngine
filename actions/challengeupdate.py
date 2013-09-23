@@ -57,6 +57,9 @@ class challengeupdate(webapp2.RequestHandler):
         laptime = Utils.required(self, 'laptime')
         replay = Utils.required(self, 'replay')
         events = Utils.required(self, 'events')
+        cardata = Utils.required(self, 'cardata')
+        name = Utils.required(self, 'name')
+        photo = Utils.required(self, 'photo')
 
         # check password
         if self.error == '' and passwd != config.testing['passwd']:
@@ -77,7 +80,8 @@ class challengeupdate(webapp2.RequestHandler):
                 self.error = config.error_message['dup_login']
 
         if self.error == '' and player is not None:
-            challenge = Challenge.Update(self, chid, type, player.fbid, cuid, laptime, replay, events)
+            challenge = Challenge.Update(self, chid, type, player.fbid, cuid, laptime, replay, events, cardata, name,
+                                         photo)
             if challenge is not None:
                 Challenge.ComposeChallenge(self, challenge)
 

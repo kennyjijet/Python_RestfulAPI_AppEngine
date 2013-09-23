@@ -172,7 +172,7 @@ class Challenge(db.Model):
         return self.respn
 
     @staticmethod
-    def Update(self, chid, type, uid, cuid, laptime, replay, events):
+    def Update(self, chid, type, uid, cuid, laptime, replay, events, cardata, name, photo):
         """ Parameters:
             chid - Challenge Id
             type - type of update, 'challenge' or 'accept'
@@ -214,7 +214,8 @@ class Challenge(db.Model):
                             .PLAYER1_FINISH)):
                     # find the key in the challenge data for the correct player and update the new state
                     game[_player] = {'player': {'id': uid, 'cuid': cuid}, 'laptime': float(laptime),
-                                     'replay': json.loads(replay), 'events': json.loads(events), 'created': start_time}
+                                     'replay': json.loads(replay), 'events': json.loads(events),
+                                     'created': start_time, 'cardata': cardata, 'name': name, 'photo': photo}
 
                 # update challenge state by looking at participants
                 if game['player1'] is not None:
