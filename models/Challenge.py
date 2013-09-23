@@ -172,13 +172,14 @@ class Challenge(db.Model):
         return self.respn
 
     @staticmethod
-    def Update(self, chid, type, uid, cuid, laptime, replay):
+    def Update(self, chid, type, uid, cuid, laptime, replay, events):
         """ Parameters:
             chid - Challenge Id
             type - type of update, 'challenge' or 'accept'
             uid - user id, could be fbid or uuid
             cuid - car unit id
             replay - racing data
+            score - button replay
         """
         challenge = memcache.get(config.db['challengedb_name'] + '.' + chid)
         if challenge is None:
@@ -213,7 +214,7 @@ class Challenge(db.Model):
                             .PLAYER1_FINISH)):
                     # find the key in the challenge data for the correct player and update the new state
                     game[_player] = {'player': {'id': uid, 'cuid': cuid}, 'laptime': float(laptime),
-                                     'replay': json.loads(replay), 'created': start_time}
+                                     'replay': json.loads(replay), 'events': json.loads(events), 'created': start_time}
 
                 # update challenge state by looking at participants
                 if game['player1'] is not None:
@@ -271,10 +272,9 @@ class Challenge(db.Model):
                             prize1 = lose_prize
                             prize2 = lose_prize
 
-                        """
-                        # removed as Replay data is now framerecordings, not button presses
                         # calculate score by linking replay times Race Winnings Data
-                        for record in game['player1']['replay']:
+                        """
+                        for record in game['player1']['events']:
                             for winnings in racewinnings.obj:
                                 logging.log("record['a']:" + record['a'])
                                 logging.log("record['b']:" + record['b'])
@@ -288,7 +288,7 @@ class Challenge(db.Model):
                                         prize1 += win_prize * winnings['drift_bonus']
                                     break
                                     break
-                        """
+
                         # TODO : Add a default bonus to the player who started the race
                         logging.warning("Players do not get score updated")
 
@@ -298,7 +298,7 @@ class Challenge(db.Model):
                         if Player.setplayer(self, player1):
                             logging.info('player1 saved')
 
-                        for record in game['player2']['replay']:
+                        for record in game['player2']['events']:
                             for winnings in racewinnings.obj:
                                 if abs(record['a'] - record['b']) <= winnings['timing']:
                                     if record['id'] == 'start':
@@ -309,6 +309,7 @@ class Challenge(db.Model):
                                         prize2 += win_prize * winnings['drift_bonus']
                                     break
                                     break
+                        """
                         player2.state_obj['cash'] += prize2
                         if uid == challenge.uid2:
                             player2.info_obj['updated'] = start_time

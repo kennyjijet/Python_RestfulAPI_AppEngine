@@ -279,8 +279,9 @@ class saveplayer(webapp2.RequestHandler):
                                     self.respn += '"chid":"' + _challenge.id + '",'
                                     self.respn += '"uidx":"' + _challenge.uid1 + '",'   #TODO : change to fbid?
                                     self.respn += '"track":"' + _challenge.track + '",'
-                                    self.respn += '"laptime":' + str(_gameObj['player1']['laptime']) + ','
-                                    self.respn += '"created":"' + str(_gameObj['player1']['created']) + '"'
+                                    if _gameObj['player1'] is not None and _gameObj['player1']['laptime'] is not None:
+                                        self.respn += '"laptime":' + str(_gameObj['player1']['laptime']) + ','
+                                        self.respn += '"created":"' + str(_gameObj['player1']['created']) + '"'
                                     self.respn += '},'
                                 # challengers we've sent to others
                             self.respn = self.respn.rstrip(',') + '],"challenging":['

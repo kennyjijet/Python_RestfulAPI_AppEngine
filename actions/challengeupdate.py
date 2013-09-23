@@ -37,60 +37,60 @@ from models.Challenge import Challenge
 
 # class implementation
 class challengeupdate(webapp2.RequestHandler):
+    # standard variables
+    sinfo = ''
+    respn = ''
+    error = ''
+    debug = ''
 
-	# standard variables
-	sinfo = ''
-	respn = ''
-	error = ''
-	debug = ''
+    # get function implementation
+    def get(self):
+        Utils.reset(self)                                                        # reset/clean standard variables
 
-	# get function implementation
-	def get(self):
-		Utils.reset(self)														# reset/clean standard variables
+        # validate and assign parameters
+        passwd = Utils.required(self, 'passwd')
+        uuid = Utils.required(self, 'uuid')
+        guid = self.request.get('guid')
+        chid = Utils.required(self, 'chid')
+        type = Utils.required(self, 'type')
+        cuid = Utils.required(self, 'cuid')
+        laptime = Utils.required(self, 'laptime')
+        replay = Utils.required(self, 'replay')
+        events = Utils.required(self, 'events')
 
-		# validate and assign parameters
-		passwd = Utils.required(self, 'passwd')
-		uuid = Utils.required(self, 'uuid')
-		guid = self.request.get('guid')
-		chid = Utils.required(self, 'chid')
-		type = Utils.required(self, 'type')
-		cuid = Utils.required(self, 'cuid')
-		laptime = Utils.required(self, 'laptime')
-		replay = Utils.required(self, 'replay')
+        # check password
+        if self.error == '' and passwd != config.testing['passwd']:
+            self.error = 'passwd is incorrect.'
 
-		# check password
-		if self.error == '' and passwd != config.testing['passwd']:
-			self.error = 'passwd is incorrect.'
+        start_time = time.time()                                                # start count
 
-		start_time = time.time()												# start count
+        # logic variables
+        player = None
 
-		# logic variables
-		player = None
+        # if error, skip this
+        if self.error == '':
+            player = Player.getplayer(self, uuid)
 
-		# if error, skip this
-		if self.error == '':
-			player = Player.getplayer(self, uuid)
+        if self.error == '' and player is not None and guid != '':
+            if guid != player.state_obj['guid']:
+                player = None
+                self.error = config.error_message['dup_login']
 
-		if self.error == '' and player is not None and guid != '':
-			if guid != player.state_obj['guid']:
-				player = None
-				self.error = config.error_message['dup_login']
+        if self.error == '' and player is not None:
+            challenge = Challenge.Update(self, chid, type, player.fbid, cuid, laptime, replay, events)
+            if challenge is not None:
+                Challenge.ComposeChallenge(self, challenge)
 
-		if self.error == '' and player is not None:
-			challenge = Challenge.Update(self, chid, type, player.fbid, cuid, laptime, replay)
-			if challenge is not None:
-				Challenge.ComposeChallenge(self, challenge)
+            # update timestamp for player - this is to update if needed
+            if challenge.manual_update is True:
+                player.state_obj['updated'] = start_time
+                Player.setplayer(self, player)
 
-			# update timestamp for player - this is to update if needed
-			if challenge.manual_update is True:
-				player.state_obj['updated'] = start_time
-				Player.setplayer(self, player)
+        # calculate time taken and return the result
+        time_taken = time.time() - start_time
+        self.response.headers['Content-Type'] = 'text/html'
+        self.response.write(Utils.RESTreturn(self, time_taken))
 
-		# calculate time taken and return the result
-		time_taken = time.time() - start_time
-		self.response.headers['Content-Type'] = 'text/html'
-		self.response.write(Utils.RESTreturn(self, time_taken))
-
-	# do exactly as get() does
-	def post(self):
-		self.get()
+    # do exactly as get() does
+    def post(self):
+        self.get()
