@@ -77,7 +77,7 @@ class saveplayer(webapp2.RequestHandler):
             name = self.request.get('name')
         photo = ''
         if fbid != '':
-            photo = 'https://graph.facebook.com/' + fbid + '/picture?type=large'
+            photo = 'https://graph.facebook.com/' + fbid + '/picture?width=200&height=200'
 
         # TODO : Get defaults from Data
         gold = 10
@@ -115,8 +115,8 @@ class saveplayer(webapp2.RequestHandler):
                     player = Player(parent=db.Key.from_path('Player', config.db[
                         'playerdb_name']))    # create a new player state data
                     uuid = Utils.genanyid(self, 'u')
-                    if fbid == '':
-                        fbid = uuid
+                    #if fbid == '':
+                    #    fbid = uuid
                     player.uuid = uuid                                                    # assign uuid
                     player.fbid = fbid
                     # and assign all player info and state
