@@ -213,7 +213,7 @@ class Challenge(db.Model):
                             .PLAYER1_FINISH)):
                     # find the key in the challenge data for the correct player and update the new state
                     game[_player] = {'player': {'id': uid, 'cuid': cuid}, 'laptime': float(laptime),
-                                     'replay': json.loads(replay), 'created': str(start_time)}
+                                     'replay': json.loads(replay), 'created': start_time}
 
                 # update challenge state by looking at participants
                 if game['player1'] is not None:
@@ -271,6 +271,8 @@ class Challenge(db.Model):
                             prize1 = lose_prize
                             prize2 = lose_prize
 
+                        """
+                        # removed as Replay data is now framerecordings, not button presses
                         # calculate score by linking replay times Race Winnings Data
                         for record in game['player1']['replay']:
                             for winnings in racewinnings.obj:
@@ -286,8 +288,9 @@ class Challenge(db.Model):
                                         prize1 += win_prize * winnings['drift_bonus']
                                     break
                                     break
-
+                        """
                         # TODO : Add a default bonus to the player who started the race
+                        logging.warning("Players do not get score updated")
 
                         player1.state_obj['cash'] += prize1
                         if uid == challenge.uid1:

@@ -280,7 +280,7 @@ class saveplayer(webapp2.RequestHandler):
                                     self.respn += '"uidx":"' + _challenge.uid1 + '",'   #TODO : change to fbid?
                                     self.respn += '"track":"' + _challenge.track + '",'
                                     self.respn += '"laptime":' + str(_gameObj['player1']['laptime']) + ','
-                                    self.respn += '"created":"' + _gameObj['player1']['created'] + '"'
+                                    self.respn += '"created":"' + str(_gameObj['player1']['created']) + '"'
                                     self.respn += '},'
                                 # challengers we've sent to others
                             self.respn = self.respn.rstrip(',') + '],"challenging":['
@@ -296,7 +296,7 @@ class saveplayer(webapp2.RequestHandler):
                                             self.respn += '"track":"' + _challenge.track + '",'
                                         if _gameObj['player2'] is not None and _gameObj['player2']['laptime'] is not None:
                                             self.respn += '"laptime":' + str(_gameObj['player2']['laptime']) + ','
-                                            self.respn += '"created":"' + _gameObj['player2']['created'] + '"'
+                                            self.respn += '"created":"' + str(_gameObj['player2']['created']) + '"'
                                         self.respn += '},'
                             self.respn = self.respn.rstrip(',') + '],"completed":['
                             completed = Challenge.GetCompleted(self, player.fbid)
@@ -311,7 +311,7 @@ class saveplayer(webapp2.RequestHandler):
                                         self.respn += '"uidx":"' + _challenge.uid1 + '",'
                                     self.respn += '"track":"' + _challenge.track + '",'
                                     self.respn += '"laptime":' + str(_gameObj['player2']['laptime']) + ','
-                                    self.respn += '"created":"' + _gameObj['player2']['created'] + '"'
+                                    self.respn += '"created":"' + str(_gameObj['player2']['created']) + '"'
                                     self.respn += '},'
                             self.respn = self.respn.rstrip(',') + ']},'
                     self.respn = self.respn.rstrip(',') + '}'

@@ -48,10 +48,8 @@ class ping(webapp2.RequestHandler):
 
 	# get function implementation
 	def get(self):
-		self.respn = '{"Cast Created to string \
-                     Removed Cron \
-                     version":"submitted->created"}'
-
+		self.respn = '"removed replay -> score code. changed":"Cast [created] to string, delayed cron for 1st",' \
+                     '"version":"1"}'
 		self.response.headers['Content-Type'] = 'text/html'
 		self.response.write(Utils.RESTreturn(self, 1))
 
