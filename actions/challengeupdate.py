@@ -1,24 +1,24 @@
 """ challengeupdate action class
 
-	Project: GrandCentral-GAE
-	Author: Plus Pingya
-	Github: https://github.com/Gamepunks/grandcentral-gae
+    Project: GrandCentral-GAE
+    Author: Plus Pingya
+    Github: https://github.com/Gamepunks/grandcentral-gae
 
 
-	Description
-	---------------------------------------------------------------
-	I am an API to update a challenge
+    Description
+    ---------------------------------------------------------------
+    I am an API to update a challenge
 
 
-	Input:
-	---------------------------------------------------------------
-	required: passwd, uuid, chid, type, cuid, laptime, replay
-	optional:
+    Input:
+    ---------------------------------------------------------------
+    required: passwd, uuid, chid, type, cuid, laptime, replay
+    optional:
 
 
-	Output:
-	---------------------------------------------------------------
-	challenge data
+    Output:
+    ---------------------------------------------------------------
+    challenge data
 
 """
 
@@ -53,7 +53,6 @@ class challengeupdate(webapp2.RequestHandler):
         guid = self.request.get('guid')
         chid = Utils.required(self, 'chid')
         type = Utils.required(self, 'type')
-        cuid = Utils.required(self, 'cuid')
         laptime = Utils.required(self, 'laptime')
         replay = Utils.required(self, 'replay')
         events = Utils.required(self, 'events')
