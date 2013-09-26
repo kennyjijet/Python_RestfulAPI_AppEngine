@@ -73,7 +73,7 @@ class carbuy(webapp2.RequestHandler):
 		cars = None
 		upgrades = None
 		car = None
-		mycars = None
+		#mycars = None
 
 		# if error, skip this
 		if self.error == '':
