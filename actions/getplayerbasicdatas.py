@@ -80,7 +80,7 @@ class getplayerbasicdatas(webapp2.RequestHandler):
                 _friend = Player.getplayerByFbid(self, fbid)
 
                 if _friend is None:
-                    _friend = Player.getplayer((self, fbid))
+                    _friend = Player.getplayer(self, fbid)
 
                 if _friend is not None:
                     _upd = False
