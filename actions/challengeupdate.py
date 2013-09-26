@@ -59,7 +59,7 @@ class challengeupdate(webapp2.RequestHandler):
         cardata = Utils.required(self, 'cardata')
         name = Utils.required(self, 'name')
         photo = Utils.required(self, 'photo')
-        logging.info("events " + events);
+        #logging.info("events " + events);
         # check password
         if self.error == '' and passwd != config.testing['passwd']:
             self.error = 'passwd is incorrect.'

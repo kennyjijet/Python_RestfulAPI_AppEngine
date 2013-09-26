@@ -213,7 +213,7 @@ class Challenge(db.Model):
                             .PLAYER1_FINISH)):
                     # find the key in the challenge data for the correct player and update the new state
                     game[_player] = {'player': {'id': uid}, 'laptime': float(laptime),
-                                     'replay': json.loads(replay), 'events': json.loads(events),
+                                     'replay': replay, 'events': events,
                                      'created': start_time, 'cardata': cardata, 'name': name, 'photo': photo}
 
                 # update challenge state by looking at participants
