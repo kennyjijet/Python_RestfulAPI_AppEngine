@@ -78,6 +78,10 @@ class getplayerbasicdatas(webapp2.RequestHandler):
             _fbids = fbids.split(',')
             for fbid in _fbids:
                 _friend = Player.getplayerByFbid(self, fbid)
+
+                if _friend is None:
+                    _friend = Player.getplayer((self, fbid))
+
                 if _friend is not None:
                     _upd = False
                     self.respn += '{"fbid":"' + fbid + '",'

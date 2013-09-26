@@ -53,11 +53,12 @@ class getrecentplayerlist(webapp2.RequestHandler):
     # get function implementation
     def get(self):
         Utils.reset(self)														# reset/clean standard variables
-
         # validate and assign parameters
         passwd = Utils.required(self, 'passwd')
         uuid = Utils.required(self, 'uuid')
         guid = self.request.get('guid')
+        showme = self.request.get('showme')
+
         if self.error == '' and passwd != config.testing['passwd']:                	# if password is incorrect
             self.error = 'passwd is incorrect.'                                    	# inform user via error message
 
@@ -91,7 +92,7 @@ class getrecentplayerlist(webapp2.RequestHandler):
                 random = Utils.GetRandomOfNumberInArray(self, _size, _range)
                 for i in random:
                     recentplayer = recentplayerlist.obj[i]
-                    if recentplayer['fbid'] != player.fbid:
+                    if recentplayer['fbid'] != player.fbid or showme == 'true':
                         self.respn += '{"fbid":"'+recentplayer['fbid']+'",'
                         self.respn += '"uuid":"'+recentplayer['uuid']+'",'
                         self.respn += '"name":"'+recentplayer['name']+'",'
