@@ -172,12 +172,11 @@ class Challenge(db.Model):
         return self.respn
 
     @staticmethod
-    def Update(self, chid, type, uid, cuid, laptime, replay, events, cardata, name, photo):
+    def Update(self, chid, type, uid, laptime, replay, events, cardata, name, photo):
         """ Parameters:
             chid - Challenge Id
             type - type of update, 'challenge' or 'accept'
             uid - user id, could be fbid or uuid
-            cuid - car unit id
             replay - racing data
             score - button replay
         """
@@ -213,7 +212,7 @@ class Challenge(db.Model):
                                     challenge.state == CHALLENGE_TYPE.OPEN_GAME or challenge.state == CHALLENGE_TYPE
                             .PLAYER1_FINISH)):
                     # find the key in the challenge data for the correct player and update the new state
-                    game[_player] = {'player': {'id': uid, 'cuid': cuid}, 'laptime': float(laptime),
+                    game[_player] = {'player': {'id': uid}, 'laptime': float(laptime),
                                      'replay': json.loads(replay), 'events': json.loads(events),
                                      'created': start_time, 'cardata': cardata, 'name': name, 'photo': photo}
 

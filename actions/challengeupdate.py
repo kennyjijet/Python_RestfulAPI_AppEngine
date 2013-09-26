@@ -79,7 +79,7 @@ class challengeupdate(webapp2.RequestHandler):
                 self.error = config.error_message['dup_login']
 
         if self.error == '' and player is not None:
-            challenge = Challenge.Update(self, chid, type, player.fbid, cuid, laptime, replay, events, cardata, name,
+            challenge = Challenge.Update(self, chid, type, player.fbid, laptime, replay, events, cardata, name,
                                          photo)
             if challenge is not None:
                 Challenge.ComposeChallenge(self, challenge)
