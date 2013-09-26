@@ -1,24 +1,24 @@
 """ saveplayer action class
 
-	Project: GrandCentral-GAE
-	Author: Plus Pingya
-	Github: https://github.com/Gamepunks/grandcentral-gae
+    Project: GrandCentral-GAE
+    Author: Plus Pingya
+    Github: https://github.com/Gamepunks/grandcentral-gae
 
 
-	Description
-	---------------------------------------------------------------
-	I am an API to set/save/update player state
+    Description
+    ---------------------------------------------------------------
+    I am an API to set/save/update player state
 
 
-	Input:
-	---------------------------------------------------------------
-	required: passwd,
-	optional: uuid, fbid, name, photo, token, lang
+    Input:
+    ---------------------------------------------------------------
+    required: passwd,
+    optional: uuid, fbid, name, photo, token, lang
 
 
-	Output:
-	---------------------------------------------------------------
-	player uuid and entire player state
+    Output:
+    ---------------------------------------------------------------
+    player uuid and entire player state
 
 
 """
@@ -77,7 +77,7 @@ class saveplayer(webapp2.RequestHandler):
             name = self.request.get('name')
         photo = ''
         if fbid != '':
-            photo = 'https://graph.facebook.com/' + fbid + '/picture?type=large'
+            photo = 'https://graph.facebook.com/' + fbid + '/picture?width=200&height=200'
 
         # TODO : Get defaults from Data
         gold = 10
@@ -324,7 +324,7 @@ class saveplayer(webapp2.RequestHandler):
                     # check if this user hasn't reached the maximum set challengers
                     # we don't add players to the recent list if they are stacked
                     num = 0
-                    challengers = Challenge.GetChallengers(self, player.info_obj['fbid'])
+                    challengers = Challenge.GetChallengers(self, player.info_obj['uuid'])
                     if challengers is not None:
                         for challenger in challengers:
                             obj = json.loads(challenger.data)
@@ -339,7 +339,7 @@ class saveplayer(webapp2.RequestHandler):
                     _deletelist = []
                     for recentplayer in recentplayerlist.obj:
 
-                        if recentplayer['fbid'] == player.info_obj['fbid']:
+                        if recentplayer['uuid'] == player.info_obj['uuid']:
                             if _add is False:                    # this player reach the maximum of challengers
                                 _deletelist.append(
                                     num)            # we should delete him from the list, so nobody can challenge him
@@ -352,7 +352,7 @@ class saveplayer(webapp2.RequestHandler):
 
                         # remove if player does not exist any more
                         else:
-                            someplayer = Player.getplayerByFbid(self, recentplayer['fbid'])
+                            someplayer = Player.getplayer(self, recentplayer['uuid'])
                             if someplayer is None:
                                 self.error = ''
                                 _deletelist.append(num)
@@ -363,7 +363,9 @@ class saveplayer(webapp2.RequestHandler):
                         del recentplayerlist.obj[num - 1 - i]
 
                     if _add is True:
-                        recentplayerlist.obj.append({'fbid': player.info_obj['fbid'], 'name': player.info_obj['name'],
+                        recentplayerlist.obj.append({'fbid': player.info_obj['fbid'],
+                                                     'name': player.info_obj['name'],
+                                                     'uuid': player.info_obj['uuid'],
                                                      'photo': player.info_obj['photo'],
                                                      'total_wins': player.state_obj['total_wins'],
                                                      'updated': player.state_obj['updated']})
