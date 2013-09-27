@@ -190,7 +190,7 @@ class Challenge(db.Model):
                     logging.warning('Challenge - Set memcache for challenge by Id failed (Update)!')
 
         if challenge is not None:
-            logging.debug("challenge update :" + challenge)
+            logging.debug("challenge update :" + json.dumps(challenge))
             game = json.loads(challenge.data)
             _upd = False
             if challenge.state != CHALLENGE_TYPE.GAME_OVER:
