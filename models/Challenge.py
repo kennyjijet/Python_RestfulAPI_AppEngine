@@ -190,11 +190,11 @@ class Challenge(db.Model):
                     logging.warning('Challenge - Set memcache for challenge by Id failed (Update)!')
 
         if challenge is not None:
+            logging.debug("challenge update :" + challenge)
             game = json.loads(challenge.data)
             _upd = False
-            logging.info("challenge found")
             if challenge.state != CHALLENGE_TYPE.GAME_OVER:
-                logging.info("challenge not over")
+                logging.info("challenge not over. state ="+challenge.state + " type = " + challenge.type)
 
                 start_time = time.time()
                 # flag to prevent Player saving outside this function and loosing the changes
@@ -213,6 +213,7 @@ class Challenge(db.Model):
                     or (_player == 'player2' and challenge.uid2 == uid and (
                                     challenge.state == CHALLENGE_TYPE.OPEN_GAME or challenge.state == CHALLENGE_TYPE
                             .PLAYER1_FINISH)):
+                    logging.debug("found the key in the challenge data for the correct player and update the new state")
                     # find the key in the challenge data for the correct player and update the new state
                     game[_player] = {'player': {'id': uid}, 'laptime': float(laptime),
                                      'replay': replay, 'events': events,
