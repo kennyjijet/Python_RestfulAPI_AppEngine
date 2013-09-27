@@ -192,8 +192,9 @@ class Challenge(db.Model):
         if challenge is not None:
             game = json.loads(challenge.data)
             _upd = False
+            logging.info("challenge found")
             if challenge.state != CHALLENGE_TYPE.GAME_OVER:
-
+                logging.info("challenge not over")
 
                 start_time = time.time()
                 # flag to prevent Player saving outside this function and loosing the changes
@@ -203,6 +204,7 @@ class Challenge(db.Model):
                 _player = 'player1'
                 if type != 'challenge':
                     _player = 'player2'
+                logging.info("_player " + _player)
 
                 # find state of challenge
                 if (_player == 'player1' and challenge.uid1 == uid and (

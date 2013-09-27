@@ -77,8 +77,10 @@ class challengeupdate(webapp2.RequestHandler):
             if guid != player.state_obj['guid']:
                 player = None
                 self.error = config.error_message['dup_login']
-
+        logging.warn("trying to create challenge with" + player)
         if self.error == '' and player is not None:
+            logging.warn("trying to create challenge with" + player)
+
             challenge = Challenge.Update(self, chid, type, uuid, laptime, replay, events, cardata, name,
                                          photo)
             if challenge is not None:
