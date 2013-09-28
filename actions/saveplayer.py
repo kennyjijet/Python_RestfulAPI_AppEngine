@@ -281,7 +281,7 @@ class saveplayer(webapp2.RequestHandler):
                                     self.respn += '"track":"' + _challenge.track + '",'
                                     if _gameObj['player1'] is not None and _gameObj['player1']['laptime'] is not None:
                                         self.respn += '"laptime":' + str(_gameObj['player1']['laptime']) + ','
-                                        self.respn += '"cardata":' + str(_gameObj['player1']['cardata']) + '",'
+                                        self.respn += '"cardata":"' + str(_gameObj['player1']['cardata']) + '",'
                                         self.respn += '"name":"' + str(_gameObj['player1']['name']) + '",'
                                         self.respn += '"photo":"' + str(_gameObj['player1']['photo']) + '",'
                                         self.respn += '"created":"' + str(_gameObj['player1']['created']) + '"'
