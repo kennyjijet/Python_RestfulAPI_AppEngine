@@ -51,7 +51,7 @@ class ping(webapp2.RequestHandler):
         self.respn = 'caradata escaped, Added cardata, name and photo to challenges' \
                      'Challengedelete now retuns new challenge list' \
                      '"removed replay -> score code. changed":"Cast [created] to string, delayed cron for 1st",' \
-                     '"version":"2"}'
+                     '"version":"3"}'
         self.response.headers['Content-Type'] = 'text/html'
         self.response.write(Utils.RESTreturn(self, 1))
 
