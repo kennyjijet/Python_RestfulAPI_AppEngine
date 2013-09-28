@@ -74,7 +74,7 @@ class challengelist(webapp2.RequestHandler):
 
         if self.error == '' and player is not None:
             self.respn = '{"challengers":['
-            challengers = Challenge.GetChallengers(self, player.fbid)
+            challengers = Challenge.GetChallengers(self, player.uuid)
             if challengers is not None:
                 for _challenge in challengers:
                     _gameObj = json.loads(_challenge.data)
@@ -84,7 +84,7 @@ class challengelist(webapp2.RequestHandler):
                     self.respn += '"track":"'+_challenge.track+'"'
                     self.respn += '},'
             self.respn = self.respn.rstrip(',') + '],"challenging":['
-            challenging = Challenge.GetChallenging(self, player.fbid)
+            challenging = Challenge.GetChallenging(self, player.uuid)
             if challenging is not None:
                 for _challenge in challenging:
                     _gameObj = json.loads(_challenge.data)
@@ -94,14 +94,14 @@ class challengelist(webapp2.RequestHandler):
                     self.respn += '"track":"'+_challenge.track+'"'
                     self.respn += '},'
             self.respn = self.respn.rstrip(',') + '],"completed":['
-            completed = Challenge.GetCompleted(self, player.fbid)
+            completed = Challenge.GetCompleted(self, player.uuid)
             if completed is not None:
                 for _challenge in completed:
                     _gameObj = json.loads(_challenge.data)
                     self.respn += '{'
                     self.respn += '"chid":"'+_challenge.id+'",'
                     #self.respn += '"uidx":"'+_challenge.uid1+'",'
-                    if player.fbid == _challenge.uid1:
+                    if player.fbid == _challenge.uid1 or player.uuid == _challenge.uid1:
                         self.respn += '"uidx":"'+_challenge.uid2+'",'
                     else:
                         self.respn += '"uidx":"'+_challenge.uid1+'",'

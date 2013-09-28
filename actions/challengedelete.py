@@ -81,14 +81,18 @@ class challengedelete(webapp2.RequestHandler):
                 else:
                     result = '{"result":"Challenge Id='+chid+' could not be found, nothing was deleted"}'
             else:
-                if Challenge.DeleteByUserId(self, player.fbid):
+                if Challenge.DeleteByUserId(self, player.uuid):
+                    result = '{"result":"delete successfully"}'
+                elif Challenge.DeleteByUserId(self, player.fbid):
                     result = '{"result":"delete successfully"}'
                 else:
                     result = '{"result":"nothing was deleted"}'
 
         if self.error == '' and player is not None:
             self.respn = '{"challengers":['
-            challengers = Challenge.GetChallengers(self, player.fbid)
+            challengers = Challenge.GetChallengers(self, player.uuid)
+            if challengers is None:
+                challengers = Challenge.GetChallengers(self, player.fbid)
             if challengers is not None:
                 for _challenge in challengers:
                     _gameObj = json.loads(_challenge.data)
@@ -98,7 +102,9 @@ class challengedelete(webapp2.RequestHandler):
                     self.respn += '"track":"'+_challenge.track+'"'
                     self.respn += '},'
             self.respn = self.respn.rstrip(',') + '],"challenging":['
-            challenging = Challenge.GetChallenging(self, player.fbid)
+            challenging = Challenge.GetChallenging(self, player.uuid)
+            if challenging is None:
+                challenging = Challenge.GetChallenging(self, player.fbid)
             if challenging is not None:
                 for _challenge in challenging:
                     _gameObj = json.loads(_challenge.data)
@@ -108,14 +114,16 @@ class challengedelete(webapp2.RequestHandler):
                     self.respn += '"track":"'+_challenge.track+'"'
                     self.respn += '},'
             self.respn = self.respn.rstrip(',') + '],"completed":['
-            completed = Challenge.GetCompleted(self, player.fbid)
+            completed = Challenge.GetCompleted(self, player.uuid)
+            if completed is None:
+                completed = Challenge.GetCompleted(self, player.fbid)
             if completed is not None:
                 for _challenge in completed:
                     _gameObj = json.loads(_challenge.data)
                     self.respn += '{'
                     self.respn += '"chid":"'+_challenge.id+'",'
                     #self.respn += '"uidx":"'+_challenge.uid1+'",'
-                    if player.fbid == _challenge.uid1:
+                    if player.fbid == _challenge.uid1 or player.uuid == _challenge.uid1:
                         self.respn += '"uidx":"'+_challenge.uid2+'",'
                     else:
                         self.respn += '"uidx":"'+_challenge.uid1+'",'

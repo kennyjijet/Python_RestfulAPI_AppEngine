@@ -92,7 +92,7 @@ class getrecentplayerlist(webapp2.RequestHandler):
                 random = Utils.GetRandomOfNumberInArray(self, _size, _range)
                 for i in random:
                     recentplayer = recentplayerlist.obj[i]
-                    if recentplayer['fbid'] != player.fbid or showme == 'true':
+                    if recentplayer['uuid'] != player.uuid or showme == 'true':
                         self.respn += '{"fbid":"'+recentplayer['fbid']+'",'
                         self.respn += '"uuid":"'+recentplayer['uuid']+'",'
                         self.respn += '"name":"'+recentplayer['name']+'",'
