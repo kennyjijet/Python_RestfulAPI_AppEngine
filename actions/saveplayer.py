@@ -270,7 +270,7 @@ class saveplayer(webapp2.RequestHandler):
                             self.respn = self.respn.rstrip(',') + '],'
                         elif item == 'challenge':
                             self.respn += '"challenge":{"challengers":['
-                            challengers = Challenge.GetChallengers(self, player.fbid)
+                            challengers = Challenge.GetChallengers(self, player.uuid)
                             if challengers is not None:
                             # challenges from others we've been sent
                                 for _challenge in challengers:
@@ -279,7 +279,7 @@ class saveplayer(webapp2.RequestHandler):
                                     self.respn += '"chid":"' + _challenge.id + '",'
                                     self.respn += '"uidx":"' + _challenge.uid1 + '",'   #TODO : change to fbid?
                                     self.respn += '"track":"' + _challenge.track + '",'
-                                    if _gameObj['player1'] is not None and _gameObj['player1']['laptime'] is not None:
+                                    if _gameObj['player1'] is not None:
                                         self.respn += '"laptime":' + str(_gameObj['player1']['laptime']) + ','
                                         self.respn += '"cardata":"' + str(_gameObj['player1']['cardata']) + '",'
                                         self.respn += '"name":"' + str(_gameObj['player1']['name']) + '",'
@@ -288,7 +288,7 @@ class saveplayer(webapp2.RequestHandler):
                                     self.respn += '},'
                                 # challengers we've sent to others
                             self.respn = self.respn.rstrip(',') + '],"challenging":['
-                            challenging = Challenge.GetChallenging(self, player.fbid)
+                            challenging = Challenge.GetChallenging(self, player.uuid)
                             if challenging is not None:
                                 for _challenge in challenging:
                                     _gameObj = json.loads(_challenge.data)
@@ -298,7 +298,7 @@ class saveplayer(webapp2.RequestHandler):
                                         self.respn += '"uidx":"' + _challenge.uid2 + '",'
                                         if _challenge.track is not None:
                                             self.respn += '"track":"' + _challenge.track + '",'
-                                        if _gameObj['player2'] is not None and _gameObj['player2']['laptime'] is not None:
+                                        if _gameObj['player2'] is not None:
                                             self.respn += '"laptime":' + str(_gameObj['player2']['laptime']) + ','
                                             self.respn += '"cardata":"' + str(_gameObj['player2']['cardata']) + '",'
                                             self.respn += '"name":"' + str(_gameObj['player2']['name']) + '",'
@@ -306,13 +306,13 @@ class saveplayer(webapp2.RequestHandler):
                                             self.respn += '"created":"' + str(_gameObj['player2']['created']) + '"'
                                         self.respn += '},'
                             self.respn = self.respn.rstrip(',') + '],"completed":['
-                            completed = Challenge.GetCompleted(self, player.fbid)
+                            completed = Challenge.GetCompleted(self, player.uuid)
                             if completed is not None:
                                 for _challenge in completed:
                                     _gameObj = json.loads(_challenge.data)
                                     self.respn += '{'
                                     self.respn += '"chid":"' + _challenge.id + '",'
-                                    if player.fbid == _challenge.uid1:
+                                    if player.fbid == _challenge.uid1 or player.uuid == _challenge.uid1:
                                         self.respn += '"uidx":"' + _challenge.uid2 + '",'
                                     else:
                                         self.respn += '"uidx":"' + _challenge.uid1 + '",'
