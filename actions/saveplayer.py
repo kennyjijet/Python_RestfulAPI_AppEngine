@@ -330,6 +330,8 @@ class saveplayer(webapp2.RequestHandler):
                     # we don't add players to the recent list if they are stacked
                     num = 0
                     challengers = Challenge.GetChallengers(self, player.info_obj['uuid'])
+                    if challengers is None:
+                        Challenge.GetChallengers(self, player.info_obj['fbid'])
                     if challengers is not None:
                         for challenger in challengers:
                             obj = json.loads(challenger.data)

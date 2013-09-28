@@ -73,7 +73,9 @@ class challengelist(webapp2.RequestHandler):
                 self.error = config.error_message['dup_login']
 
         if self.error == '' and player is not None:
-            self.respn = '{"challengers":['
+            #self.respn = '{"challengers":['
+            Challenge.ComposeChallenges(self, player)
+            """
             challengers = Challenge.GetChallengers(self, player.uuid)
             if challengers is not None:
                 for _challenge in challengers:
@@ -108,6 +110,8 @@ class challengelist(webapp2.RequestHandler):
                         self.respn += '"uidx":"'+_challenge.uid1+'",'
                     self.respn += '"track":"'+_challenge.track+'"'
                     self.respn += '},'
+            """
+
             self.respn = self.respn.rstrip(',') + ']}'
 
             # update timestamp for player
