@@ -122,6 +122,8 @@ class getplayerdata(webapp2.RequestHandler):
                     self.respn += '"challenge":{"challengers":['
 
                     challengers = Challenge.GetChallengers(self, player.uuid)
+                    if challengers is None:
+                         challengers = Challenge.GetChallengers(self, player.fbid)
                     if challengers is not None:
                         for _challenge in challengers:
                             _gameObj = json.loads(_challenge.data)
@@ -131,7 +133,10 @@ class getplayerdata(webapp2.RequestHandler):
                             self.respn += '"track":"'+_challenge.track+'"'
                             self.respn += '},'
                     self.respn = self.respn.rstrip(',') + '],"challenging":['
+
                     challenging = Challenge.GetChallenging(self, player.uuid)
+                    if challenging is None:
+                        challenging = Challenge.GetChallenging(self, player.fbid)
                     if challenging is not None:
                         for _challenge in challenging:
                             _gameObj = json.loads(_challenge.data)
@@ -149,6 +154,8 @@ class getplayerdata(webapp2.RequestHandler):
                             self.respn += '},'
                     self.respn = self.respn.rstrip(',') + '],"completed":['
                     completed = Challenge.GetCompleted(self, player.uuid)
+                    if completed is None:
+                        completed = Challenge.GetCompleted(self, player.fbid)
                     if completed is not None:
                         for _challenge in completed:
                             _gameObj = json.loads(_challenge.data)
