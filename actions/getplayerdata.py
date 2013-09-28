@@ -136,9 +136,16 @@ class getplayerdata(webapp2.RequestHandler):
                         for _challenge in challenging:
                             _gameObj = json.loads(_challenge.data)
                             self.respn += '{'
+                            self.respn += '"action":"getplayerdata",'
                             self.respn += '"chid":"'+_challenge.id+'",'
                             self.respn += '"uidx":"'+_challenge.uid2+'",'
                             self.respn += '"track":"'+_challenge.track+'"'
+                            if _gameObj['player1'] is not None:
+                                self.respn += '"laptime":' + str(_gameObj['player1']['laptime']) + ','
+                                self.respn += '"cardata":"' + str(_gameObj['player1']['cardata']) + '",'
+                                self.respn += '"name":"' + str(_gameObj['player1']['name']) + '",'
+                                self.respn += '"photo":"' + str(_gameObj['player1']['photo']) + '",'
+                                self.respn += '"created":"' + str(_gameObj['player1']['created']) + '"'
                             self.respn += '},'
                     self.respn = self.respn.rstrip(',') + '],"completed":['
                     completed = Challenge.GetCompleted(self, player.uuid)

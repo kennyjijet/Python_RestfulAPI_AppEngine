@@ -89,6 +89,7 @@ class challengelist(webapp2.RequestHandler):
                 for _challenge in challenging:
                     _gameObj = json.loads(_challenge.data)
                     self.respn += '{'
+                    self.respn += '"action":"challengelist",'
                     self.respn += '"chid":"'+_challenge.id+'",'
                     self.respn += '"uidx":"'+_challenge.uid2+'",'
                     self.respn += '"track":"'+_challenge.track+'"'

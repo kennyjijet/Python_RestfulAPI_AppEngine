@@ -298,7 +298,7 @@ class saveplayer(webapp2.RequestHandler):
                                         self.respn += '"uidx":"' + _challenge.uid2 + '",'
                                         if _challenge.track is not None:
                                             self.respn += '"track":"' + _challenge.track + '",'
-                                        if _gameObj['player2'] is not None:
+                                        if _gameObj['player1'] is not None:
                                             self.respn += '"laptime":' + str(_gameObj['player1']['laptime']) + ','
                                             self.respn += '"cardata":"' + str(_gameObj['player1']['cardata']) + '",'
                                             self.respn += '"name":"' + str(_gameObj['player1']['name']) + '",'
