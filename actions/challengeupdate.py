@@ -84,7 +84,7 @@ class challengeupdate(webapp2.RequestHandler):
             challenge = Challenge.Update(self, chid, type, uuid, laptime, replay, events, cardata, name,
                                          photo)
             if challenge is not None:
-                Challenge.ComposeChallenge(self, challenge)
+                Challenge.ComposeChallenges(self, challenge)
 
             # update timestamp for player - this is to update if needed
             if challenge.manual_update is True:

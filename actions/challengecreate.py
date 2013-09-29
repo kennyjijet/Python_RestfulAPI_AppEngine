@@ -55,6 +55,11 @@ class challengecreate(webapp2.RequestHandler):
         guid = self.request.get('guid')
         track = Utils.required(self, 'track')
         toid = Utils.required(self, 'toid')
+        name1 = Utils.required(self, 'name1')
+        name2 = Utils.required(self, 'name2')
+        photo1 = Utils.required(self, 'photo1')
+        photo2 = Utils.required(self, 'photo2')
+
         friend = False
         if self.request.get('friend'):
             friend = bool(self.request.get('friend'))
@@ -79,9 +84,9 @@ class challengecreate(webapp2.RequestHandler):
 
         if self.error == '' and player is not None:
             logging.warn('creating new challenge with' + player.uuid )
-            challenge = Challenge.Create(self, track, player.uuid, toid, friend)
+            challenge = Challenge.Create(self, track, player.uuid, toid, name1, name2, photo1, photo2, friend)
             if challenge is not None:
-                Challenge.ComposeChallenge(self, challenge)
+                Challenge.ComposeChallenges(self, challenge)
 
             # update timestamp for player
             player.state_obj['updated'] = start_time

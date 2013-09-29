@@ -48,7 +48,7 @@ class ping(webapp2.RequestHandler):
 
     # get function implementation
     def get(self):
-        self.respn = 'caradata escaped, Added cardata, name and photo to challenges' \
+        self.respn = 'ComposeActualChallenge, caradata escaped, Added cardata, name and photo to challenges' \
                      'Challengedelete now retuns new challenge list' \
                      '"removed replay -> score code. changed":"Cast [created] to string, delayed cron for 1st",' \
                      '"version":"3"}'

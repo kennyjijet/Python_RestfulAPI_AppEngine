@@ -49,7 +49,7 @@ class Challenge(db.Model):
 
 
     @staticmethod
-    def Create(self, track, uid1, uid2, are_they_friend):
+    def Create(self, track, uid1, uid2, name1, name2, photo1, photo2, are_they_friend):
         """ Parameters
             track - id of the race track
             uid1 - user id for player 1, could be fbid or uuid
@@ -73,8 +73,9 @@ class Challenge(db.Model):
             challenge.uid1 = uid1
             challenge.uid2 = uid2
             challenge.state = CHALLENGE_TYPE.OPEN_GAME
-            challenge.data = '{"player1":null,'
-            challenge.data += '"player2":null,'
+            challenge.data = ''
+            challenge.data += '"player1":{"player": {"id":"' + uid1 + '"},"name":"' + name1 + '", "photo":"' + photo1+'"},'
+            challenge.data += '"player2":{"player": {"id":"' + uid2 + '"},"name":"' + name2 + '", "photo":"' + photo2+'"},'
             challenge.data += '"friend":' + str(are_they_friend).lower() + ','
             challenge.data += '"result":{"winner":"pending","player1_seen":false,"player2_seen":false}}'
             if challenge.put():
@@ -100,7 +101,7 @@ class Challenge(db.Model):
                 if not memcache.add(config.db['challengedb_name'] + '.' + chid, challenge, config.memcache['holdtime']):
                     logging.warning('Challenge - Set memcache for challenge by Id failed (Update)!')
         if challenge is None:
-            self.error = 'Challenge Id=' + chid + ' could not be found.'
+            self.error = 'Challenge Id=' + chid + ' could not be found OR complete.'
         return challenge
 
     @staticmethod
@@ -163,17 +164,7 @@ class Challenge(db.Model):
                 logging.warning('Challenge - Set memcache for completed failed!')
         return completed
 
-    @staticmethod
-    def ComposeChallenge(self, challenge):
-        self.respn = '{"info":{'
-        self.respn += '"id":"' + challenge.id + '",'
-        self.respn += '"track":"' + challenge.track + '",'
-        self.respn += '"uid1":"' + challenge.uid1 + '",'
-        self.respn += '"uid2":"' + challenge.uid2 + '",'
-        self.respn += '"state":"' + challenge.state + '",'
-        self.respn += '"created":"' + str(challenge.created) + '"'
-        self.respn += '},"game":' + challenge.data + '}'
-        return self.respn
+
 
     @staticmethod
     def Update(self, chid, type, uid, laptime, replay, events, cardata, name, photo):
@@ -401,12 +392,13 @@ class Challenge(db.Model):
             logging.warning('Deleting ' + challenges)
             challenges.delete()
 
+    #returns everything except replay data
     @staticmethod
     def ComposeChallenges(self, player):
-        self.respn += '"challenge":{"challengers":['
-        challengers = Challenge.GetChallengers(self, player.uuid)
+        self.respn += '"foo":"bar","challenge":{"challengers":['
+        challengers = Challenge.GetChallengers(self, player.fbid)
         if challengers is None:
-            challengers = Challenge.GetChallengers(self, player.fbid)
+            challengers = Challenge.GetChallengers(self, player.uuid)
         if challengers is not None:
             for _challenge in challengers:
                 _gameObj = json.loads(_challenge.data)
@@ -414,6 +406,12 @@ class Challenge(db.Model):
                 self.respn += '"chid":"' + _challenge.id + '",'
                 self.respn += '"uidx":"' + _challenge.uid1 + '",'
                 self.respn += '"track":"' + _challenge.track + '"'
+                if _gameObj['player1'] is not None:
+                    self.respn += '"laptime":' + str(_gameObj['player1']['laptime']) + ','
+                    self.respn += '"cardata":"' + str(_gameObj['player1']['cardata']) + '",'
+                    self.respn += '"name":"' + str(_gameObj['player1']['name']) + '",'
+                    self.respn += '"photo":"' + str(_gameObj['player1']['photo']) + '",'
+                    self.respn += '"created":"' + str(_gameObj['player1']['created']) + '"'
                 self.respn += '},'
         self.respn = self.respn.rstrip(',') + '],"challenging":['
 
@@ -428,12 +426,12 @@ class Challenge(db.Model):
                 self.respn += '"chid":"' + _challenge.id + '",'
                 self.respn += '"uidx":"' + _challenge.uid2 + '",'
                 self.respn += '"track":"' + _challenge.track + '"'
-                if _gameObj['player1'] is not None:
-                    self.respn += '"laptime":' + str(_gameObj['player1']['laptime']) + ','
-                    self.respn += '"cardata":"' + str(_gameObj['player1']['cardata']) + '",'
-                    self.respn += '"name":"' + str(_gameObj['player1']['name']) + '",'
-                    self.respn += '"photo":"' + str(_gameObj['player1']['photo']) + '",'
-                    self.respn += '"created":"' + str(_gameObj['player1']['created']) + '"'
+                if _gameObj['player2'] is not None:
+                    self.respn += '"laptime":' + str(_gameObj['player2']['laptime']) + ','
+                    self.respn += '"cardata":"' + str(_gameObj['player2']['cardata']) + '",'
+                    self.respn += '"name":"' + str(_gameObj['player2']['name']) + '",'
+                    self.respn += '"photo":"' + str(_gameObj['player2']['photo']) + '",'
+                    self.respn += '"created":"' + str(_gameObj['player2']['created']) + '"'
                 self.respn += '},'
         self.respn = self.respn.rstrip(',') + '],"completed":['
         completed = Challenge.GetCompleted(self, player.uuid)
@@ -447,8 +445,36 @@ class Challenge(db.Model):
                 #self.respn += '"uidx":"'+_challenge.uid1+'",'
                 if player.fbid == _challenge.uid1 or player.uuid == _challenge.uid1:
                     self.respn += '"uidx":"' + _challenge.uid2 + '",'
+                    if _gameObj['player2'] is not None:
+                        self.respn += '"laptime":' + str(_gameObj['player2']['laptime']) + ','
+                        self.respn += '"cardata":"' + str(_gameObj['player2']['cardata']) + '",'
+                        self.respn += '"name":"' + str(_gameObj['player2']['name']) + '",'
+                        self.respn += '"photo":"' + str(_gameObj['player2']['photo']) + '",'
+                        self.respn += '"created":"' + str(_gameObj['player2']['created']) + '"'
+                    self.respn += '},'
                 else:
                     self.respn += '"uidx":"' + _challenge.uid1 + '",'
+                    if _gameObj['player1'] is not None:
+                        self.respn += '"laptime":' + str(_gameObj['player1']['laptime']) + ','
+                        self.respn += '"cardata":"' + str(_gameObj['player1']['cardata']) + '",'
+                        self.respn += '"name":"' + str(_gameObj['player1']['name']) + '",'
+                        self.respn += '"photo":"' + str(_gameObj['player1']['photo']) + '",'
+                        self.respn += '"created":"' + str(_gameObj['player1']['created']) + '"'
+                    self.respn += '},'
+
                 self.respn += '"track":"' + _challenge.track + '"'
                 self.respn += '},'
         self.respn = self.respn.rstrip(',') + ']}'
+
+    # Returns replay data also
+    @staticmethod
+    def ComposeActualChallenge(self, challenge):
+        self.respn = '{"info":{'
+        self.respn += '"id":"' + challenge.id + '",'
+        self.respn += '"track":"' + challenge.track + '",'
+        self.respn += '"uid1":"' + challenge.uid1 + '",'
+        self.respn += '"uid2":"' + challenge.uid2 + '",'
+        self.respn += '"state":"' + challenge.state + '",'
+        self.respn += '"created":"' + str(challenge.created) + '"'
+        self.respn += '},"game":' + challenge.data + '}'
+        return self.respn

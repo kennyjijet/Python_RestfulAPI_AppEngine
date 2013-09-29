@@ -269,6 +269,8 @@ class saveplayer(webapp2.RequestHandler):
                                 self.respn += Car.compose_mycar('', _car) + ','
                             self.respn = self.respn.rstrip(',') + '],'
                         elif item == 'challenge':
+                            Challenge.ComposeChallenges(self, player)
+                            """
                             self.respn += '"challenge":{"challengers":['
 
                             challengers = Challenge.GetChallengers(self, player.uuid)
@@ -319,6 +321,7 @@ class saveplayer(webapp2.RequestHandler):
                                     self.respn += '"track":"'+_challenge.track+'"'
                                     self.respn += '},'
                             self.respn = self.respn.rstrip(',') + ']}'
+                            """
                     self.respn = self.respn.rstrip(',') + '}'
 
                     ###################################################################################################
