@@ -73,8 +73,9 @@ class challengelist(webapp2.RequestHandler):
                 self.error = config.error_message['dup_login']
 
         if self.error == '' and player is not None:
+            self.respn = '{'
             Challenge.ComposeChallenges(self, player)
-            self.respn = self.respn.rstrip(',') + ']}'
+            self.respn = self.respn.rstrip(',') + '}'
 
             # update timestamp for player
             player.state_obj['updated'] = start_time

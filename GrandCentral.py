@@ -20,6 +20,7 @@ from actions.getbuildingstore import getbuildingstore
 from actions.buybuilding import buybuilding
 from actions.upgradebuilding import upgradebuilding
 from actions.finishbuilding import finishbuilding
+from actions.finishrace import finishrace
 from actions.getmybuildings import getmybuildings
 from actions.collect import collect
 
@@ -43,41 +44,49 @@ from actions.sendnotifications import sendnotifications
 from actions.ping import ping
 from actions.force500 import force500
 
+from test.get_data_item import get_data_item
+from test.test_score import test_score
+
 app = webapp2.WSGIApplication([
-								  ('/saveplayer', saveplayer),
-								  ('/setpntoken', setpntoken),
-								  ('/getplayerdata', getplayerdata),
-								  ('/getplayerbasicdatas', getplayerbasicdatas),
-								  ('/deleteplayer', deleteplayer),
-								  ('/advicechecklist', advicechecklist),
-								  ('/deploy', deploy),
-								  ('/getdata', getdata),
-								  ('/getadvisor', getadvisor),
-								  ('/getuilanglist', getuilanglist),
-								  ('/getuitext', getuitext),
-								  ('/getbuildingstore', getbuildingstore),
-								  ('/buybuilding', buybuilding),
-								  ('/upgradebuilding', upgradebuilding),
-								  ('/finishbuilding', finishbuilding),
-								  ('/getmybuildings', getmybuildings),
-								  ('/collect', collect),
+                                  ('/saveplayer', saveplayer),
+                                  ('/setpntoken', setpntoken),
+                                  ('/getplayerdata', getplayerdata),
+                                  ('/getplayerbasicdatas', getplayerbasicdatas),
+                                  ('/deleteplayer', deleteplayer),
+                                  ('/advicechecklist', advicechecklist),
+                                  ('/deploy', deploy),
+                                  ('/getdata', getdata),
+                                  ('/getadvisor', getadvisor),
+                                  ('/getuilanglist', getuilanglist),
+                                  ('/getuitext', getuitext),
+                                  ('/getbuildingstore', getbuildingstore),
+                                  ('/buybuilding', buybuilding),
+                                  ('/upgradebuilding', upgradebuilding),
+                                  ('/finishbuilding', finishbuilding),
+                                  ('/finishrace', finishrace),
 
-								  ('/carbuy', carbuy),
-								  ('/carlist', carlist),
-								  ('/carupgrade', carupgrade),
+                                  ('/getmybuildings', getmybuildings),
+                                  ('/collect', collect),
 
-								  ('/challengecreate', challengecreate),
-								  ('/challengelist', challengelist),
-								  ('/challengeupdate', challengeupdate),
-								  ('/challengeview', challengeview),
-								  ('/challengedelete', challengedelete),
-								  ('/getrecentplayerlist', getrecentplayerlist),
+                                  ('/carbuy', carbuy),
+                                  ('/carlist', carlist),
+                                  ('/carupgrade', carupgrade),
 
-								  ('/getresearchlist', getresearchlist),
-								  ('/startresearch', startresearch),
-								  ('/getmyresearches', getmyresearches),
-								  ('/finishresearch', finishresearch),
-								  ('/sendnotifications', sendnotifications),
+                                  ('/challengecreate', challengecreate),
+                                  ('/challengelist', challengelist),
+                                  ('/challengeupdate', challengeupdate),
+                                  ('/challengeview', challengeview),
+                                  ('/challengedelete', challengedelete),
+                                  ('/getrecentplayerlist', getrecentplayerlist),
+
+                                  ('/getresearchlist', getresearchlist),
+                                  ('/startresearch', startresearch),
+                                  ('/getmyresearches', getmyresearches),
+                                  ('/finishresearch', finishresearch),
+
+                                  ('/sendnotifications', sendnotifications),
                                   ('/ping', ping),
-                                  ('/force500', force500)
-							  ], debug=True)
+                                  ('/force500', force500),
+                                  ('/getdataitem', get_data_item),
+                                  ('/test/score', test_score)
+                              ], debug=True)

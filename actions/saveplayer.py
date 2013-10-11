@@ -13,7 +13,7 @@
     Input:
     ---------------------------------------------------------------
     required: passwd,
-    optional: uuid, fbid, name, photo, token, lang
+    optional: uuid, fbid, name, image, token, lang
 
 
     Output:
@@ -75,9 +75,9 @@ class saveplayer(webapp2.RequestHandler):
         name = 'Guest'
         if self.request.get('name'):
             name = self.request.get('name')
-        photo = ''
+        image = ''
         if fbid != '':
-            photo = 'https://graph.facebook.com/' + fbid + '/picture?width=200&height=200'
+            image = 'https://graph.facebook.com/' + fbid + '/picture?width=200&height=200'
 
         # TODO : Get defaults from Data
         gold = 10
@@ -121,7 +121,7 @@ class saveplayer(webapp2.RequestHandler):
                     player.fbid = fbid
                     # and assign all player info and state
                     player.info_obj = {'uuid': player.uuid, 'fbid': player.fbid, 'token': token, 'name': name,
-                                       'photo': photo, 'lang': lang}
+                                       'image': image, 'lang': lang}
                     player.state_obj = {'guid': guid, 'cash': cash, 'gold': gold, 'current_car': '',
                                         'total_wins': total_wins, 'total_races': total_races,
                                         'advice_checklist': advice_checklist, 'updated': start_time}
@@ -190,7 +190,7 @@ class saveplayer(webapp2.RequestHandler):
                     if fbid != '':
                         player.fbid = fbid
                         player.info_obj['fbid'] = fbid
-                        player.info_obj['photo'] = photo                                    # assign photo url
+                        player.info_obj['image'] = image                                    # assign image url
                     player.info_obj['name'] = name                                        # assign name
                     try:
                         updated = player.state_obj['updated']
@@ -270,58 +270,7 @@ class saveplayer(webapp2.RequestHandler):
                             self.respn = self.respn.rstrip(',') + '],'
                         elif item == 'challenge':
                             Challenge.ComposeChallenges(self, player)
-                            """
-                            self.respn += '"challenge":{"challengers":['
 
-                            challengers = Challenge.GetChallengers(self, player.uuid)
-                            if challengers is None:
-                                 challengers = Challenge.GetChallengers(self, player.fbid)
-                            if challengers is not None:
-                                for _challenge in challengers:
-                                    _gameObj = json.loads(_challenge.data)
-                                    self.respn += '{'
-                                    self.respn += '"chid":"'+_challenge.id+'",'
-                                    self.respn += '"uidx":"'+_challenge.uid1+'",'
-                                    self.respn += '"track":"'+_challenge.track+'"'
-                                    self.respn += '},'
-                            self.respn = self.respn.rstrip(',') + '],"challenging":['
-
-                            challenging = Challenge.GetChallenging(self, player.uuid)
-                            if challenging is None:
-                                challenging = Challenge.GetChallenging(self, player.fbid)
-                            if challenging is not None:
-                                for _challenge in challenging:
-                                    _gameObj = json.loads(_challenge.data)
-                                    self.respn += '{'
-                                    self.respn += '"action":"getplayerdata",'
-                                    self.respn += '"chid":"'+_challenge.id+'",'
-                                    self.respn += '"uidx":"'+_challenge.uid2+'",'
-                                    self.respn += '"track":"'+_challenge.track+'"'
-                                    if _gameObj['player1'] is not None:
-                                        self.respn += '"laptime":' + str(_gameObj['player1']['laptime']) + ','
-                                        self.respn += '"cardata":"' + str(_gameObj['player1']['cardata']) + '",'
-                                        self.respn += '"name":"' + str(_gameObj['player1']['name']) + '",'
-                                        self.respn += '"photo":"' + str(_gameObj['player1']['photo']) + '",'
-                                        self.respn += '"created":"' + str(_gameObj['player1']['created']) + '"'
-                                    self.respn += '},'
-                            self.respn = self.respn.rstrip(',') + '],"completed":['
-                            completed = Challenge.GetCompleted(self, player.uuid)
-                            if completed is None:
-                                completed = Challenge.GetCompleted(self, player.fbid)
-                            if completed is not None:
-                                for _challenge in completed:
-                                    _gameObj = json.loads(_challenge.data)
-                                    self.respn += '{'
-                                    self.respn += '"chid":"'+_challenge.id+'",'
-                                    #self.respn += '"uidx":"'+_challenge.uid1+'",'
-                                    if player.fbid == _challenge.uid1 or player.uuid == _challenge.uid1:
-                                        self.respn += '"uidx":"'+_challenge.uid2+'",'
-                                    else:
-                                        self.respn += '"uidx":"'+_challenge.uid1+'",'
-                                    self.respn += '"track":"'+_challenge.track+'"'
-                                    self.respn += '},'
-                            self.respn = self.respn.rstrip(',') + ']}'
-                            """
                     self.respn = self.respn.rstrip(',') + '}'
 
                     ###################################################################################################
@@ -341,6 +290,7 @@ class saveplayer(webapp2.RequestHandler):
                             if obj['friend'] is False:
                                 num += 1
                                 if num > config.recentplayer['maxchallengers']:
+                                    logging.warn('Recent player list exceeded for ' + uuid)
                                     _add = False
                                     break
 
@@ -376,7 +326,7 @@ class saveplayer(webapp2.RequestHandler):
                         recentplayerlist.obj.append({'fbid': player.info_obj['fbid'],
                                                      'name': player.info_obj['name'],
                                                      'uuid': player.info_obj['uuid'],
-                                                     'photo': player.info_obj['photo'],
+                                                     'image': player.info_obj['image'],
                                                      'total_wins': player.state_obj['total_wins'],
                                                      'updated': player.state_obj['updated']})
 

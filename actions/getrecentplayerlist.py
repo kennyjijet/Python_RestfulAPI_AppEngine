@@ -96,7 +96,7 @@ class getrecentplayerlist(webapp2.RequestHandler):
                         self.respn += '{"fbid":"'+recentplayer['fbid']+'",'
                         self.respn += '"uuid":"'+recentplayer['uuid']+'",'
                         self.respn += '"name":"'+recentplayer['name']+'",'
-                        self.respn += '"photo":"'+recentplayer['photo']+'",'
+                        self.respn += '"image":"'+recentplayer['image']+'",'
                         self.respn += '"total_wins":'+str(recentplayer['total_wins'])+','
                         self.respn += '"updated":'+str(recentplayer['updated'])+'},'
             self.respn = self.respn.rstrip(',') + ']'

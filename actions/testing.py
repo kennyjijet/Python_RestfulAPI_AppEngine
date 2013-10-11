@@ -1,24 +1,24 @@
 """ testing action class
 
-	Project: GrandCentral-GAE
-	Author: Plus Pingya
-	Github: https://github.com/Gamepunks/grandcentral-gae
+    Project: GrandCentral-GAE
+    Author: Plus Pingya
+    Github: https://github.com/Gamepunks/grandcentral-gae
 
 
-	Description
-	---------------------------------------------------------------
-	I am an API to do all test
+    Description
+    ---------------------------------------------------------------
+    I am an API to do all test
 
 
-	Input:
-	---------------------------------------------------------------
-	required: passwd
-	optional:
+    Input:
+    ---------------------------------------------------------------
+    required: passwd
+    optional:
 
 
-	Output:
-	---------------------------------------------------------------
-	result
+    Output:
+    ---------------------------------------------------------------
+    result
 
 
 """
@@ -72,7 +72,7 @@ class testing(webapp2.RequestHandler):
 
             # saveplayer
             request = webapp2.Request.blank(
-                '/saveplayer?passwd=' + passwd + '&name=testPlus Pingya&photo=http://graph.facebook.com/pluspingya/picture?type=large')
+                '/saveplayer?passwd=' + passwd + '&name=testPlus Pingya&image=http://graph.facebook.com/pluspingya/picture?type=large')
             response = request.get_response(GrandCentral.app)
             response_obj = json.loads(response.body);
             self.error = response_obj['error']

@@ -127,15 +127,20 @@ class Data(db.Model):
     ### Recent Player List
     @staticmethod
     def GetRecentPlayerList(self):
+        logging.debug('GetRecentPlayerList')
         recentplayerlist = memcache.get('recent_player_list')
+        #recentplayerlist = None
         if recentplayerlist is None:
             recentplayerlist = Data.getData(self, 'recent_player_list', 1.0)
             if recentplayerlist is None:
+                logging.debug('GetRecentPlayerList creating new')
                 recentplayerlist = Data.newData(self)
                 recentplayerlist.version = 1.0
                 recentplayerlist.type = 'recent_player_list'
                 recentplayerlist.data = '[]'
                 self.error = ''
+
+            logging.debug('GetRecentPlayerList memcache' + recentplayerlist.data)
             recentplayerlist.obj = json.loads(recentplayerlist.data)
             if not memcache.add('recent_player_list', recentplayerlist, config.memcache['longtime']):
                 logging.warning('Data set memcache for recent_player_list failed!')
@@ -144,6 +149,7 @@ class Data(db.Model):
     @staticmethod
     def SetRecentPlayerList(self, list):
         list.data = json.dumps(list.obj)
+        logging.debug('SetRecentPlayerList ' + list.data )
         if list.put():
             # TODO : Memcache replace
             memcache.delete('recent_player_list')

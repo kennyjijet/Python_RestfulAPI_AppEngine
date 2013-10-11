@@ -119,56 +119,7 @@ class getplayerdata(webapp2.RequestHandler):
                             self.respn += Car.compose_mycar('', _car) + ','
                         self.respn = self.respn.rstrip(',') + '],'
                 elif item == 'challenge':
-                    self.respn += '"challenge":{"challengers":['
-
-                    challengers = Challenge.GetChallengers(self, player.uuid)
-                    if challengers is None:
-                         challengers = Challenge.GetChallengers(self, player.fbid)
-                    if challengers is not None:
-                        for _challenge in challengers:
-                            _gameObj = json.loads(_challenge.data)
-                            self.respn += '{'
-                            self.respn += '"chid":"'+_challenge.id+'",'
-                            self.respn += '"uidx":"'+_challenge.uid1+'",'
-                            self.respn += '"track":"'+_challenge.track+'"'
-                            self.respn += '},'
-                    self.respn = self.respn.rstrip(',') + '],"challenging":['
-
-                    challenging = Challenge.GetChallenging(self, player.uuid)
-                    if challenging is None:
-                        challenging = Challenge.GetChallenging(self, player.fbid)
-                    if challenging is not None:
-                        for _challenge in challenging:
-                            _gameObj = json.loads(_challenge.data)
-                            self.respn += '{'
-                            self.respn += '"action":"getplayerdata",'
-                            self.respn += '"chid":"'+_challenge.id+'",'
-                            self.respn += '"uidx":"'+_challenge.uid2+'",'
-                            self.respn += '"track":"'+_challenge.track+'"'
-                            if _gameObj['player1'] is not None:
-                                self.respn += '"laptime":' + str(_gameObj['player1']['laptime']) + ','
-                                self.respn += '"cardata":"' + str(_gameObj['player1']['cardata']) + '",'
-                                self.respn += '"name":"' + str(_gameObj['player1']['name']) + '",'
-                                self.respn += '"photo":"' + str(_gameObj['player1']['photo']) + '",'
-                                self.respn += '"created":"' + str(_gameObj['player1']['created']) + '"'
-                            self.respn += '},'
-                    self.respn = self.respn.rstrip(',') + '],"completed":['
-                    completed = Challenge.GetCompleted(self, player.uuid)
-                    if completed is None:
-                        completed = Challenge.GetCompleted(self, player.fbid)
-                    if completed is not None:
-                        for _challenge in completed:
-                            _gameObj = json.loads(_challenge.data)
-                            self.respn += '{'
-                            self.respn += '"chid":"'+_challenge.id+'",'
-                            #self.respn += '"uidx":"'+_challenge.uid1+'",'
-                            if player.fbid == _challenge.uid1 or player.uuid == _challenge.uid1:
-                                self.respn += '"uidx":"'+_challenge.uid2+'",'
-                            else:
-                                self.respn += '"uidx":"'+_challenge.uid1+'",'
-                            self.respn += '"track":"'+_challenge.track+'"'
-                            self.respn += '},'
-                    self.respn = self.respn.rstrip(',') + ']}'
+                    Challenge.ComposeChallenges(self, player)
 
             self.respn = self.respn.rstrip(',') + '}'
 

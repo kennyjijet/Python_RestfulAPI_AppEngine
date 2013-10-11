@@ -25,6 +25,7 @@ class Utils(object):
                 return self.request.get(par_name)
             else:
                 self.error = par_name + " is a required parameter. IP Logged."
+                logging.warn(self.error)
         return "undefined"
 
     @staticmethod
@@ -67,7 +68,10 @@ class Utils(object):
             if (self.respn[0] != '{' or self.respn[len(self.respn)-1] != '}') and (self.respn[0] != '[' or self.respn[len(self.respn)-1] != ']') and (self.respn[0] != '"' or self.respn[len(self.respn)-1] != '"'):
                 self.respn = '"'+self.respn+'"'
         self.sinfo = '{"serverName":"'+config.server['serverName']+'","apiVersion":'+str(config.server['apiVersion'])+',"requestDuration":'+str(time_taken)+',"currentTime":'+str(stampNow)+'}'
+        response = ""
         if self.request.get('debug'):
-            return '{"serverInformation":'+self.sinfo+',"response":'+self.respn+',"error":"'+self.error+'", "debug":"'+self.debug+'"}'
+            response = '{"serverInformation":'+self.sinfo+',"response":'+self.respn+',"error":"'+self.error+'", "debug":"'+self.debug+'"}'
         else:
-            return '{"serverInformation":'+self.sinfo+',"response":'+self.respn+',"error":"'+self.error+'"}'
+            response = '{"serverInformation":'+self.sinfo+',"response":'+self.respn+',"error":"'+self.error+'"}'
+        logging.debug(json.dumps(response))
+        return response

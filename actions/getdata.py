@@ -1,25 +1,25 @@
 """ getdata action class
 
-	Project: GrandCentral-GAE
-	Author: Plus Pingya
-	Github: https://github.com/Gamepunks/grandcentral-gae
+    Project: GrandCentral-GAE
+    Author: Plus Pingya
+    Github: https://github.com/Gamepunks/grandcentral-gae
 
 
-	Description
-	---------------------------------------------------------------
-	I am an API to get game data(s) (Data deployed from Google Drive
-	Custom Backend
+    Description
+    ---------------------------------------------------------------
+    I am an API to get game data(s) (Data deployed from Google Drive
+    Custom Backend
 
 
-	Input:
-	---------------------------------------------------------------
-	required: passwd, type,
-	optional: version, lang
+    Input:
+    ---------------------------------------------------------------
+    required: passwd, type,
+    optional: version, lang
 
 
-	Output:
-	---------------------------------------------------------------
-	requested game data(s)
+    Output:
+    ---------------------------------------------------------------
+    requested game data(s)
 
 
 """

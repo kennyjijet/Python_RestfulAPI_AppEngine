@@ -58,7 +58,7 @@ class challengeupdate(webapp2.RequestHandler):
         events = Utils.required(self, 'events')
         cardata = Utils.required(self, 'cardata')
         name = Utils.required(self, 'name')
-        photo = Utils.required(self, 'photo')
+        image = Utils.required(self, 'image')
         #logging.info("events " + events);
         # check password
         if self.error == '' and passwd != config.testing['passwd']:
@@ -82,10 +82,11 @@ class challengeupdate(webapp2.RequestHandler):
             logging.warn("trying to create challenge with" + player.uuid)
 
             challenge = Challenge.Update(self, chid, type, uuid, laptime, replay, events, cardata, name,
-                                         photo)
+                                         image)
             if challenge is not None:
-                Challenge.ComposeChallenges(self, challenge)
-
+                self.respn = '{'
+                Challenge.ComposeChallenges(self, player)
+                self.respn = self.respn.rstrip(',') + '}'
             # update timestamp for player - this is to update if needed
             if challenge.manual_update is True:
                 player.state_obj['updated'] = start_time

@@ -77,21 +77,22 @@ class challengedelete(webapp2.RequestHandler):
         if self.error == '' and player is not None:
             if chid:
                 if Challenge.DeleteById(self, chid):
-                    result = '{"result":"delete successfully"}'
+                    result = '"result":"deleted successfully"'
                 else:
-                    result = '{"result":"Challenge Id='+chid+' could not be found, nothing was deleted"}'
+                    result = '"result":"Challenge Id='+chid+' could not be found, nothing was deleted"}'
             else:
                 if Challenge.DeleteByUserId(self, player.uuid):
-                    result = '{"result":"delete successfully"}'
+                    result = '"result":"deleted successfully"'
                 elif Challenge.DeleteByUserId(self, player.fbid):
-                    result = '{"result":"delete successfully"}'
+                    result = '"result":"deleted successfully"'
                 else:
-                    result = '{"result":"nothing was deleted"}'
+                    result = '"result":"nothing was deleted"'
 
         if self.error == '' and player is not None:
+            self.respn = '{'
             Challenge.ComposeChallenges(self, player)
-            self.respn += result
-            self.respn = self.respn.rstrip(',') + ']}'
+            self.respn += ','+result
+            self.respn = self.respn.rstrip(',') + '}'
 
             # update timestamp for player
             player.state_obj['updated'] = start_time

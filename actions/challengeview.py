@@ -76,7 +76,9 @@ class challengeview(webapp2.RequestHandler):
             challenge = Challenge.GetChallenge(self, chid)
             if challenge is not None:
                 if player.fbid == challenge.uid1 or player.fbid == challenge.uid2 or player.uuid == challenge.uid1 or player.uuid == challenge.uid2:
+                    self.respn = '{'
                     Challenge.ComposeActualChallenge(self, challenge)
+                    self.respn = self.respn.rstrip(',') + '}'
                 else:
                     self.error = 'You don\'t have permission to access data of this challenge.'
 
