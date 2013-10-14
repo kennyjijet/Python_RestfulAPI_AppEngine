@@ -46,7 +46,7 @@ from models.Challenge import Challenge
 from helpers.utils import Utils
 
 # class implementation
-class deleteplayer(webapp2.RequestHandler):
+class clean(webapp2.RequestHandler):
 
     # standard variables
     sinfo = ''
@@ -78,28 +78,29 @@ class deleteplayer(webapp2.RequestHandler):
             for player in players:                                      # we might have duplicate data, just delete them all
 
                 # query scores for this player and delete them all
-                scores = Score.all().filter('uuid =', player.uuid).ancestor(db.Key.from_path('Score', config.db['scoredb_name']))
-                for score in scores:
-                    score.delete()
+                db.delete(Score.all())
 
                 # query items for this player and delete them all
-                items = Item.all().filter('uuid =', player.uuid).ancestor(db.Key.from_path('Item', config.db['itemdb_name']))
-                for item in items:
-                    item.delete()
+                db.delete(Item.all())
 
                 # query records for this player and delete them all
-                records = Record.all().filter('uuid =', player.uuid).ancestor(db.Key.from_path('Record', config.db['recorddb_name']))
+                db. Record.all()
                 for record in records:
                     record.delete()
 
                 # query buildings for this player and delete them all
-                buildings = Building.all().filter('uuid =', player.uuid).ancestor(db.Key.from_path('Building', config.db['buildingdb_name']))
+                buildings = Building.all()
                 for building in buildings:
                     building.delete()
 
-                cars = Car.all().filter('uuid =', player.uuid).ancestor(db.Key.from_path('Car', config.db['cardb_name']))
+                cars = Car.all()
                 for car in cars:
                     car.delete()
+
+                cars = Car.all()
+                for car in cars:
+                    car.delete()
+
 
                 # delete all this user's challenge
                 Challenge.DeleteByUserId(self, player.uuid)
