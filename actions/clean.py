@@ -34,6 +34,7 @@ from google.appengine.ext import db
 
 # config
 from config import config
+import logging
 
 # include
 from models.Player import Player
@@ -56,64 +57,19 @@ class clean(webapp2.RequestHandler):
 
     # get function implementation
     def get(self):
-        Utils.reset(self)                                               # reset/clean standard variables
-
-        # validate and assign parameters
-        passwd = Utils.required(self, 'passwd')
-        uuid = Utils.required(self, 'uuid')
-        guid = self.request.get('guid')
-
-        # check password
-        if self.error == '' and passwd != config.testing['passwd']:
-            self.error = 'passwd is incorrect.'
-
-        start_time = time.time()                                        # start count
-
-        # if error, skip this
-        if self.error == '':
-
-            # query player state for given uuid
-            players = Player.all().filter('uuid =', uuid).ancestor(db.Key.from_path('Player', config.db['playerdb_name'])).fetch(1)
-            didDelete = False                                           # we have not delete anything yet
-            for player in players:                                      # we might have duplicate data, just delete them all
-
-                # query scores for this player and delete them all
-                db.delete(Score.all())
-
-                # query items for this player and delete them all
-                db.delete(Item.all())
-
-                # query records for this player and delete them all
-                db. Record.all()
-                for record in records:
-                    record.delete()
-
-                # query buildings for this player and delete them all
-                buildings = Building.all()
-                for building in buildings:
-                    building.delete()
-
-                cars = Car.all()
-                for car in cars:
-                    car.delete()
-
-                cars = Car.all()
-                for car in cars:
-                    car.delete()
-
-
-                # delete all this user's challenge
-                Challenge.DeleteByUserId(self, player.uuid)
-
-                # and finally, delete this player
-                player.delete()
-                didDelete = True
-
-            # compose result
-            if didDelete == True:
-                self.respn = '"' + uuid + ' was deleted successfully."'
-            else:
-                self.error = uuid + ' does not exist in Database.'
+        logging.debug("clean removed")
+        """
+        start_time = time.time()
+        db.delete ( Score.all() )
+        db.delete ( Item.all() )
+        db.delete ( Record.all() )
+        db.delete ( Building.all() )
+        db.delete ( Car.all() )
+        db.delete ( Challenge.all() )
+        db.delete ( Player.all() )
+        db.delete ( Record.all() )
+        logging.debug("clean complete")
+        """
 
         # calculate time taken and return the result
         time_taken = time.time() - start_time

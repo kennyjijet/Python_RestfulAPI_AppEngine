@@ -48,6 +48,13 @@ class challengecreate(webapp2.RequestHandler):
     # get function implementation
     def get(self):
         Utils.reset(self)														# reset/clean standard variables
+        name = self.request.get('name')
+        if name == '':
+            name = 'Guest'
+
+        name2 = self.request.get('name2')
+        if name2 == '':
+            name2 = 'Guest'
 
         # validate and assign parameters
         passwd = Utils.required(self, 'passwd')
@@ -55,10 +62,8 @@ class challengecreate(webapp2.RequestHandler):
         guid = self.request.get('guid')
         track = Utils.required(self, 'track')
         toid = Utils.required(self, 'toid')
-        name = Utils.required(self, 'name')
-        name2 = Utils.required(self, 'name2')
-        image = Utils.required(self, 'image')
-        image2 = Utils.required(self, 'image2')
+        image = self.request.get('image')
+        image2 = self.request.get('image2')
 
         friend = False
         if self.request.get('friend'):

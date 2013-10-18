@@ -370,11 +370,13 @@ class Challenge(db.Model):
     def ComposeChallenges(self, player):
         self.respn += '"version":"alpha","challenges":{"challengers":['
         challengers = Challenge.GetChallengers(self, player.fbid)
-        logging.debug ( json.dumps(list(challengers)))
+
+        #TODO remove this nasty =='[]' - not very pythonic. Need to find a proper way of finding empty or null dicts
         if challengers is None or list(challengers) == [] or list(challengers) == '[]':
             logging.debug('ComposeChallenges getting uuid ' + player.uuid)
             challengers = Challenge.GetChallengers(self, player.uuid)
         if challengers is not None:
+
             logging.debug('ComposeChallenges: challengers is not None:')
             for _challenge in challengers:
                 logging.debug('ComposeChallenges found challenge')

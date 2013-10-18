@@ -40,6 +40,7 @@ from actions.startresearch import startresearch
 from actions.getmyresearches import getmyresearches
 from actions.finishresearch import finishresearch
 from actions.sendnotifications import sendnotifications
+from actions.clean import clean
 
 from actions.ping import ping
 from actions.force500 import force500
@@ -88,5 +89,6 @@ app = webapp2.WSGIApplication([
                                   ('/ping', ping),
                                   ('/force500', force500),
                                   ('/getdataitem', get_data_item),
-                                  ('/test/score', test_score)
+                                  ('/test/score', test_score),
+                                  ('/clean', clean)
                               ], debug=True)

@@ -29,12 +29,14 @@ import time
 
 # config
 from config import config
+from GCVars import GCErrors
 
 # include
 from helpers.utils import Utils
 from models.Data import Data
 from models.Player import Player
 from models.Building import Building
+
 
 # class implementation
 class advicechecklist(webapp2.RequestHandler):
@@ -81,8 +83,6 @@ class advicechecklist(webapp2.RequestHandler):
                 self.error = config.error_message['dup_login']
 
         if self.error == '' and player is not None:
-
-
             if checklist:
                 player.state_obj['advice_checklist'] = checklist
 

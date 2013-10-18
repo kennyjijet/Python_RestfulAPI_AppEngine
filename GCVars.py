@@ -74,3 +74,20 @@ class GCVars(object):
     total_ai_wins = "total_ai_wins"
     total_ai_races = "total_ai_races"
     gold = "gold"
+
+
+class GCErrors(object):
+    dup_login = "dup_login"
+
+class GCWarnings(object):
+    building_not_owned = "building_not_owned"
+    building_finished = "building_finished"
+    building_under_construction = "building_under_construction"
+    player_not_found = "player_not_found"
+    item_max_level_reached = "item_max_level_reached"
+    cash_not_enough = "cash_not_enough"
+    gold_not_enough = "gold_not_enough"
+
+
+class GCWarningMessages (object):
+    building_not_owned = "Player does not have required building to buy upgrade."

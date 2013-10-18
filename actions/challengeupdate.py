@@ -74,10 +74,12 @@ class challengeupdate(webapp2.RequestHandler):
             player = Player.getplayer(self, uuid)
 
         if self.error == '' and player is not None and guid != '':
+            logging.warn("trying to create challenge with" + player.uuid)
             if guid != player.state_obj['guid']:
                 player = None
                 self.error = config.error_message['dup_login']
-            logging.warn("trying to create challenge with" + player.uuid)
+
+
         if self.error == '' and player is not None:
             logging.warn("trying to create challenge with" + player.uuid)
 

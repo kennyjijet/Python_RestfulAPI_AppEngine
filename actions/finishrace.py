@@ -51,6 +51,7 @@ class finishrace(webapp2.RequestHandler):
         #if self.error != '' or self.error is None:
         player = Player.getplayer(self, uuid)
         player2 = Player.getplayer(self, uuid2)
+        ai = None
         # TODO: move this from AR language to default or UK
         if player2 is None:
             data = Data.getDataAsObj(self, 'opponent_ar', 1.0)
@@ -82,14 +83,14 @@ class finishrace(webapp2.RequestHandler):
                         player.state_obj[GCVars.total_wins] += 1
 
                 if ai is not None:
-                    if player.state_obj.has_key(GCVars.total_npc_races):
-                        player.state_obj['total_npc_races'] += 1
+                    if player.state_obj.has_key(GCVars.total_ai_races):
+                        player.state_obj[GCVars.total_ai_races] += 1
                     else:
                         player.state_obj.setdefault(GCVars.total_ai_races, 1)
 
                     if laptime < laptime2:
                         if player.state_obj.has_key(GCVars.total_ai_wins):
-                            player.state_obj['total_npc_wins'] += 1
+                            player.state_obj[GCVars.total_ai_wins] += 1
                         else:
                             player.state_obj.setdefault(GCVars.total_ai_wins, 1)
 
@@ -124,6 +125,7 @@ class finishrace(webapp2.RequestHandler):
                     'score_start': player_score['prizes']['start_bonus']
                 }
 
+                logging.debug('finishrace player state:' + player.state)
                 self.respn = '{"state":' + player.state + ',"scores":' + json.dumps(scores_to_return) + '}'
 
                 if player2 is not None:
