@@ -13,6 +13,7 @@ from helpers.utils import Utils
 from models.Player import Player
 from models.Score import Score
 from models.Data import Data
+from models.Building import Building
 
 # class implementation
 class finishrace(webapp2.RequestHandler):
@@ -37,10 +38,16 @@ class finishrace(webapp2.RequestHandler):
         events2 = Utils.required(self, 'events2')
         laptime = Utils.required(self, 'laptime')
         laptime2 = Utils.required(self, 'laptime2')
+        track = Utils.required(self, 'track')
 
-        logging.debug(
-            '/finishrace?uuid=' + uuid + '&uuid2=' + uuid2 + '&events=' + events + '&events2=' + events2 + '&laptime=' + laptime + '&laptime2=' + laptime2)
+        version = config.data_version['building']
+        if self.request.get('version'):
+            version = self.request.get('version')
+        lang = config.server["defaultLanguage"]
+        if self.request.get('lang'):
+            lang = self.request.get('lang')
 
+        Utils.LogRequest(self)
         # check password
         if self.error == '' and passwd != config.testing['passwd']:
             self.error = 'passwd is incorrect.'
@@ -52,6 +59,7 @@ class finishrace(webapp2.RequestHandler):
         player = Player.getplayer(self, uuid)
         player2 = Player.getplayer(self, uuid2)
         ai = None
+        my_building = None
         # TODO: move this from AR language to default or UK
         if player2 is None:
             data = Data.getDataAsObj(self, 'opponent_ar', 1.0)
@@ -60,8 +68,8 @@ class finishrace(webapp2.RequestHandler):
             else:
                 opponents = data.obj
 
-            for track in opponents:
-                for opponent in opponents[track]:
+            for _track in opponents:
+                for opponent in opponents[_track]:
                     if opponent['id'] == uuid2:
                         ai = opponent
                         self.error = ''
@@ -75,14 +83,19 @@ class finishrace(webapp2.RequestHandler):
             scores = Score.calculate(self, events, events2, laptime, laptime2)
 
             if scores is not None:
-                player.state_obj['cash'] += scores[0]['total']
+                score = scores[0]['total']
+                #player.state_obj['cash'] += score
                 player.state_obj['updated'] = start_time
+
+
                 if player2 is not None:
                     player.state_obj[GCVars.total_races] += 1
                     if laptime < laptime2:
                         player.state_obj[GCVars.total_wins] += 1
 
                 if ai is not None:
+                    # save the resource to a building, ready for collection
+                    my_building = Building.save_resource_to_building(self, lang, version, player.uuid, track, score)
                     if player.state_obj.has_key(GCVars.total_ai_races):
                         player.state_obj[GCVars.total_ai_races] += 1
                     else:
@@ -117,7 +130,7 @@ class finishrace(webapp2.RequestHandler):
                         player.state_obj.setdefault('results', json.dumps(results))
 
                 Player.setplayer(self, player)
-                player_score = scores[0];
+                player_score = scores[0]
                 scores_to_return = {
                     'score_prize': player_score['prize'],
                     'score_drift': player_score['prizes']['drift_bonus'],
@@ -126,10 +139,18 @@ class finishrace(webapp2.RequestHandler):
                 }
 
                 logging.debug('finishrace player state:' + player.state)
-                self.respn = '{"state":' + player.state + ',"scores":' + json.dumps(scores_to_return) + '}'
+                self.respn = '{"state":' + player.state
+                self.respn += ',"scores":' + json.dumps(scores_to_return)
+                if my_building is not None:
+                    self.respn += ',"building":['
+                    self.respn = Building.compose_mybuilding(self.respn, my_building)
+                    self.respn = self.respn.rstrip(',') + ']'
+                self.respn += '}'
 
                 if player2 is not None:
-                    player2.state_obj[GCVars.cash] += scores[1]['total']
+                    score = scores[1]['total']
+                    #player2.state_obj[GCVars.cash] += score
+                    Building.save_resource_to_building(self, lang, version, player2.uuid, track, score)
                     player2.state_obj[GCVars.updated] = start_time
                     player2.state_obj[GCVars.total_races] += 1
                     if laptime2 < laptime:

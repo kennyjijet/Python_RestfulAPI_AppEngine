@@ -57,7 +57,6 @@ class getrecentplayerlist(webapp2.RequestHandler):
         passwd = Utils.required(self, 'passwd')
         uuid = Utils.required(self, 'uuid')
         guid = self.request.get('guid')
-        showme = self.request.get('showme')
 
         if self.error == '' and passwd != config.testing['passwd']:                	# if password is incorrect
             self.error = 'passwd is incorrect.'                                    	# inform user via error message
@@ -92,7 +91,7 @@ class getrecentplayerlist(webapp2.RequestHandler):
                 random = Utils.GetRandomOfNumberInArray(self, _size, _range)
                 for i in random:
                     recentplayer = recentplayerlist.obj[i]
-                    if recentplayer['uuid'] != player.uuid or showme == 'true':
+                    if recentplayer['uuid'] != player.uuid:
                         self.respn += '{"fbid":"'+recentplayer['fbid']+'",'
                         self.respn += '"uuid":"'+recentplayer['uuid']+'",'
                         self.respn += '"name":"'+recentplayer['name']+'",'

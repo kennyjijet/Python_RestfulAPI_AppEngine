@@ -38,6 +38,8 @@ from models.Player import Player
 from models.Building import Building
 from models.Car import Car
 
+from GCVars import GCWarnings
+
 # class implementation
 class carupgrade(webapp2.RequestHandler):
 
@@ -118,7 +120,7 @@ class carupgrade(webapp2.RequestHandler):
                     qualify = True
                     break
             if qualify is False:
-                self.respn = '{"warning":'+GCWarning.building_not_owned+'}'
+                self.respn = '{"warning":'+GCWarnings.building_not_owned+'}'
 
         if self.error == '' and qualify is True:
             # validate cash

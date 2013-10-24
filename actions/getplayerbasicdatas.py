@@ -61,6 +61,7 @@ class getplayerbasicdatas(webapp2.RequestHandler):
         if self.error == '' and passwd != config.testing['passwd']:                    # if password is incorrect
             self.error = 'passwd is incorrect.'                                        # inform user via error message
 
+        Utils.LogRequest(self)
         start_time = time.time()                                                # start count
 
         # if error, skip this
@@ -75,8 +76,10 @@ class getplayerbasicdatas(webapp2.RequestHandler):
 
         if self.error == '' and player is not None:                                                # if have some data returned
             self.respn = '['
+
             _fbids = fbids.split(',')
             for fbid in _fbids:
+                logging.debug("fbid " + fbid)
                 _friend = Player.getplayerByFbid(self, fbid)
 
                 if _friend is None:
@@ -101,11 +104,12 @@ class getplayerbasicdatas(webapp2.RequestHandler):
                     if _upd is True:
                         Player.setplayer(self, _friend)
 
-            self.respn = self.respn.rstrip(',') + ']'
-            self.error = ''
 
-            player.state_obj['updated'] = start_time
-            Player.setplayer(self, player)
+                else:
+                    logging.debug("fbid not found")
+
+            self.error = ''
+            self.respn = self.respn.rstrip(',') + ']'
 
         # calculate time taken and return result
         time_taken = time.time() - start_time

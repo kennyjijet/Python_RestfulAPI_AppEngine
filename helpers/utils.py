@@ -57,7 +57,7 @@ class Utils(object):
         return arr
 
     @staticmethod
-    def RESTreturn(self, time_taken):
+    def RESTreturn(self, time_taken, debug=True):
         stampNow = int(time.time())
         self.debug += '('+str(time_taken)+')'
         if self.error != "":
@@ -67,11 +67,26 @@ class Utils(object):
         else:
             if (self.respn[0] != '{' or self.respn[len(self.respn)-1] != '}') and (self.respn[0] != '[' or self.respn[len(self.respn)-1] != ']') and (self.respn[0] != '"' or self.respn[len(self.respn)-1] != '"'):
                 self.respn = '"'+self.respn+'"'
-        self.sinfo = '{"serverName":"'+config.server['serverName']+'","apiVersion":'+str(config.server['apiVersion'])+',"requestDuration":'+str(time_taken)+',"currentTime":'+str(stampNow)+'}'
+        self.sinfo = '{"serverName":"'+config.server['serverName']+'","apiVersion":'+str(config.server['apiVersion'])+',"action":"'+type(self).__name__+'","requestDuration":'+str(time_taken)+',"currentTime":'+str(stampNow)+'}'
         response = ""
         if self.request.get('debug'):
             response = '{"serverInformation":'+self.sinfo+',"response":'+self.respn+',"error":"'+self.error+'", "debug":"'+self.debug+'"}'
         else:
             response = '{"serverInformation":'+self.sinfo+',"response":'+self.respn+',"error":"'+self.error+'"}'
-        logging.debug(json.dumps(response))
+
+        if debug:
+            Utils.LogResponse(self,response)
         return response
+
+    @staticmethod
+    def LogRequest(self):
+        txt = type(self).__name__+'?'
+        for field in self.request.arguments():
+            txt += field+'='+self.request.get(field)+'&'
+        txt = txt.rstrip('&')
+        logging.debug(txt)
+
+    @staticmethod
+    def LogResponse(self, response):
+        txt = '"'+type(self).__name__+'":'
+        logging.debug(txt+response)

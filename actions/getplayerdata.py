@@ -66,7 +66,7 @@ class getplayerdata(webapp2.RequestHandler):
 
         if self.error == '' and passwd != config.testing['passwd']:                	# if password is incorrect
             self.error = 'passwd is incorrect.'                                    	# inform user via error message
-
+        Utils.LogRequest(self)
         start_time = time.time()                                                # start count
 
         # if error, skip this

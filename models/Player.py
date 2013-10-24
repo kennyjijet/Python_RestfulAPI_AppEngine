@@ -69,6 +69,8 @@ class Player(db.Model):
             if not memcache.add(config.db['playerdb_name']+'.'+player.uuid, player, config.memcache['holdtime']):
                 logging.warning('Player - Memcache set player failed')
             return True
+        else:
+            logging.error('Player - not saved')
         return False
 
     @staticmethod

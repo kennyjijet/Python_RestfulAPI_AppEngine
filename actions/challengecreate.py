@@ -75,6 +75,8 @@ class challengecreate(webapp2.RequestHandler):
 
         start_time = time.time()												# start count
 
+        Utils.LogRequest(self)
+
         # logic variables
         player = None
 

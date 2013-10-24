@@ -1,32 +1,12 @@
-""" collect action class
+""" allows the player to 'collect' the results of a challenge.
+    This awards the score to the players buildings as cash
 
-    Project: GrandCentral-GAE
-    Author: Plus Pingya
-    Github: https://github.com/Gamepunks/grandcentral-gae
-
-
-    Description
-    ---------------------------------------------------------------
-    I am an API to collect resource produced from building
-
-
-    Input:
-    ---------------------------------------------------------------
-    required: passwd, uuid, inid, amount
-    optional: version
-
-
-    Output:
-    ---------------------------------------------------------------
-    updated with added resource player state, and collected building info
-
+    should this happen automatically?
 """
-
 # built-in libraries
-import time
-
 import webapp2
 import logging
+import time
 
 # config
 from config import config
@@ -37,20 +17,18 @@ from models.Data import Data
 from models.Player import Player
 from models.Building import Building
 
-from GCVars import GCVars
-
 # class implementation
 class collect(webapp2.RequestHandler):
+
     # standard variables
     sinfo = ''
     respn = ''
     error = ''
     debug = ''
-    action = 'collect'
 
     # get function implementation
     def get(self):
-        Utils.reset(self)                                                        # reset/clean standard variables
+        Utils.reset(self)														# reset/clean standard variables
 
         # validate and assign parameters
         passwd = Utils.required(self, 'passwd')
@@ -69,9 +47,7 @@ class collect(webapp2.RequestHandler):
         if self.error == '' and passwd != config.testing['passwd']:
             self.error = 'passwd is incorrect.'
 
-        Utils.LogRequest(self)
-
-        start_time = time.time()                                                # start count
+        start_time = time.time()												# start count
 
         # logic variables
         player = None
@@ -97,8 +73,7 @@ class collect(webapp2.RequestHandler):
         if self.error == '' and mybuilding is not None:
             _upd = False
             if mybuilding.status == Building.BuildingStatus.PENDING:
-                if mybuilding.timestamp + (
-                        buildings.as_obj[mybuilding.itid][mybuilding.level - 1]['build_time'] * 60) <= start_time:
+                if mybuilding.timestamp + (buildings.as_obj[mybuilding.itid][mybuilding.level-1]['build_time']*60) <= start_time:
                     mybuilding.timestamp = int(start_time)
                     mybuilding.status = Building.BuildingStatus.DELIVERED
                     _upd = True
@@ -107,19 +82,16 @@ class collect(webapp2.RequestHandler):
                 _upd = True
 
             if mybuilding.status == Building.BuildingStatus.DELIVERED or mybuilding.status == Building.BuildingStatus.OWNED:
-                time_delta = (start_time - mybuilding.timestamp) / 60
-                if time_delta > buildings.as_obj[mybuilding.itid][mybuilding.level - 1]['resource_interval'] > 0:
+                time_delta = (start_time - mybuilding.timestamp)/60
+                if time_delta > buildings.as_obj[mybuilding.itid][mybuilding.level-1]['resource_interval'] > 0:
                     #mybuilding.status = Building.BuildingStatus.PRODUCED_PARTIAL
                     #_upd = True
-                    res_produced = int(
-                        time_delta / buildings.as_obj[mybuilding.itid][mybuilding.level - 1]['resource_interval']) * buildings.as_obj[mybuilding.itid][mybuilding.level - 1]['resource_produced']
-                    if res_produced >= buildings.as_obj[mybuilding.itid][mybuilding.level - 1]['resource_capacity']:
-                        res_produced = buildings.as_obj[mybuilding.itid][mybuilding.level - 1]['resource_capacity']
+                    res_produced = int(time_delta / buildings.as_obj[mybuilding.itid][mybuilding.level-1]['resource_interval']) * buildings.as_obj[mybuilding.itid][mybuilding.level-1]['resource_produced']
+                    if res_produced >= buildings.as_obj[mybuilding.itid][mybuilding.level-1]['resource_capacity']:
+                        res_produced = buildings.as_obj[mybuilding.itid][mybuilding.level-1]['resource_capacity']
                         ##mybuilding.status = Building.BuildingStatus.PRODUCED
                         #_upd = True
             elif mybuilding.status == Building.BuildingStatus.PRODUCED_PARTIAL or mybuilding.status == Building.BuildingStatus.PRODUCED:
-                if mybuilding.amount is None:
-                    mybuilding.amount = 0;
                 res_produced = mybuilding.amount
                 mybuilding.amount = 0
                 mybuilding.status = Building.BuildingStatus.DELIVERED
@@ -129,9 +101,7 @@ class collect(webapp2.RequestHandler):
                 if res_produced > amount:
                     res_produced = amount
                 try:
-                    # eg player['cash'] += 1
-                    player.state_obj[
-                        buildings.as_obj[mybuilding.itid][mybuilding.level - 1]['resource']] += res_produced
+                    player.state_obj[buildings.as_obj[mybuilding.itid][mybuilding.level-1]['amount']] += res_produced
                     # update timestamp for player
                     player.state_obj['updated'] = start_time
                     if Player.setplayer(self, player):
@@ -139,14 +109,13 @@ class collect(webapp2.RequestHandler):
                         mybuilding.timestamp = int(start_time)
                         _upd = True
                 except KeyError:
-                    self.error = 'resource=' + buildings.as_obj[mybuilding.itid][mybuilding.level - 1][
-                        'resource'] + ' doesn\'t exist in player properties!'
+                    self.error = 'resource='+buildings.as_obj[mybuilding.itid][mybuilding.level-1]['amount']+' doesn\'t exist in player properties!'
 
             if _upd is True:
                 Building.setmybuilding(self, mybuilding)
 
             if self.error == '':
-                self.respn = '{"state":' + player.state + ', "building":['
+                self.respn = '{"state":'+player.state+', "building":['
                 self.respn = Building.compose_mybuilding(self.respn, mybuilding)
                 self.respn = self.respn.rstrip(',') + ']'
                 self.respn += '}'

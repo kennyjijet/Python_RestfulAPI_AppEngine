@@ -26,6 +26,7 @@ from config import config
 from helpers.utils import Utils
 from models.Data import Data
 from models.Player import Player
+from models.Building import Building
 
 # enum ChallengeType
 class CHALLENGE_TYPE(object):
@@ -34,6 +35,7 @@ class CHALLENGE_TYPE(object):
     PLAYER2_FINISH = "player2_finish"
     BOTH_PLAYERS_FINISH = "both_players_finish"
     GAME_OVER = "game_over"
+
 
 class CHALLENGE_MODE(object):
     CHALLENGE = 'challenge'
@@ -60,32 +62,41 @@ class Challenge(db.Model):
             uid2 - user id for player 2, could be fbid or uuid
         """
         challenge = None
-        challenges = Challenge.all().filter('track =', track) \
+        challenges = Challenge.all()\
             .filter('uid1 =', uid1) \
-            .filter('uid2 =', uid2). \
-            filter('state !=', CHALLENGE_TYPE.GAME_OVER) \
+            .filter('uid2 =', uid2) \
             .ancestor(db.Key.from_path('Challenge', config.db['challengedb_name'])) \
             .fetch(1)
 
         if len(challenges) > 0:
             challenge = challenges[0]
+        else:
+            challenges = Challenge.all()\
+            .filter('uid1 =', uid2) \
+            .filter('uid2 =', uid1) \
+            .ancestor(db.Key.from_path('Challenge', config.db['challengedb_name'])) \
+            .fetch(1)
+
+            if len(challenges) > 0:
+                challenge = challenges[0]
 
         if challenge is None:
             challenge = Challenge(parent=db.Key.from_path('Challenge', config.db['challengedb_name']))
             challenge.id = Utils.genanyid(self, 'c')
+
+        if challenge is not None:
             challenge.track = track
             challenge.uid1 = uid1
             challenge.uid2 = uid2
             challenge.state = CHALLENGE_TYPE.OPEN_GAME
             challenge.data = '{'
-            challenge.data += '"player1":{"player": {"id":"' + uid1 + '"},"name":"' + name + '", "image":"' + image+'"},'
-            challenge.data += '"player2":{"player": {"id":"' + uid2 + '"},"name":"' + name2 + '", "image":"' + image2+'"},'
+            challenge.data += '"player1":{"player": {"id":"' + uid1 + '"},"name":"' + name + '", "image":"' + image + '"},'
+            challenge.data += '"player2":{"player": {"id":"' + uid2 + '"},"name":"' + name2 + '", "image":"' + image2 + '"},'
             challenge.data += '"friend":' + str(are_they_friend).lower() + ','
             challenge.data += '"result":{"winner":"pending","player1_seen":false,"player2_seen":false}'
-            challenge.data +='}'
+            challenge.data += '}'
             if challenge.put():
-                if not memcache.add(config.db['challengedb_name'] + '.' + challenge.id, challenge,
-                                    config.memcache['holdtime']):
+                if not memcache.add(config.db['challengedb_name'] + '.' + challenge.id, challenge, config.memcache['holdtime']):
                     logging.warning('Challenge - Set memcache for challenge by Id failed!')
 
         return challenge
@@ -98,9 +109,12 @@ class Challenge(db.Model):
         logging.debug("GetChallenge:" + chid)
         challenge = memcache.get(config.db['challengedb_name'] + '.' + chid)
         if challenge is None:
-            challenges = Challenge.all().filter('id =', chid).filter('state !=',
-                                                                     CHALLENGE_TYPE.BOTH_PLAYERS_FINISH).ancestor(
-                db.Key.from_path('Challenge', config.db['challengedb_name'])).fetch(1)
+            challenges = Challenge.all() \
+                .filter('id =', chid) \
+                .filter('state !=', CHALLENGE_TYPE.BOTH_PLAYERS_FINISH) \
+                .filter('state !=', CHALLENGE_TYPE.GAME_OVER) \
+                .ancestor(db.Key.from_path('Challenge', config.db['challengedb_name'])) \
+                .fetch(1)
             if len(challenges) > 0:
                 challenge = challenges[0]
                 if not memcache.add(config.db['challengedb_name'] + '.' + chid, challenge, config.memcache['holdtime']):
@@ -118,9 +132,11 @@ class Challenge(db.Model):
         logging.debug("GetChallenging:" + uid1)
         challenging = memcache.get(config.db['challengedb_name'] + '.' + uid1 + '.challenging')
         if challenging is None:
-            challenging = Challenge.all().filter('uid1 =', uid1).filter('state !=',
-                                                                        CHALLENGE_TYPE.BOTH_PLAYERS_FINISH).ancestor(
-                db.Key.from_path('Challenge', config.db['challengedb_name']))
+            challenging = Challenge.all() \
+                .filter('uid1 =', uid1) \
+                .filter('state !=', CHALLENGE_TYPE.BOTH_PLAYERS_FINISH) \
+                .filter('state !=', CHALLENGE_TYPE.GAME_OVER) \
+                .ancestor(db.Key.from_path('Challenge', config.db['challengedb_name']))
 
             if not memcache.add(config.db['challengedb_name'] + '.' + uid1 + '.challenging', challenging,
                                 config.memcache['holdtime']):
@@ -137,9 +153,11 @@ class Challenge(db.Model):
         challengers = memcache.get(config.db['challengedb_name'] + '.' + uid2 + '.challengers')
         if challengers is None:
             logging.debug('GetChallengers non memcache')
-            challengers = Challenge.all().filter('uid2 =', uid2).filter('state !=',
-                                                                        CHALLENGE_TYPE.BOTH_PLAYERS_FINISH).ancestor(
-                db.Key.from_path('Challenge', config.db['challengedb_name']))
+            challengers = Challenge.all() \
+                .filter('uid2 =', uid2) \
+                .filter('state !=', CHALLENGE_TYPE.BOTH_PLAYERS_FINISH) \
+                .filter('state !=', CHALLENGE_TYPE.GAME_OVER) \
+                .ancestor(db.Key.from_path('Challenge', config.db['challengedb_name']))
 
             if not memcache.add(config.db['challengedb_name'] + '.' + uid2 + '.challengers', challengers,
                                 config.memcache['holdtime']):
@@ -155,14 +173,16 @@ class Challenge(db.Model):
         completed = memcache.get(config.db['challengedb_name'] + '.' + uid + '.completed')
         if completed is None:
             completed = []
-            complete1 = Challenge.all().filter('uid1 =', uid).filter('state =',
-                                                                     CHALLENGE_TYPE.BOTH_PLAYERS_FINISH).ancestor(
-                db.Key.from_path('Challenge', config.db['challengedb_name']))
+            complete1 = Challenge.all() \
+                .filter('uid1 =', uid) \
+                .filter('state =', CHALLENGE_TYPE.BOTH_PLAYERS_FINISH) \
+                .ancestor(db.Key.from_path('Challenge', config.db['challengedb_name']))
             if complete1 is not None:
                 completed += complete1
-            complete2 = Challenge.all().filter('uid2 =', uid).filter('state =',
-                                                                     CHALLENGE_TYPE.BOTH_PLAYERS_FINISH).ancestor(
-                db.Key.from_path('Challenge', config.db['challengedb_name']))
+            complete2 = Challenge.all() \
+                .filter('uid2 =', uid) \
+                .filter('state =', CHALLENGE_TYPE.BOTH_PLAYERS_FINISH) \
+                .ancestor(db.Key.from_path('Challenge', config.db['challengedb_name']))
             if complete2 is not None:
                 completed += complete2
             if not memcache.add(config.db['challengedb_name'] + '.' + uid + '.completed', completed,
@@ -171,9 +191,8 @@ class Challenge(db.Model):
         return completed
 
 
-
     @staticmethod
-    def Update(self, chid, type, uid, laptime, replay, events, cardata, name, image):
+    def Update(self, chid, type, uid, laptime, replay, events, cardata, name, image, lang, version):
         """ Parameters:
             chid - Challenge Id
             type - type of update, 'CHALLENGE' or 'ACCEPT'
@@ -181,13 +200,18 @@ class Challenge(db.Model):
             replay - racing data
             score - button replay
         """
-
+        my_building = None
         logging.debug("Challenge Update with replay length " + str(len(replay)))
         challenge = memcache.get(config.db['challengedb_name'] + '.' + chid)
+
         if challenge is None:
             logging.debug("Challenge not found in memcache")
-            challenges = Challenge.all().filter('id =', chid).filter('state !=', CHALLENGE_TYPE.GAME_OVER).ancestor(
-                db.Key.from_path('Challenge', config.db['challengedb_name'])).fetch(1)
+            challenges = Challenge.all().filter('id =', chid) \
+                .filter('state !=', CHALLENGE_TYPE.BOTH_PLAYERS_FINISH) \
+                .filter('state !=', CHALLENGE_TYPE.GAME_OVER) \
+                .ancestor(db.Key.from_path('Challenge', config.db['challengedb_name'])) \
+                .fetch(1)
+
             if len(challenges) > 0:
                 challenge = challenges[0]
                 logging.debug("Challenge found in data")
@@ -197,37 +221,38 @@ class Challenge(db.Model):
         if challenge is not None:
             logging.debug("Challenge is not none")
             #logging.debug("challenge update :" + challenge.data)
+            #TODO: remove the replay data from the .data to prevent it being serialzed and back
             game = json.loads(challenge.data)
             _upd = False
-            if challenge.state != CHALLENGE_TYPE.GAME_OVER:
+            if challenge.state != CHALLENGE_TYPE.BOTH_PLAYERS_FINISH and challenge.state != CHALLENGE_TYPE.GAME_OVER:
                 logging.info("challenge not over. state = " + challenge.state + " type = " + type)
 
                 start_time = time.time()
                 # flag to prevent Player saving outside this function and loosing the changes
                 challenge.manual_update = False
 
-                CHALLENGE_TYPE
+                #CHALLENGE_TYPE
                 _player = 'player1'
                 if type != CHALLENGE_MODE.CHALLENGE:
                     _player = 'player2'
 
                 logging.info("updating _player " + _player)
 
-                # find state of challenge
-                if (_player == 'player1' and challenge.uid1 == uid and ( challenge.state == CHALLENGE_TYPE.OPEN_GAME or challenge.state == CHALLENGE_TYPE.PLAYER1_FINISH) ) or (_player == 'player2' and challenge.uid2 == uid and ( challenge.state == CHALLENGE_TYPE.OPEN_GAME or challenge.state == CHALLENGE_TYPE.PLAYER2_FINISH)):
-                    logging.debug("found the key in the challenge data for the correct player and update the new state")
-                    # find the key in the challenge data for the correct player and update the new state
-                    game[_player] = {'player': {'id': uid}, 'laptime': float(laptime),
-                                     'replay': replay, 'events': events,
-                                     'created': start_time, 'cardata': cardata, 'name': name, 'image': image}
+                # find the key in the challenge data for the correct player and update the new state
+                game[_player] = {'player': {'id': uid}, 'laptime': float(laptime), 'replay': replay, 'events': events,
+                                 'created': start_time, 'cardata': cardata, 'name': name, 'image': image}
 
                 # update challenge state by looking at participants
-                if 'replay' in game['player1']:
-                    challenge.state = CHALLENGE_TYPE.PLAYER1_FINISH
-                if 'replay' in game['player2']:
-                    challenge.state = CHALLENGE_TYPE.PLAYER2_FINISH
                 if not 'replay' in game['player1'] and not 'replay' in game['player2']:
                     challenge.state = CHALLENGE_TYPE.OPEN_GAME
+                elif 'replay' in game['player1']:
+                    challenge.state = CHALLENGE_TYPE.PLAYER1_FINISH
+                elif 'replay' in game['player2']:
+                    challenge.state = CHALLENGE_TYPE.PLAYER2_FINISH
+
+                logging.info("challenge updating. state = " + challenge.state + " type = " + type)
+
+                # see if we can finish the challenge
                 if game['player1'] is not None and game['player2'] is not None:
                     if 'replay' in game['player1'] and 'replay' in game['player2']:
                         challenge.state = CHALLENGE_TYPE.BOTH_PLAYERS_FINISH
@@ -264,12 +289,12 @@ class Challenge(db.Model):
                             lose_prize = opponents.obj[challenge.track][0]['lose_prize']
 
                             if game['player1']['laptime'] < game['player2']['laptime']:        # player1 wins
-                                winner = 'player1'
+                                winner = player1.uuid
                                 prize1 = win_prize
                                 prize2 = lose_prize
                                 player1.state_obj['total_wins'] += 1
                             elif game['player1']['laptime'] > game['player2']['laptime']:
-                                winner = 'player2'
+                                winner = player2.uuid
                                 prize1 = lose_prize
                                 prize2 = win_prize
                                 player2.state_obj['total_wins'] += 1
@@ -278,22 +303,42 @@ class Challenge(db.Model):
                                 prize1 = lose_prize
                                 prize2 = lose_prize
 
-
+                            """
+                            player2.state_obj['cash'] += prize1
                             player2.state_obj['cash'] += prize2
-                            if uid == challenge.uid2:
+                            """
+
+                            player1_building = Building.save_resource_to_building(self, lang, version, player1.uuid, challenge.track, prize1)
+                            player2_building = Building.save_resource_to_building(self, lang, version, player2.uuid, challenge.track, prize2)
+
+
+                            if uid == challenge.uid1:
+                                my_building = player1_building
+                            else:
                                 player2.info_obj['updated'] = start_time
+                                my_building = player2_building
+
                             if Player.setplayer(self, player2):
                                 logging.info('player2 saved')
 
                             player1.state_obj['total_races'] += 1
                             player2.state_obj['total_races'] += 1
 
-                            challenge.state = CHALLENGE_TYPE.GAME_OVER
-                            game['result'] = {'winner': winner, 'player1_prize': prize1, 'player2_prize': prize2,
-                                              'player1_seen': uid == challenge.uid1, 'player2_seen': uid == challenge.uid2}
+                            game['result'] = {'winner': winner,
+                                              'player1': challenge.uid1,
+                                              'player2': challenge.uid2,
+                                              'player1_prize': prize1,
+                                              'player2_prize': prize2,
+                                              'player1_seen': uid == challenge.uid1,
+                                              'player2_seen': uid == challenge.uid2,
+                                              'player1_laptime': game['player1']['laptime'],
+                                              'player2_laptime': game['player2']['laptime']
+
+                            }
 
                 _upd = True
 
+            # this can't be used - the player cannot do a challengeUpdate unless they finish a race?
             elif game['result']['player1_seen'] is False or game['result']['player2_seen'] is False:
                 if uid == challenge.uid1:
                     game['result']['player1_seen'] = True
@@ -303,6 +348,9 @@ class Challenge(db.Model):
                     _upd = True
 
                 challenge.manual_update = True
+
+            if game['result']['player1_seen'] and game['result']['player2_seen']:
+                challenge.state = CHALLENGE_TYPE.GAME_OVER
 
             logging.debug("Update finished with state " + challenge.state + " type = " + type)
             if _upd is True:
@@ -317,7 +365,7 @@ class Challenge(db.Model):
             self.error = 'Challenge ID=' + chid + ' could not be found.'
             logging.debug(self.error)
 
-        return challenge
+        return challenge, my_building
 
     @staticmethod
     def DeleteById(self, chid):
@@ -371,7 +419,7 @@ class Challenge(db.Model):
         self.respn += '"version":"alpha","challenges":{"challengers":['
         challengers = Challenge.GetChallengers(self, player.fbid)
 
-        #TODO remove this nasty =='[]' - not very pythonic. Need to find a proper way of finding empty or null dicts
+        #TODO remove this nasty =='[]' - not very pythonic. Need to find a proper way of finding en
         if challengers is None or list(challengers) == [] or list(challengers) == '[]':
             logging.debug('ComposeChallenges getting uuid ' + player.uuid)
             challengers = Challenge.GetChallengers(self, player.uuid)
@@ -416,7 +464,7 @@ class Challenge(db.Model):
                 self.respn += '},'
         self.respn = self.respn.rstrip(',') + '],"completed":['
         completed = Challenge.GetCompleted(self, player.uuid)
-        if completed is None:
+        if completed is None or completed == []:
             completed = Challenge.GetCompleted(self, player.fbid)
         if completed is not None:
             for _challenge in completed:
@@ -425,6 +473,7 @@ class Challenge(db.Model):
                 self.respn += '"chid":"' + _challenge.id + '",'
                 self.respn += '"track":"' + _challenge.track + '",'
                 self.respn += '"state":"' + _challenge.state + '",'
+                self.respn += '"result":' + json.dumps(_gameObj['result']) + ','
                 #self.respn += '"uidx":"'+_challenge.uid1+'",'
                 if player.fbid == _challenge.uid1 or player.uuid == _challenge.uid1:
                     self.respn += '"uidx":"' + _challenge.uid2 + '",'
@@ -445,7 +494,6 @@ class Challenge(db.Model):
                         #self.respn += '"created":"' + str(_gameObj['player1']['created']) + '"'
                     self.respn += '}'
             self.respn += ']}'
-        logging.debug(self.respn)
         return self.respn
 
     # Returns replay data also

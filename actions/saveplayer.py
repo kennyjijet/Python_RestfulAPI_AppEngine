@@ -122,7 +122,7 @@ class saveplayer(webapp2.RequestHandler):
                     # and assign all player info and state
                     player.info_obj = {'uuid': player.uuid, 'fbid': player.fbid, 'token': token, 'name': name,
                                        'image': image, 'lang': lang}
-                    player.state_obj = {'guid': guid, 'cash': cash, 'gold': gold, 'current_car': '',
+                    player.state_obj = {'guid': guid, 'cash': cash, 'gold': gold, 'current_car': 'xxx',
                                         'total_wins': total_wins, 'total_races': total_races,
                                         'advice_checklist': advice_checklist, 'updated': start_time}
 
@@ -148,6 +148,7 @@ class saveplayer(webapp2.RequestHandler):
                                         new_building.level = building['level']
                                         new_building.status = Building.BuildingStatus.DELIVERED
                                         new_building.location = item['value']
+                                        new_building.amount = 0
                                         new_building.timestamp = int(start_time)
                                         Building.setmybuilding(self, new_building)
                                 except KeyError:
@@ -223,10 +224,8 @@ class saveplayer(webapp2.RequestHandler):
                     except KeyError:
                         player.state_obj['advice_checklist'] = advice_checklist
 
-                if Player.setplayer(self,
-                                    player):                            # write down to database
-
-                # then obviously, no error
+                if Player.setplayer(self, player):
+                    # then obviously, no error
                     # compose JSON for frontend response
                     type = ''
                     for item in config.playerdata:

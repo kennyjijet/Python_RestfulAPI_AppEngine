@@ -1,7 +1,7 @@
 class config():
     server = {
-        "serverName": "GrandCentral API",
-        "apiVersion": 3,
+        "serverName": "GC",
+        "apiVersion": 5,
         "defaultLanguage": "en"
     }
     db = {
@@ -87,7 +87,7 @@ class config():
         "dup_login": "Your account is running on another device, please try again!"
     }
     recentplayer = {
-        "maxlist": 100,
+        "maxlist": 50,
         "numlist": 5,
         "maxchallengers": 2
     }

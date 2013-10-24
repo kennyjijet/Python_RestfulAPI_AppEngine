@@ -96,7 +96,7 @@ class getdata(webapp2.RequestHandler):
         # calculate time taken and return the result
         time_taken = time.time() - start_time
         self.response.headers['Content-Type'] = 'text/html'
-        self.response.write(Utils.RESTreturn(self, time_taken))
+        self.response.write(Utils.RESTreturn(self, time_taken, False))
 
     # do exactly as get() does
     def post(self):

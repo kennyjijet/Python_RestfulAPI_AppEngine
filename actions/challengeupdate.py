@@ -34,6 +34,7 @@ from config import config
 from helpers.utils import Utils
 from models.Player import Player
 from models.Challenge import Challenge
+from models.Building import Building
 
 # class implementation
 class challengeupdate(webapp2.RequestHandler):
@@ -59,6 +60,14 @@ class challengeupdate(webapp2.RequestHandler):
         cardata = Utils.required(self, 'cardata')
         name = Utils.required(self, 'name')
         image = Utils.required(self, 'image')
+
+        version = config.data_version['building']
+        if self.request.get('version'):
+            version = self.request.get('version')
+        lang = config.server["defaultLanguage"]
+        if self.request.get('lang'):
+            lang = self.request.get('lang')
+
         #logging.info("events " + events);
         # check password
         if self.error == '' and passwd != config.testing['passwd']:
@@ -79,16 +88,20 @@ class challengeupdate(webapp2.RequestHandler):
                 player = None
                 self.error = config.error_message['dup_login']
 
-
         if self.error == '' and player is not None:
             logging.warn("trying to create challenge with" + player.uuid)
 
-            challenge = Challenge.Update(self, chid, type, uuid, laptime, replay, events, cardata, name,
-                                         image)
+            challenge, my_building = Challenge.Update(self, chid, type, uuid, laptime, replay, events, cardata, name,
+                                         image, lang, version)
             if challenge is not None:
                 self.respn = '{'
                 Challenge.ComposeChallenges(self, player)
+                if my_building is not None:
+                    self.respn += ',"building":['
+                    self.respn = Building.compose_mybuilding(self.respn, my_building)
+                    self.respn = self.respn.rstrip(',') + ']'
                 self.respn = self.respn.rstrip(',') + '}'
+
             # update timestamp for player - this is to update if needed
             if challenge.manual_update is True:
                 player.state_obj['updated'] = start_time

@@ -108,6 +108,7 @@ class buybuilding(webapp2.RequestHandler):
                     mybuilding.level = building['level']
                     mybuilding.status = Building.BuildingStatus.PENDING
                     mybuilding.location = location
+                    mybuilding.amount = 0
                     mybuilding.timestamp = int(start_time)
                     Building.setmybuilding(self, mybuilding)
                     self.respn = '{"state":'+player.state+','

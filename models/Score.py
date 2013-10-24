@@ -36,8 +36,8 @@ class Score(db.Model):
         scorings = [{'player_events': json.loads(events), 'prizes': {}, 'total': 0.0},
                     {'player_events': json.loads(events2), 'prizes': {}, 'total': 0.0}]
 
-        scorings[0]['prize'] = prize_winner if ( laptime < laptime2 ) else prize_looser
-        scorings[1]['prize'] = prize_winner if ( laptime2 < laptime ) else prize_looser
+        scorings[0]['prize'] = scorings[0]['total'] = prize_winner if ( laptime < laptime2 ) else prize_looser
+        scorings[1]['prize'] = scorings[1]['total'] = prize_winner if ( laptime2 < laptime ) else prize_looser
 
         # initialize all scores to zero
         for _player in scorings:
@@ -51,8 +51,8 @@ class Score(db.Model):
                 for _event in _player['player_events'][_event_type]: #floats
                     for _threshold in racewinnings:
                         if abs(_event) < _threshold['timing']:
-                            _player['prizes'][_event_type] += _player['prize'] * _threshold[_event_type]
-                            _player['total'] += _player['prize'] * _threshold[_event_type]
+                            _player['prizes'][_event_type] += int(_player['prize'] * _threshold[_event_type])
+                            _player['total'] += _player['prizes'][_event_type]
 
         return scorings
 
