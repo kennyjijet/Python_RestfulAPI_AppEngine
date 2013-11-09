@@ -42,6 +42,7 @@ from GCVars import GCVars
 # class implementation
 class collect(webapp2.RequestHandler):
     # standard variables
+    game = ''
     sinfo = ''
     respn = ''
     error = ''
@@ -122,7 +123,7 @@ class collect(webapp2.RequestHandler):
                     mybuilding.amount = 0;
                 res_produced = mybuilding.amount
                 mybuilding.amount = 0
-                mybuilding.status = Building.BuildingStatus.DELIVERED
+                mybuilding.status = Building.BuildingStatus.OWNED
                 _upd = True
 
             if res_produced > 0:

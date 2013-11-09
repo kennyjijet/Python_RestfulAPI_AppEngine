@@ -1,27 +1,3 @@
-""" advicechecklist action class
-
-    Project: GrandCentral-GAE
-    Author: Plus Pingya
-    Github: https://github.com/Gamepunks/grandcentral-gae
-
-
-    Description
-    ---------------------------------------------------------------
-    I am an API to add checklist to advice_clicklist and return
-
-
-    Input:
-    ---------------------------------------------------------------
-    required: passwd, uuid
-    optional: version, lang, checklist (string separate by commas)
-
-
-    Output:
-    ---------------------------------------------------------------
-    updated with added advice checklist in player's state
-
-"""
-
 # built-in libraries
 import webapp2
 import logging
@@ -42,6 +18,7 @@ from models.Building import Building
 class advicechecklist(webapp2.RequestHandler):
 
     # standard variables
+    game = ''
     sinfo = ''
     respn = ''
     error = ''

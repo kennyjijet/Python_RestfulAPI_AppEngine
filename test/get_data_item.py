@@ -18,6 +18,7 @@ from models.Challenge import Challenge
 # class implementation
 class get_data_item(webapp2.RequestHandler):
     # standard variables
+    game = ''
     sinfo = ''
     respn = ''
     error = ''

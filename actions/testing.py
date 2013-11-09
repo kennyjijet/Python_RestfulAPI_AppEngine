@@ -45,6 +45,7 @@ from actions.saveplayer import saveplayer
 class testing(webapp2.RequestHandler):
 
     # standard variables
+    game = ''
     sinfo = ''
     respn = ''
     error = ''

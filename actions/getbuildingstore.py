@@ -39,6 +39,7 @@ from models.Data import Data
 class getbuildingstore(webapp2.RequestHandler):
 
     # standard variables
+    game = ''
     sinfo = ''
     respn = ''
     error = ''

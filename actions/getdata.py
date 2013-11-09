@@ -42,6 +42,7 @@ from models.Data import Data
 # class implementation
 class getdata(webapp2.RequestHandler):
     # standard variables
+    game = ''
     sinfo = ''
     respn = ''
     error = ''
@@ -89,8 +90,9 @@ class getdata(webapp2.RequestHandler):
                         self.respn += '"' + item + '":' + data.data + ','
                     else:
                         data = Data.getData(self, item, version)
-                    if data is not None:
-                        self.respn += '"' + item + '":' + data.data + ','
+                        if data is not None:
+                            self.respn += '"' + item + '":' + data.data + ','
+
         self.respn = self.respn.rstrip(',') + '}'
 
         # calculate time taken and return the result

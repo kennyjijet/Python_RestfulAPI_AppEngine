@@ -41,6 +41,7 @@ from models.Data import Data
 class ping(webapp2.RequestHandler):
 
     # standard variables
+    game = ''
     sinfo = ''
     respn = ''
     error = ''

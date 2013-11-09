@@ -43,6 +43,7 @@ from models.Item		import Item
 class getsoftstore(webapp2.RequestHandler):
 
     # standard variables
+    game = ''
     sinfo = ''
     respn = ''
     error = ''

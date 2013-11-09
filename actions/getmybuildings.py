@@ -42,6 +42,7 @@ from models.Building import Building
 class getmybuildings(webapp2.RequestHandler):
 
     # standard variables
+    game = ''
     sinfo = ''
     respn = ''
     error = ''

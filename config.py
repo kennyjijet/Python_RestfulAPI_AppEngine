@@ -1,7 +1,7 @@
 class config():
     server = {
         "serverName": "GC",
-        "apiVersion": 5,
+        "apiVersion": 7,
         "defaultLanguage": "en"
     }
     db = {
@@ -14,8 +14,10 @@ class config():
         "cardb_name": "cardb",
 
         "buildingdb_name": "buildingdb",
-        "researchdb_name": "researchdb"
+        "researchdb_name": "researchdb",
     }
+
+
     memcache = {
         "holdtime": 60,
         "longtime": 3600
@@ -26,7 +28,7 @@ class config():
         "track": ['lake', 'beach', 'mountain', 'fox', 'village']
     }
     testing = {
-        "passwd": "3===D - ( . Y . )",
+        "passwd": "passwd",
         "nsample": 10,
         "track": ['lake', 'beach', 'mountain', 'fox', 'village'],
         "photosample": "https://graph.facebook.com/pluspingya/picture??width=200&height=200",

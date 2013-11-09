@@ -45,6 +45,7 @@ from models.Challenge import Challenge
 class getrecentplayerlist(webapp2.RequestHandler):
 
     # standard variables
+    game = ''
     sinfo = ''
     respn = ''
     error = ''

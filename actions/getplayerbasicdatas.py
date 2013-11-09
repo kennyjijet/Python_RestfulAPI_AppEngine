@@ -42,6 +42,7 @@ from models.Challenge import Challenge
 # class implementation
 class getplayerbasicdatas(webapp2.RequestHandler):
     # standard variables
+    game = ''
     sinfo = ''
     respn = ''
     error = ''

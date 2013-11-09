@@ -41,6 +41,7 @@ from models.Car import Car
 class carbuy(webapp2.RequestHandler):
 
     # standard variables
+    game = ''
     sinfo = ''
     respn = ''
     error = ''
@@ -75,6 +76,8 @@ class carbuy(webapp2.RequestHandler):
         car = None
         #mycars = None
 
+        Utils.LogRequest(self)
+
         # if error, skip this
         if self.error == '':
             player = Player.getplayer(self, uuid)
@@ -98,12 +101,13 @@ class carbuy(webapp2.RequestHandler):
                 self.error = crid + " was not found!"
 
         if self.error == '' and car is not None:
+
             mycars = Car.list(self, uuid)
             for _car in mycars:
                 data_obj = json.loads(_car.data)
                 try:
                     if data_obj['info']['crid'] == crid:
-
+                        # already own this car type, and you can only 1 of each type
                         #self.respn = '{"warning":"You have already purchased this car."}'
                         player.state_obj['current_car'] = _car.cuid
                         player.state_obj['updated'] = start_time
@@ -122,7 +126,7 @@ class carbuy(webapp2.RequestHandler):
             upgrades = Data.getupgrades(self, lang, float(version))
 
         if self.error == '' and upgrades is not None:
-
+            # good to go as we have a car
             if player.state_obj['cash'] >= car['cost']:
                 player.state_obj['cash'] -= car['cost']
                 player.state_obj['updated'] = start_time 						# update timestamp for player
@@ -156,7 +160,9 @@ class carbuy(webapp2.RequestHandler):
 
             else:
                 self.respn = '{"warning":"not enough cash!"}'
-
+                logging.warn("not enough cash")
+        else:
+            logging.warn("Error with car upgrades")
         # calculate time taken and return the result
         time_taken = time.time() - start_time
         self.response.headers['Content-Type'] = 'text/html'

@@ -8,6 +8,9 @@ from config import config
 # built-in libraries
 from random import randint
 from datetime import datetime
+from GCVars import GCVars
+
+from google.appengine.api import namespace_manager
 
 class Utils(object):
 
@@ -17,6 +20,9 @@ class Utils(object):
         self.respn = ''
         self.error = ''
         self.debug = ''
+        self.game = self.request.get(GCVars.game) or ''
+        namespace_manager.set_namespace(self.game)
+
 
     @staticmethod
     def required(self, par_name):
@@ -70,12 +76,17 @@ class Utils(object):
         self.sinfo = '{"serverName":"'+config.server['serverName']+'","apiVersion":'+str(config.server['apiVersion'])+',"action":"'+type(self).__name__+'","requestDuration":'+str(time_taken)+',"currentTime":'+str(stampNow)+'}'
         response = ""
         if self.request.get('debug'):
-            response = '{"serverInformation":'+self.sinfo+',"response":'+self.respn+',"error":"'+self.error+'", "debug":"'+self.debug+'"}'
+            response = '{"serverInformation":'+self.sinfo+',"response":'+self.respn+',"game":"'+namespace_manager.get_namespace()+'","error":"'+self.error+'", "debug":"'+self.debug+'"}'
         else:
-            response = '{"serverInformation":'+self.sinfo+',"response":'+self.respn+',"error":"'+self.error+'"}'
+            response = '{"serverInformation":'+self.sinfo+',"response":'+self.respn+',"game":"'+namespace_manager.get_namespace()+'","error":"'+self.error+'"}'
+
+
 
         if debug:
             Utils.LogResponse(self,response)
+
+        if ( self.error is not None and self.error != '' ) :
+            logging.warn(self.error)
         return response
 
     @staticmethod

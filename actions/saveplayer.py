@@ -49,10 +49,12 @@ from models.Challenge import Challenge
 # class implementation
 class saveplayer(webapp2.RequestHandler):
     # standard variables
+    game = ''
     sinfo = ''
     respn = ''
     error = ''
     debug = ''
+    game = ''
 
     # get function implementation
     def get(self):
@@ -65,16 +67,15 @@ class saveplayer(webapp2.RequestHandler):
         uuid = self.request.get('uuid')
         guid = self.request.get('guid')
         fbid = self.request.get('fbid')
+        self.game = self.request.get('game') or ''
 
         version = config.data_version['building']
 
-        token = self.request.get('token')
-        lang = config.server["defaultLanguage"]
-        if self.request.get('lang'):
-            lang = self.request.get('lang')
-        name = 'Guest'
-        if self.request.get('name'):
-            name = self.request.get('name')
+        token = self.request.get('token') or ''
+        lang = self.request.get('lang') or config.server["defaultLanguage"]
+
+        name = self.request.get('name') or ''
+
         image = ''
         if fbid != '':
             image = 'https://graph.facebook.com/' + fbid + '/picture?width=200&height=200'
@@ -93,6 +94,8 @@ class saveplayer(webapp2.RequestHandler):
             self.error = 'passwd is incorrect.'                                        # inform user via error message
 
         start_time = time.time()                                                    # start count
+
+        Utils.LogRequest(self)
 
         # if error, skip this
         if self.error == '':
@@ -120,11 +123,13 @@ class saveplayer(webapp2.RequestHandler):
                     player.uuid = uuid                                                    # assign uuid
                     player.fbid = fbid
                     # and assign all player info and state
-                    player.info_obj = {'uuid': player.uuid, 'fbid': player.fbid, 'token': token, 'name': name,
+                    player.info_obj = {'uuid': player.uuid, 'fbid': player.fbid, 'token': token, 'name': 'Guest',
                                        'image': image, 'lang': lang}
                     player.state_obj = {'guid': guid, 'cash': cash, 'gold': gold, 'current_car': 'xxx',
                                         'total_wins': total_wins, 'total_races': total_races,
                                         'advice_checklist': advice_checklist, 'updated': start_time}
+
+                    logging.debug("New Player Created")
 
                     #################################################################################################
                     ## Init default item for new player
@@ -133,7 +138,7 @@ class saveplayer(webapp2.RequestHandler):
                     upgrades = Data.getupgrades(self, lang, float(version))
 
                     if buildings is not None and cars is not None and upgrades is not None:
-
+                        logging.debug ( "building default stuff")
                         for item in defaultitems.obj:
                             if item['type'] == 'state':
                                 player.state_obj[item['id']] = item['value']
@@ -181,6 +186,9 @@ class saveplayer(webapp2.RequestHandler):
                                                     break
                                 Car.update(self, mycar)
 
+                        else:
+                            logging.warning( "cant build default stuff")
+
                 else:                                                                    # but if player does exist
                     #####################################################################################################################
                     ## Found existing user
@@ -192,7 +200,8 @@ class saveplayer(webapp2.RequestHandler):
                         player.fbid = fbid
                         player.info_obj['fbid'] = fbid
                         player.info_obj['image'] = image                                    # assign image url
-                    player.info_obj['name'] = name                                        # assign name
+                    if name != '':
+                        player.info_obj['name'] = name                                        # assign name
                     try:
                         updated = player.state_obj['updated']
                     except KeyError:
@@ -334,6 +343,8 @@ class saveplayer(webapp2.RequestHandler):
 
                 else:                                                                # but if write down to database was failed
                     self.error = 'unable to insert/update player data.'                # inform user bia error message
+                    logging.warn('unable to insert/update player data.')
+
 
         # calculate time taken and return the result
         time_taken = time.time() - start_time

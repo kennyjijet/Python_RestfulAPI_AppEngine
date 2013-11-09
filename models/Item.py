@@ -28,7 +28,7 @@ class Item(db.Model):
     def getitems(self, uuid):
         items = memcache.get(config.db['itemdb_name']+'.'+uuid)
         if items is None:
-            items = Item.all().filter('uuid =', uuid).ancestor(db.Key.from_path('Item', config.db['itemdb_name']))
+            items = Item.all().filter('uuid =', uuid).ancestor(db.Key.from_path('Item',config.db['itemdb_name']))
             if not memcache.add(config.db['itemdb_name']+'.'+uuid, items, config.memcache['holdtime']):
                 logging.warning('Core - Memcache set items failed')
         return items
@@ -60,7 +60,7 @@ class Item(db.Model):
     def getspecificitems(self, uuid, itid):
         items = memcache.get(config.db['itemdb_name']+'.'+itid+'.'+uuid)
         if items is None:
-            items = Item.all().filter('uuid =', uuid).filter('itid =', itid).ancestor(db.Key.from_path('Item', config.db['itemdb_name']));
+            items = Item.all().filter('uuid =', uuid).filter('itid =', itid).ancestor(db.Key.from_path('Item',config.db['itemdb_name']));
             if not memcache.add(config.db['itemdb_name']+'.'+itid+'.'+uuid, items, config.memcache['holdtime']):
                 logging.warning('Core - Memcache set specific item failed')
         return items
@@ -69,7 +69,7 @@ class Item(db.Model):
     def getproduceditems(self, uuid):
         items = memcache.get(config.db['itemdb_name']+'_produced.'+uuid)
         if items is None:
-            items = Item.all().filter('uuid =', uuid).filter('status =', 'produced').ancestor(db.Key.from_path('Item', config.db['itemdb_name']));
+            items = Item.all().filter('uuid =', uuid).filter('status =', 'produced').ancestor(db.Key.from_path('Item',config.db['itemdb_name']));
             if not memcache.add(config.db['itemdb_name']+'_produced.'+uuid, items, config.memcache['holdtime']):
                 logging.warning('Core - Memcache set produced items failed')
         return items

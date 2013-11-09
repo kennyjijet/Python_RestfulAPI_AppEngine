@@ -1,27 +1,3 @@
-""" deploy action class
-
-    Project: GrandCentral-GAE
-    Author: Plus Pingya
-    Github: https://github.com/Gamepunks/grandcentral-gae
-
-
-    Description:
-    ---------------------------------------------------------------
-    I am an API to store deployed game data from Google Drive
-    custom backend to datastore to be used in the game
-
-
-    Input:
-    ---------------------------------------------------------------
-    required: passwd, type, version, data
-    optional:
-
-
-    Output:
-    ---------------------------------------------------------------
-    result success or failed
-
-"""
 
 # built-in libraries
 import time
@@ -33,7 +9,9 @@ import webapp2
 
 # google's libraries
 from google.appengine.ext import db
+
 from google.appengine.api import namespace_manager
+
 # config
 from config import config
 
@@ -42,7 +20,7 @@ from helpers.utils import Utils
 from models.Data import Data
 
 # class implementation
-class deploy(webapp2.RequestHandler):
+class deploy_pro7(webapp2.RequestHandler):
     # standard variables
     sinfo = ''
     respn = ''
@@ -52,6 +30,9 @@ class deploy(webapp2.RequestHandler):
     # get function implementation
     def get(self):
         Utils.reset(self)                                                               # reset/clean standard variables
+        self.game = 'pro7'
+        namespace_manager.set_namespace(self.game)
+
         # validate and assign parameters
         passwd = Utils.required(self, 'passwd')
         type = Utils.required(self, 'type')

@@ -65,7 +65,7 @@ class Challenge(db.Model):
         challenges = Challenge.all()\
             .filter('uid1 =', uid1) \
             .filter('uid2 =', uid2) \
-            .ancestor(db.Key.from_path('Challenge', config.db['challengedb_name'])) \
+            .ancestor(db.Key.from_path('Challenge',config.db['challengedb_name'])) \
             .fetch(1)
 
         if len(challenges) > 0:
@@ -74,14 +74,14 @@ class Challenge(db.Model):
             challenges = Challenge.all()\
             .filter('uid1 =', uid2) \
             .filter('uid2 =', uid1) \
-            .ancestor(db.Key.from_path('Challenge', config.db['challengedb_name'])) \
+            .ancestor(db.Key.from_path('Challenge',config.db['challengedb_name'])) \
             .fetch(1)
 
             if len(challenges) > 0:
                 challenge = challenges[0]
 
         if challenge is None:
-            challenge = Challenge(parent=db.Key.from_path('Challenge', config.db['challengedb_name']))
+            challenge = Challenge(parent=db.Key.from_path('Challenge',config.db['challengedb_name']))
             challenge.id = Utils.genanyid(self, 'c')
 
         if challenge is not None:
@@ -113,7 +113,7 @@ class Challenge(db.Model):
                 .filter('id =', chid) \
                 .filter('state !=', CHALLENGE_TYPE.BOTH_PLAYERS_FINISH) \
                 .filter('state !=', CHALLENGE_TYPE.GAME_OVER) \
-                .ancestor(db.Key.from_path('Challenge', config.db['challengedb_name'])) \
+                .ancestor(db.Key.from_path('Challenge',config.db['challengedb_name'])) \
                 .fetch(1)
             if len(challenges) > 0:
                 challenge = challenges[0]
@@ -136,7 +136,7 @@ class Challenge(db.Model):
                 .filter('uid1 =', uid1) \
                 .filter('state !=', CHALLENGE_TYPE.BOTH_PLAYERS_FINISH) \
                 .filter('state !=', CHALLENGE_TYPE.GAME_OVER) \
-                .ancestor(db.Key.from_path('Challenge', config.db['challengedb_name']))
+                .ancestor(db.Key.from_path('Challenge',config.db['challengedb_name']))
 
             if not memcache.add(config.db['challengedb_name'] + '.' + uid1 + '.challenging', challenging,
                                 config.memcache['holdtime']):
@@ -157,7 +157,7 @@ class Challenge(db.Model):
                 .filter('uid2 =', uid2) \
                 .filter('state !=', CHALLENGE_TYPE.BOTH_PLAYERS_FINISH) \
                 .filter('state !=', CHALLENGE_TYPE.GAME_OVER) \
-                .ancestor(db.Key.from_path('Challenge', config.db['challengedb_name']))
+                .ancestor(db.Key.from_path('Challenge',config.db['challengedb_name']))
 
             if not memcache.add(config.db['challengedb_name'] + '.' + uid2 + '.challengers', challengers,
                                 config.memcache['holdtime']):
@@ -176,13 +176,13 @@ class Challenge(db.Model):
             complete1 = Challenge.all() \
                 .filter('uid1 =', uid) \
                 .filter('state =', CHALLENGE_TYPE.BOTH_PLAYERS_FINISH) \
-                .ancestor(db.Key.from_path('Challenge', config.db['challengedb_name']))
+                .ancestor(db.Key.from_path('Challenge',config.db['challengedb_name']))
             if complete1 is not None:
                 completed += complete1
             complete2 = Challenge.all() \
                 .filter('uid2 =', uid) \
                 .filter('state =', CHALLENGE_TYPE.BOTH_PLAYERS_FINISH) \
-                .ancestor(db.Key.from_path('Challenge', config.db['challengedb_name']))
+                .ancestor(db.Key.from_path('Challenge',config.db['challengedb_name']))
             if complete2 is not None:
                 completed += complete2
             if not memcache.add(config.db['challengedb_name'] + '.' + uid + '.completed', completed,
@@ -209,7 +209,7 @@ class Challenge(db.Model):
             challenges = Challenge.all().filter('id =', chid) \
                 .filter('state !=', CHALLENGE_TYPE.BOTH_PLAYERS_FINISH) \
                 .filter('state !=', CHALLENGE_TYPE.GAME_OVER) \
-                .ancestor(db.Key.from_path('Challenge', config.db['challengedb_name'])) \
+                .ancestor(db.Key.from_path('Challenge',config.db['challengedb_name'])) \
                 .fetch(1)
 
             if len(challenges) > 0:
@@ -360,6 +360,9 @@ class Challenge(db.Model):
                     memcache.delete(config.db['challengedb_name'] + '.' + challenge.id)
                     if not memcache.add(config.db['challengedb_name'] + '.' + challenge.id, challenge):
                         logging.warning('Challenge - Set memcache for challenge by Id failed!')
+                        self.error += 'Challenge saving failed :('
+                else:
+                    self.error += 'Challengeupdate failed :('
 
         else:
             self.error = 'Challenge ID=' + chid + ' could not be found.'
@@ -376,7 +379,7 @@ class Challenge(db.Model):
         if challenge is None:
             challenges = Challenge.all().filter('id =', chid).filter('state !=',
                                                                      CHALLENGE_TYPE.BOTH_PLAYERS_FINISH).ancestor(
-                db.Key.from_path('Challenge', config.db['challengedb_name'])).fetch(1)
+                db.Key.from_path('Challenge',config.db['challengedb_name'])).fetch(1)
             if len(challenges) > 0:
                 challenge = challenges[0]
         if challenge is not None:
@@ -391,13 +394,13 @@ class Challenge(db.Model):
         """
         deleted = False
         challenging = Challenge.all().filter('uid1 =', uid).ancestor(
-            db.Key.from_path('Challenge', config.db['challengedb_name']))
+            db.Key.from_path('Challenge',config.db['challengedb_name']))
         if challenging is not None:
             for challenge in challenging:
                 challenge.delete()
                 deleted = True
         challengers = Challenge.all().filter('uid2 =', uid).ancestor(
-            db.Key.from_path('Challenge', config.db['challengedb_name']))
+            db.Key.from_path('Challenge',config.db['challengedb_name']))
         if challengers is not None:
             for challenge in challengers:
                 challenge.delete()
@@ -408,7 +411,7 @@ class Challenge(db.Model):
     @staticmethod
     def PurgeOldChallenges(self):
         challenges = Challenge.all().filter('created <', datetime.now() - timedelta(days=7)).ancestor(
-            db.Key.from_path('Challenge', config.db['challengedb_name'])).fetch(1)
+            db.Key.from_path('Challenge',config.db['challengedb_name'])).fetch(1)
         if challenges is not None:
             logging.warning('Deleting ' + challenges)
             challenges.delete()

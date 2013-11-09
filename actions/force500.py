@@ -35,6 +35,7 @@ from helpers.utils import Utils
 # class implementation
 class force500(webapp2.RequestHandler):
     # standard variables
+    game = ''
     sinfo = ''
     respn = ''
     error = ''

@@ -44,6 +44,7 @@ from models.Building import Building
 class buybuilding(webapp2.RequestHandler):
 
     # standard variables
+    game = ''
     sinfo = ''
     respn = ''
     error = ''

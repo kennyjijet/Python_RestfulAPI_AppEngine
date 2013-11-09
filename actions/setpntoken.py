@@ -1,25 +1,25 @@
 """ setpntoken action class
 
-	Project: GrandCentral-GAE
-	Author: Plus Pingya
-	Github: https://github.com/Gamepunks/grandcentral-gae
-	
+    Project: GrandCentral-GAE
+    Author: Plus Pingya
+    Github: https://github.com/Gamepunks/grandcentral-gae
 
-	Description
-	---------------------------------------------------------------
-	I am an API to set token for player in player state
 
-	
-	Input:
-	---------------------------------------------------------------
-	required: passwd, uuid, token
-	optional: 
+    Description
+    ---------------------------------------------------------------
+    I am an API to set token for player in player state
 
-	
-	Output:
-	---------------------------------------------------------------
-	player uuid and entire player state
-	
+
+    Input:
+    ---------------------------------------------------------------
+    required: passwd, uuid, token
+    optional:
+
+
+    Output:
+    ---------------------------------------------------------------
+    player uuid and entire player state
+
 """
 
 # built-in libraries
@@ -40,53 +40,53 @@ from models.Player		import Player
 
 # class implementation
 class setpntoken(webapp2.RequestHandler):
-	
-	# standard variables
-	sinfo = ''
-	respn = ''
-	error = ''
-	debug = ''
-	
-	# get function implementation
-	def get(self):
-		Utils.reset(self)											# reset/clean standard variables
-		
-		# validate and assign parameters
-		passwd = Utils.required(self, 'passwd')
-		uuid = Utils.required(self, 'uuid')
-		guid = self.request.get('guid')
-		token = Utils.required(self, 'token')
-		
-		# required password to process this action
-		if self.error == '' and passwd != config.testing['passwd']:
-			self.error = 'passwd is incorrect.'
-			
-		start_time = time.time()									# start count 
-		
-		# if any error, skip this
-		if self.error == '':
-			player = Player.getplayer(self, uuid)			# get player as object
 
-		if self.error == '' and player is not None and guid != '':
-			if guid != player.state_obj['guid']:
-				player = None
-				self.error = config.error_message['dup_login']
+    # standard variables
+    sinfo = ''
+    respn = ''
+    error = ''
+    debug = ''
 
-		# if any error on player is none
-		if self.error == '' and player is not None:
-			player.info_obj['token'] = token
-			# update timestamp for player
-			player.state_obj['updated'] = start_time
-			if Player.setplayer(self, player):
-				Player.compose_player_info(self, player)
-			else:
-				self.error = 'unable to update player data (token).'
-	
-		# calculate time taken and return the result
-		time_taken = time.time() - start_time
-		self.response.headers['Content-Type'] = 'text/html'
-		self.response.write(Utils.RESTreturn(self, time_taken))
-		
-	# do exactly as get() does
-	def post(self):
-		self.get()
+    # get function implementation
+    def get(self):
+        Utils.reset(self)											# reset/clean standard variables
+
+        # validate and assign parameters
+        passwd = Utils.required(self, 'passwd')
+        uuid = Utils.required(self, 'uuid')
+        guid = self.request.get('guid')
+        token = Utils.required(self, 'token')
+
+        # required password to process this action
+        if self.error == '' and passwd != config.testing['passwd']:
+            self.error = 'passwd is incorrect.'
+
+        start_time = time.time()									# start count
+
+        # if any error, skip this
+        if self.error == '':
+            player = Player.getplayer(self, uuid)			# get player as object
+
+        if self.error == '' and player is not None and guid != '':
+            if guid != player.state_obj['guid']:
+                player = None
+                self.error = config.error_message['dup_login']
+
+        # if any error on player is none
+        if self.error == '' and player is not None:
+            player.info_obj['token'] = token
+            # update timestamp for player
+            player.state_obj['updated'] = start_time
+            if Player.setplayer(self, player):
+                Player.compose_player_info(self, player)
+            else:
+                self.error = 'unable to update player data (token).'
+
+        # calculate time taken and return the result
+        time_taken = time.time() - start_time
+        self.response.headers['Content-Type'] = 'text/html'
+        self.response.write(Utils.RESTreturn(self, time_taken))
+
+    # do exactly as get() does
+    def post(self):
+        self.get()

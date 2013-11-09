@@ -40,6 +40,7 @@ from models.Challenge import Challenge
 class challengecreate(webapp2.RequestHandler):
 
     # standard variables
+    game = ''
     sinfo = ''
     respn = ''
     error = ''

@@ -25,21 +25,26 @@ class Player(db.Model):
     info = db.StringProperty(indexed=False)
     state = db.TextProperty(indexed=False)
     updated = db.DateTimeProperty(auto_now_add=True)
+    game = db.StringProperty()
 
     @staticmethod
     def getplayer(self, uuid):
         player = memcache.get(config.db['playerdb_name']+'.'+uuid)
         if player is None:
-            players = Player.all().filter('uuid =', uuid).ancestor(db.Key.from_path('Player', config.db['playerdb_name'])).fetch(1)
+            players = Player.all().filter('uuid =', uuid).ancestor(db.Key.from_path('Player',config.db['playerdb_name'])).fetch(1)
             if len(players) >= 1:
                 player = players[0]
                 player.info_obj = json.loads(player.info)
                 player.state_obj = json.loads(player.state)
                 if not memcache.add(config.db['playerdb_name']+'.'+uuid, player, config.memcache['holdtime']):
                     logging.warning('Player - Memcache set player failed')
+
             else:
                 self.error = 'uuid='+uuid+' was not found.'
                 player = None
+
+
+
         return player
 
     @staticmethod
@@ -55,7 +60,7 @@ class Player(db.Model):
                     if not memcache.add(config.db['playerdb_name']+'.'+fbid, player, config.memcache['holdtime']):
                         logging.warning('Player - Memcache set player failed')
                 else:
-                    self.error = 'fbid='+fbid+' was not found.'
+                    #self.error = 'fbid='+fbid+' was not found.'
                     player = None
             return player
         return None

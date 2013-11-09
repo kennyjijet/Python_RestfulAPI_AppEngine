@@ -21,6 +21,7 @@ from models.Building import Building
 class collect(webapp2.RequestHandler):
 
     # standard variables
+    game = ''
     sinfo = ''
     respn = ''
     error = ''

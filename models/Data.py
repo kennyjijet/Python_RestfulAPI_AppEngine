@@ -19,13 +19,13 @@ class Data(db.Model):
 
     @staticmethod
     def newData(self):
-        return Data(parent=db.Key.from_path('Data', config.db['datadb_name']))
+        return Data(parent=db.Key.from_path('Data',config.db['datadb_name']))
 
     @staticmethod
     def getData(self, type, version):
         data = memcache.get(config.db['datadb_name']+'.'+type+'.'+str(version))
         if data is None:
-            datas = Data.all().filter('type =', type).filter('version =', version).ancestor(db.Key.from_path('Data', config.db['datadb_name'])).fetch(1)
+            datas = Data.all().filter('type =', type).filter('version =', version).ancestor(db.Key.from_path('Data',config.db['datadb_name'])).fetch(1)
             if len(datas) >= 1:
                 data = datas[0]
                 if not memcache.add(config.db['datadb_name']+'.'+type+'.'+str(version), data, config.memcache['longtime']):
@@ -39,7 +39,7 @@ class Data(db.Model):
     def getDataAsObj(self, type, version):
         data = memcache.get(config.db['datadb_name']+'.'+type+'_obj.'+str(version))
         if data is None:
-            datas = Data.all().filter('type =', type).filter('version =', version).ancestor(db.Key.from_path('Data', config.db['datadb_name'])).fetch(1)
+            datas = Data.all().filter('type =', type).filter('version =', version).ancestor(db.Key.from_path('Data',config.db['datadb_name'])).fetch(1)
             if len(datas) >= 1:
                 data = datas[0]
                 data.obj = json.loads(data.data)
@@ -61,8 +61,6 @@ class Data(db.Model):
                     logging.warning('Data - Memcache set data '+idata.type+'.'+str(idata.version)+' failed!')
                 """
                 return True
-        return False
-
     ###############################################################################
     ### Buildings
     @staticmethod

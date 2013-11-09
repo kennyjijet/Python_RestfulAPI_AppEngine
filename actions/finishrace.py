@@ -20,6 +20,7 @@ class finishrace(webapp2.RequestHandler):
     description = "I am an API to finish a race and reward the player with gold"
     output = "player state object"
     # standard variables
+    game = ''
     sinfo = ''
     respn = ''
     error = ''
@@ -109,13 +110,13 @@ class finishrace(webapp2.RequestHandler):
 
                         #find star rating
                         difference = float(laptime) - float(laptime2)
-                        results = {}
+                        data = {}
                         star_value = 0
                         new_star_value = 0
-                        if player.state_obj.has_key('results'):
-                            results = json.loads(player.state_obj['results'])
-                        if results.has_key(uuid2):
-                            star_value = int(results[uuid2])
+                        if player.state_obj.has_key('data'):
+                            data = json.loads(player.state_obj['data'])
+                        if data.has_key(uuid2):
+                            star_value = int(data[uuid2])
 
                         if difference < float(ai['1_star_time']):
                             new_star_value = 1
@@ -125,11 +126,14 @@ class finishrace(webapp2.RequestHandler):
                             new_star_value = 3
 
                         if new_star_value > star_value:
-                            results[uuid2] = new_star_value
+                            data[uuid2] = new_star_value
 
-                        player.state_obj.setdefault('results', json.dumps(results))
+                        player.state_obj.setdefault('data', json.dumps(data))
 
                 Player.setplayer(self, player)
+                if 'xxx' in player.state:
+                        self.error += '[KNOWN ISSUE] Player car lost. Please visit showroom and buy X1 again.'
+
                 player_score = scores[0]
                 scores_to_return = {
                     'score_prize': player_score['prize'],

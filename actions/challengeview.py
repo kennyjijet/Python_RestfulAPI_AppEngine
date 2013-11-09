@@ -39,6 +39,7 @@ from models.Challenge import Challenge
 class challengeview(webapp2.RequestHandler):
 
     # standard variables
+    game = ''
     sinfo = ''
     respn = ''
     error = ''

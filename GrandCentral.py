@@ -12,6 +12,7 @@ from actions.deleteplayer import deleteplayer
 from actions.advicechecklist import advicechecklist
 
 from actions.deploy import deploy
+from actions.deploy_pro7 import deploy_pro7
 from actions.getdata import getdata
 from actions.getadvisor import getadvisor
 from actions.getuilanglist import getuilanglist
@@ -56,6 +57,7 @@ app = webapp2.WSGIApplication([
                                   ('/deleteplayer', deleteplayer),
                                   ('/advicechecklist', advicechecklist),
                                   ('/deploy', deploy),
+                                  ('/deploy_pro7', deploy_pro7),
                                   ('/getdata', getdata),
                                   ('/getadvisor', getadvisor),
                                   ('/getuilanglist', getuilanglist),

@@ -8,6 +8,7 @@ from models.Score import Score
 # class implementation
 class test_score(webapp2.RequestHandler):
     # standard variables
+    game = ''
     sinfo = ''
     respn = ''
     error = ''

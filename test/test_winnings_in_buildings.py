@@ -15,6 +15,7 @@ from models.Player import Player
 # class implementation
 class test_winnings_in_buildings(webapp2.RequestHandler):
     # standard variables
+    game = ''
     sinfo = ''
     respn = ''
     error = ''

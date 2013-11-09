@@ -44,6 +44,7 @@ from GCVars import GCWarnings
 class carupgrade(webapp2.RequestHandler):
 
     # standard variables
+    game = ''
     sinfo = ''
     respn = ''
     error = ''

@@ -49,6 +49,7 @@ from helpers.utils import Utils
 class deleteplayer(webapp2.RequestHandler):
 
     # standard variables
+    game = ''
     sinfo = ''
     respn = ''
     error = ''

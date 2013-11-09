@@ -17,7 +17,7 @@ class GCVars(object):
     level = "level"
     location = "location"
     amount = "amount"
-            
+    game = "game"
     info = "info"
     state = "state"
 
@@ -68,7 +68,7 @@ class GCVars(object):
     advice_checklist = "advice_checklist"
     current_car = "current_car"
     updated = "updated"
-    results = "results"
+    data = "data"
     total_wins = "total_wins"
     total_races = "total_races"
     total_ai_wins = "total_ai_wins"
@@ -87,7 +87,6 @@ class GCWarnings(object):
     item_max_level_reached = "item_max_level_reached"
     cash_not_enough = "cash_not_enough"
     gold_not_enough = "gold_not_enough"
-
 
 class GCWarningMessages (object):
     building_not_owned = "Player does not have required building to buy upgrade."

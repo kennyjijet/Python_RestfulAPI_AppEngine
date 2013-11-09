@@ -50,6 +50,7 @@ from helpers.utils import Utils
 class clean(webapp2.RequestHandler):
 
     # standard variables
+    game = ''
     sinfo = ''
     respn = ''
     error = ''

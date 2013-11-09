@@ -46,6 +46,7 @@ from models.Research import Research
 class startresearch(webapp2.RequestHandler):
 
     # standard variables
+    game = ''
     sinfo = ''
     respn = ''
     error = ''
