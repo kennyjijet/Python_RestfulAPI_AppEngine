@@ -23,30 +23,38 @@ class Data(db.Model):
 
     @staticmethod
     def getData(self, type, version):
+        logging.debug('Using namespace ' + self.game)
         data = memcache.get(config.db['datadb_name']+'.'+type+'.'+str(version))
         if data is None:
-            datas = Data.all().filter('type =', type).filter('version =', version).ancestor(db.Key.from_path('Data',config.db['datadb_name'])).fetch(1)
+            #datas = Data.all().filter('type =', type).filter('version =', version).ancestor(db.Key.from_path('Data',config.db['datadb_name'])).fetch(1)
+            logging.debug('getData:'+type)
+            datas = Data.all().filter('type =', type).fetch(1)
+            for d in datas:
+                if data:
+                    logging.debug(data.data)
             if len(datas) >= 1:
                 data = datas[0]
                 if not memcache.add(config.db['datadb_name']+'.'+type+'.'+str(version), data, config.memcache['longtime']):
                     logging.warning('Data - Memcache set data '+type+'.'+str(version)+' failed!')
             else:
-                self.error = 'Data '+type+' (v.'+str(version)+') couldn\'t be retrieved!'
+                self.error = 'Data '+type+' (v'+str(version)+') couldn\'t be retrieved!'
                 data = None
         return data
 
     @staticmethod
     def getDataAsObj(self, type, version):
         data = memcache.get(config.db['datadb_name']+'.'+type+'_obj.'+str(version))
+        data = None
         if data is None:
-            datas = Data.all().filter('type =', type).filter('version =', version).ancestor(db.Key.from_path('Data',config.db['datadb_name'])).fetch(1)
+            #datas = Data.all().filter('type =', type).filter('version =', version).ancestor(db.Key.from_path('Data',config.db['datadb_name'])).fetch(1)
+            datas = Data.all().filter('type =', type).filter('version =', version).fetch(1)
             if len(datas) >= 1:
                 data = datas[0]
                 data.obj = json.loads(data.data)
                 if not memcache.add(config.db['datadb_name']+'.'+type+'_obj.'+str(version), data, config.memcache['longtime']):
                     logging.warning('Data - Memcache set data '+type+'.'+str(version)+' as object failed!')
             else:
-                self.error = 'Data '+type+' (v.'+str(version)+') couldn\'t be retrieved!'
+                self.error = 'Data '+type+' (v'+str(version)+') couldn\'t be retrieved!'
                 data = None
         return data
 
@@ -147,13 +155,13 @@ class Data(db.Model):
     @staticmethod
     def SetRecentPlayerList(self, list):
         list.data = json.dumps(list.obj)
-        logging.debug('SetRecentPlayerList ' + list.data )
+        logging.debug('SetRecentPlayerList ' + list.data)
         if list.put():
-            # TODO : Memcache replace
-            memcache.delete('recent_player_list')
-            if not memcache.add('recent_player_list', list, config.memcache['longtime']):
+            if not memcache.replace('recent_player_list', list, config.memcache['longtime']):
                 logging.warning('Data set memcache for recent_player_list failed!')
             return True
+        else:
+            logging.warn("set db fail")
         return False
 
     """

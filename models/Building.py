@@ -83,7 +83,7 @@ class Building(db.Model):
     def get(self, buid):
         building = memcache.get(config.db['buildingdb_name']+'.'+buid)
         if building is None:
-            buildings = Car.all().filter('inid =', buid).ancestor(db.Key.from_path('Building', config.db['buildingdb_name']))
+            buildings = Building.all().filter('inid =', buid).ancestor(db.Key.from_path('Building', config.db['buildingdb_name']))
             if buildings is not None:
                 bulding = buildings[0]
                 #car.data_obj = json.loads(car.data)
@@ -123,7 +123,7 @@ class Building(db.Model):
                 # for example:  "itid": "track.1",
                 if my_building.itid == track:
                     if my_building.amount is None:
-                        my_building.amount = 0;
+                        my_building.amount = 0
                     logging.debug('save_resource_to_building my_building.amount '+ str(my_building.amount) + '+=' + str(score) )
                     my_building.amount += int(score)
                     my_building.status = Building.BuildingStatus.PRODUCED

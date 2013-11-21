@@ -62,11 +62,17 @@ class getdata(webapp2.RequestHandler):
         if self.request.get('lang'):
             lang = self.request.get('lang')
 
-        # check password
+                # check password
         if self.error == '' and passwd != config.testing['passwd']:
             self.error = 'passwd is incorrect.'
 
         start_time = time.time()                                                # start count
+
+        Utils.LogRequest(self)
+
+        if self.request.get('game'):
+            if self.request.get('game') == 'pro7':
+                lang = 'de'
 
         # if error, skip this
         if self.error == '':
@@ -86,12 +92,21 @@ class getdata(webapp2.RequestHandler):
                         self.respn += '"transui":' + json.dumps(data_obj[lang]) + ','
                 else:
                     data = Data.getData(self, item + '_' + lang, version)
+                    if data is None:
+                            data = Data.getData(self, item, version)
+
                     if data is not None:
                         self.respn += '"' + item + '":' + data.data + ','
                     else:
                         data = Data.getData(self, item, version)
                         if data is not None:
                             self.respn += '"' + item + '":' + data.data + ','
+                    if not item:
+                        item = ''
+                    if not data:
+                        data = ''
+
+                    logging.debug(item + ":" + data.data)
 
         self.respn = self.respn.rstrip(',') + '}'
 

@@ -63,7 +63,7 @@ class deploy(webapp2.RequestHandler):
             self.error = 'passwd is incorrect.'
 
         start_time = time.time()                                                         # start count
-
+        Utils.LogRequest(self)
         # set default parameter
         idata = None
 

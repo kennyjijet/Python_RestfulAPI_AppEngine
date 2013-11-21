@@ -136,6 +136,7 @@ class Challenge(db.Model):
                 .filter('uid1 =', uid1) \
                 .filter('state !=', CHALLENGE_TYPE.BOTH_PLAYERS_FINISH) \
                 .filter('state !=', CHALLENGE_TYPE.GAME_OVER) \
+                .filter('state !=', CHALLENGE_TYPE.OPEN_GAME) \
                 .ancestor(db.Key.from_path('Challenge',config.db['challengedb_name']))
 
             if not memcache.add(config.db['challengedb_name'] + '.' + uid1 + '.challenging', challenging,
@@ -157,6 +158,7 @@ class Challenge(db.Model):
                 .filter('uid2 =', uid2) \
                 .filter('state !=', CHALLENGE_TYPE.BOTH_PLAYERS_FINISH) \
                 .filter('state !=', CHALLENGE_TYPE.GAME_OVER) \
+                .filter('state !=', CHALLENGE_TYPE.OPEN_GAME) \
                 .ancestor(db.Key.from_path('Challenge',config.db['challengedb_name']))
 
             if not memcache.add(config.db['challengedb_name'] + '.' + uid2 + '.challengers', challengers,
@@ -423,7 +425,7 @@ class Challenge(db.Model):
         challengers = Challenge.GetChallengers(self, player.fbid)
 
         #TODO remove this nasty =='[]' - not very pythonic. Need to find a proper way of finding en
-        if challengers is None or list(challengers) == [] or list(challengers) == '[]':
+        if not challengers or challengers is None or list(challengers) == [] or list(challengers) == '[]':
             logging.debug('ComposeChallenges getting uuid ' + player.uuid)
             challengers = Challenge.GetChallengers(self, player.uuid)
         if challengers is not None:
@@ -452,6 +454,7 @@ class Challenge(db.Model):
         if challenging is not None:
             for _challenge in challenging:
                 _gameObj = json.loads(_challenge.data)
+
                 self.respn += '{'
                 self.respn += '"action":"getplayerdata",'
                 self.respn += '"chid":"' + _challenge.id + '",'

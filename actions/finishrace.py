@@ -61,16 +61,23 @@ class finishrace(webapp2.RequestHandler):
         player2 = Player.getplayer(self, uuid2)
         ai = None
         my_building = None
-        # TODO: move this from AR language to default or UK
-        if player2 is None:
-            data = Data.getDataAsObj(self, 'opponent_ar', 1.0)
-            if data is None:
-                opponents = {'obj': json.loads(Score.GetDefaultOpponents())}
-            else:
-                opponents = data.obj
 
-            for _track in opponents:
-                for opponent in opponents[_track]:
+        win_prize = None
+        lose_prize = None
+
+        data = Data.getDataAsObj(self, 'opponent_en', 1.0)
+        if data is None:
+            opponents = {'obj': json.loads(Score.GetDefaultOpponents())}
+        else:
+            opponents = data.obj
+
+        for _track in opponents:
+            for opponent in opponents[_track]:
+                if not win_prize:
+                    win_prize = opponent['win_prize']
+                if not lose_prize:
+                    lose_prize = opponent['lose_prize']
+                if player2 is None:
                     if opponent['id'] == uuid2:
                         ai = opponent
                         self.error = ''
@@ -81,7 +88,7 @@ class finishrace(webapp2.RequestHandler):
                 self.error = config.error_message['dup_login']
 
         if player is not None:
-            scores = Score.calculate(self, events, events2, laptime, laptime2)
+            scores = Score.calculate(self, events, events2, laptime, laptime2, win_prize, lose_prize)
 
             if scores is not None:
                 score = scores[0]['total']
@@ -109,7 +116,7 @@ class finishrace(webapp2.RequestHandler):
                             player.state_obj.setdefault(GCVars.total_ai_wins, 1)
 
                         #find star rating
-                        difference = float(laptime) - float(laptime2)
+                        difference = float(laptime2) - float(laptime)
                         data = {}
                         star_value = 0
                         new_star_value = 0
@@ -118,17 +125,22 @@ class finishrace(webapp2.RequestHandler):
                         if data.has_key(uuid2):
                             star_value = int(data[uuid2])
 
-                        if difference < float(ai['1_star_time']):
+                        #0,2,4 = 1 start time, 2 start time, 3 star time
+                        if difference > float(ai['1_star_time']):
                             new_star_value = 1
-                        if difference < float(ai['2_star_time']):
+                        if difference > float(ai['2_star_time']):
                             new_star_value = 2
-                        if difference < float(ai['3_star_time']):
+                        if difference > float(ai['3_star_time']):
                             new_star_value = 3
 
                         if new_star_value > star_value:
                             data[uuid2] = new_star_value
 
-                        player.state_obj.setdefault('data', json.dumps(data))
+                        logging.debug(str(new_star_value) + ' > star_value:' + str(star_value) + ', laptime 1:' + str(laptime) + ', laptime2: ' + str(laptime2))
+                        logging.debug('setting player data to ' + json.dumps(data))
+
+                        player.state_obj['data'] = json.dumps(data)
+                        player.state = json.dumps(player.state_obj)
 
                 Player.setplayer(self, player)
                 if 'xxx' in player.state:

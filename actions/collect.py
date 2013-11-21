@@ -83,12 +83,12 @@ class collect(webapp2.RequestHandler):
         # if error, skip this
         if self.error == '':
             player = Player.getplayer(self, uuid)
-
+        """
         if self.error == '' and player is not None and guid != '':
             if guid != player.state_obj['guid']:
                 player = None
                 self.error = config.error_message['dup_login']
-
+        """
         if self.error == '' and player is not None:
             buildings = Data.getbuildings(self, lang, version)
 
@@ -131,8 +131,14 @@ class collect(webapp2.RequestHandler):
                     res_produced = amount
                 try:
                     # eg player['cash'] += 1
+                    resource_type = buildings.as_obj[mybuilding.itid][mybuilding.level - 1]['resource']
+                    _upd = True
+                    new_amount = int(res_produced) + int(mybuilding.amount)
+                    logging.debug('resource to collect = ' + str(res_produced) + " " + str(resource_type) + " = " + str(new_amount))
+                    logging.debug('building contains = ' + str(res_produced))
+
                     player.state_obj[
-                        buildings.as_obj[mybuilding.itid][mybuilding.level - 1]['resource']] += res_produced
+                        buildings.as_obj[mybuilding.itid][mybuilding.level - 1]['resource']] += new_amount
                     # update timestamp for player
                     player.state_obj['updated'] = start_time
                     if Player.setplayer(self, player):

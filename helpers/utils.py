@@ -22,6 +22,7 @@ class Utils(object):
         self.debug = ''
         self.game = self.request.get(GCVars.game) or ''
         namespace_manager.set_namespace(self.game)
+        logging.debug('Using namespace ' + self.game)
 
 
     @staticmethod

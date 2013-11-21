@@ -22,6 +22,7 @@ class config():
         "holdtime": 60,
         "longtime": 3600
     }
+
     leaderboard = {
         "fetch_num": 20,
         "type": ['daily', 'weekly'],

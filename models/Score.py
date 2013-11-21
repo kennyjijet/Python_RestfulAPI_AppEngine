@@ -20,19 +20,21 @@ class Score(db.Model):
     """
 
     @staticmethod
-    def calculate(self, events, events2, laptime, laptime2):
+    def calculate(self, events, events2, laptime, laptime2, win_prize, lose_prize):
         # calculate score by linking replay times Race Winnings Data
 
         racewinnings = Data.getDataAsObj(self, 'racewinnings_en', config.data_version['racewinnings']).obj
         if racewinnings is None:
+            logging.warning('cannot get real racewinnings from backend - using default data')
             racewinnings = Score.GetDefaultRaceWinnings()
 
         if racewinnings is not None:
             logging.debug("racewinnings: "+json.dumps(racewinnings))
 
-        prize_winner = 1000
-        prize_looser = 200
+        prize_winner = win_prize if win_prize else 1500
+        prize_looser = lose_prize if lose_prize else 375
 
+        logging.debug('calculating win prize with ' + str(prize_winner) + ' and lose prize with ' + str(prize_looser))
         scorings = [{'player_events': json.loads(events), 'prizes': {}, 'total': 0.0},
                     {'player_events': json.loads(events2), 'prizes': {}, 'total': 0.0}]
 
@@ -52,7 +54,7 @@ class Score(db.Model):
                     for _threshold in racewinnings:
                         if abs(_event) < _threshold['timing']:
                             _player['prizes'][_event_type] += int(_player['prize'] * _threshold[_event_type])
-                            _player['total'] += _player['prizes'][_event_type]
+                            _player['total'] += int(_player['prize'] * _threshold[_event_type])
 
         return scorings
 

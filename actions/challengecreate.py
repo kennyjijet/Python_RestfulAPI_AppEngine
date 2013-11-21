@@ -51,11 +51,11 @@ class challengecreate(webapp2.RequestHandler):
         Utils.reset(self)														# reset/clean standard variables
         name = self.request.get('name')
         if name == '':
-            name = 'Guest'
+            name = 'Guest?'
 
         name2 = self.request.get('name2')
         if name2 == '':
-            name2 = 'Guest'
+            name2 = 'Guest??'
 
         # validate and assign parameters
         passwd = Utils.required(self, 'passwd')

@@ -29,7 +29,7 @@ import time
 import webapp2
 import json
 import logging
-
+import random
 
 # google's libraries
 from google.appengine.ext import db
@@ -76,7 +76,7 @@ class saveplayer(webapp2.RequestHandler):
 
         name = self.request.get('name') or ''
 
-        image = ''
+        image = 'Textures/profile-pic.png'
         if fbid != '':
             image = 'https://graph.facebook.com/' + fbid + '/picture?width=200&height=200'
 
@@ -123,7 +123,7 @@ class saveplayer(webapp2.RequestHandler):
                     player.uuid = uuid                                                    # assign uuid
                     player.fbid = fbid
                     # and assign all player info and state
-                    player.info_obj = {'uuid': player.uuid, 'fbid': player.fbid, 'token': token, 'name': 'Guest',
+                    player.info_obj = {'uuid': player.uuid, 'fbid': player.fbid, 'token': token, 'name': 'Guest ' + str(random.randint(1000,9999)),
                                        'image': image, 'lang': lang}
                     player.state_obj = {'guid': guid, 'cash': cash, 'gold': gold, 'current_car': 'xxx',
                                         'total_wins': total_wins, 'total_races': total_races,

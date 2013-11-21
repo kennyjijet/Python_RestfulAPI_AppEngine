@@ -29,7 +29,9 @@ class Player(db.Model):
 
     @staticmethod
     def getplayer(self, uuid):
-        player = memcache.get(config.db['playerdb_name']+'.'+uuid)
+        #player = memcache.get(config.db['playerdb_name']+'.'+uuid)
+        # removed player memcache due to lost car bug
+        player = None
         if player is None:
             players = Player.all().filter('uuid =', uuid).ancestor(db.Key.from_path('Player',config.db['playerdb_name'])).fetch(1)
             if len(players) >= 1:
@@ -43,14 +45,18 @@ class Player(db.Model):
                 self.error = 'uuid='+uuid+' was not found.'
                 player = None
 
-
-
+        if player:
+            logging.debug('getting player ' + player.state)
+        else:
+            logging.debug('no player')
         return player
 
     @staticmethod
     def getplayerByFbid(self, fbid):
         if fbid != '':
-            player = memcache.get(config.db['playerdb_name']+'.'+fbid)
+            #player = memcache.get(config.db['playerdb_name']+'.'+fbid)
+            # removed player memcache due to lost car bug
+            player = None
             if player is None:
                 players = Player.all().filter('fbid =', fbid).ancestor(db.Key.from_path('Player', config.db['playerdb_name'])).fetch(1);
                 if len(players) >= 1:
@@ -69,6 +75,7 @@ class Player(db.Model):
     def setplayer(self, player):
         player.info = json.dumps(player.info_obj)
         player.state = json.dumps(player.state_obj)
+        logging.debug('setting player ' + player.state)
         if player.put():
             memcache.delete(config.db['playerdb_name']+'.'+player.uuid)
             if not memcache.add(config.db['playerdb_name']+'.'+player.uuid, player, config.memcache['holdtime']):

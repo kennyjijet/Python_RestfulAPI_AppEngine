@@ -150,6 +150,7 @@ class carbuy(webapp2.RequestHandler):
                                     break
                                     break
 
+                player.state = json.dumps(player.state_obj)
                 if Player.setplayer(self, player):
                     if Car.update(self, mycar):
                         self.respn = '{"state":'+player.state+','
